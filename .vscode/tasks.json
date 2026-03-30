@@ -1,0 +1,224 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Flutter Create Project",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "command": "flutter",
+      "args": [
+        "create",
+        ".",
+        "--org=dev.yuriusu",
+        "--project-name=tiptap",
+        "--description='Tap. Learn. Impress.'",
+        "--platforms=android",
+        "--template=app"
+      ]
+    },
+    {
+      "label": "Flutter Clean",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "command": "flutter",
+      "args": [
+        "clean"
+      ]
+    },
+    {
+      "label": "Flutter Pub Get",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "command": "flutter",
+      "args": [
+        "pub",
+        "get"
+      ]
+    },
+    {
+      "label": "Flutter Pub Upgrade",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "command": "flutter",
+      "args": [
+        "pub",
+        "upgrade"
+      ]
+    },
+    {
+      "label": "Flutter Build AppBundle",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "command": "flutter",
+      "args": [
+        "build",
+        "appbundle",
+        "--verbose",
+        "--dart-define-from-file=.env",
+        "--target=lib/main.dart"
+      ]
+    },
+    {
+      "label": "Flutter Build APK Debug",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "command": "flutter",
+      "args": [
+        "build",
+        "apk",
+        "--debug",
+        "--verbose",
+        "--dart-define-from-file=.env",
+        "--target=lib/main.dart"
+      ]
+    },
+    {
+      "label": "Flutter Install APK Debug",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "command": "flutter",
+      "args": [
+        "install",
+        "--verbose",
+        "--device-id=adb",
+        "--use-application-binary=build/app/outputs/flutter-apk/app-debug.apk"
+      ]
+    },
+    {
+      "label": "Flutter Build Web App",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "command": "flutter",
+      "args": [
+        "build",
+        "web",
+        "--verbose",
+        "--dart-define-from-file=.env",
+        "--wasm",
+        "--no-source-maps",
+        "--target=lib/main.dart"
+      ]
+    },
+    {
+      "label": "Flutter Build Web",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "command": "flutter",
+      "args": [
+        "build",
+        "web",
+        "--verbose",
+        "--dart-define-from-file=.env",
+        "--pwa-strategy=none",
+        "--wasm",
+        "--no-source-maps",
+        "--target=lib/main.dart"
+      ]
+    },
+    {
+      "label": "Dart Run Rename App",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "command": "dart",
+      "args": [
+        "run",
+        "rename_app:main",
+        "all='TipTap'"
+      ]
+    },
+    {
+      "label": "Dart Run Flutter Launcher Icons",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "command": "dart",
+      "args": [
+        "run",
+        "flutter_launcher_icons"
+      ]
+    },
+    {
+      "label": "Dart Run Flutter Native Splash Create",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "command": "dart",
+      "args": [
+        "run",
+        "flutter_native_splash:create"
+      ]
+    },
+    {
+      "label": "Dart Run Flutterfire Configure",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "command": "dart",
+      "args": [
+        "run",
+        "flutterfire_cli:flutterfire",
+        "configure"
+      ]
+    },
+    {
+      "label": "ADB Start Application",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Flutter Build APK Debug",
+        "Flutter Install APK Debug"
+      ],
+      "command": "adb",
+      "args": [
+        "shell",
+        "am",
+        "start",
+        "-S",
+        "dev.yuriusu.tiptap/.MainActivity"
+      ]
+    },
+    {
+      "label": "Project Reconfigure",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Flutter Clean",
+        "Flutter Pub Get",
+        "Flutter Pub Upgrade",
+        "Dart Run Rename App",
+        "Dart Run Flutter Launcher Icons",
+        "Dart Run Flutter Native Splash Create",
+        "Dart Run Flutterfire Configure"
+      ]
+    }
+  ]
+}
