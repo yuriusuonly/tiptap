@@ -1,0 +1,33 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Web Debug",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "deviceId": "chrome",
+      "program": "lib/main.dart",
+      "args": [
+        "--verbose",
+        "--dart-define-from-file=.env",
+        "--web-hostname=localhost",
+        "--web-port=3000"
+      ]
+    },
+    {
+      "name": "Web Release",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release",
+      "deviceId": "chrome",
+      "program": "lib/main.dart",
+      "args": [
+        "--verbose",
+        "--dart-define-from-file=.env",
+        "--web-hostname=localhost",
+        "--web-port=3000"
+      ]
+    }
+  ]
+}

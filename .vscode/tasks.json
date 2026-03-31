@@ -1,0 +1,140 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Flutter Create Project",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "command": "flutter",
+      "args": [
+        "create",
+        ".",
+        "--org=dev.yuriusu",
+        "--project-name=tiptap",
+        "--description='Tap. Learn. Impress.'",
+        "--platforms=web",
+        "--template=app"
+      ]
+    },
+    {
+      "label": "Flutter Clean",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "command": "flutter",
+      "args": [
+        "clean"
+      ]
+    },
+    {
+      "label": "Flutter Pub Get",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "command": "flutter",
+      "args": [
+        "pub",
+        "get"
+      ]
+    },
+    {
+      "label": "Flutter Pub Upgrade",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "command": "flutter",
+      "args": [
+        "pub",
+        "upgrade"
+      ]
+    },
+    {
+      "label": "Flutter Build Web",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "command": "flutter",
+      "args": [
+        "build",
+        "web",
+        "--verbose",
+        "--dart-define-from-file=.env",
+        "--pwa-strategy=none",
+        "--wasm",
+        "--no-source-maps",
+        "--target=lib/main.dart"
+      ]
+    },
+    {
+      "label": "Node Modules Clean",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "command": "rm",
+      "args": [
+        "--force",
+        "--recursive",
+        "node_modules"
+      ]
+    },
+    {
+      "label": "Node Modules Install",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "command": "npm",
+      "args": [
+        "install"
+      ]
+    },
+    {
+      "label": "Node Modules Update",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "command": "npm",
+      "args": [
+        "update",
+        "--save"
+      ]
+    },
+    {
+      "label": "Firebase Initialize",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "command": "npx",
+      "args": [
+        "firebase",
+        "init"
+      ]
+    },
+    {
+      "label": "Project Reconfigure",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Flutter Clean",
+        "Node Modules Clean",
+        "Flutter Pub Get",
+        "Node Modules Install",
+        "Flutter Pub Upgrade",
+        "Node Modules Update",
+        "Firebase Initialize"
+      ]
+    }
+  ]
+}
