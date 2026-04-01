@@ -228,6 +228,12 @@ class _HomePageState extends State<HomePage> {
               mainAxisAlignment: isDesktop ? MainAxisAlignment.start : MainAxisAlignment.center,
               crossAxisAlignment: isDesktop ? CrossAxisAlignment.start : CrossAxisAlignment.center,
               children: [
+                Text(
+                  '©2026 TipTap —',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
                 Text.rich(
                   TextSpan(
                     text: 'Privacy',

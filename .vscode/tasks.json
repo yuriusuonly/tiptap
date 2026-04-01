@@ -120,6 +120,25 @@
       ]
     },
     {
+      "label": "Firebase Deploy Hosting",
+      "type": "shell",
+      "presentation": {
+        "reveal": "always"
+      },
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Flutter Clean",
+        "Flutter Build Web"
+      ],
+      "command": "npx",
+      "args": [
+        "firebase",
+        "deploy",
+        "--only",
+        "hosting"
+      ]
+    },
+    {
       "label": "Project Reconfigure",
       "type": "shell",
       "presentation": {

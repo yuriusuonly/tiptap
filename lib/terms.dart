@@ -304,7 +304,7 @@ class _TermsPageState extends State<TermsPage> {
                         _buildSectionTitle('Limitation of Liability', key: _limitationOfLiabilitySectionKey),
                         SizedBox(height: 16),
 
-                        _buildBodyText('The App is provided on an "as is" and "as available" basis. To the maximum extent permitted by law, Denwee shall not be liable for indirect, incidental, consequential, or special damages arising from use of the App.'),
+                        _buildBodyText('The App is provided on an "as is" and "as available" basis. To the maximum extent permitted by law, TipTap shall not be liable for indirect, incidental, consequential, or special damages arising from use of the App.'),
                         SizedBox(height: 40),
 
                         _buildSectionTitle('Termination', key: _terminationSectionKey),
@@ -325,7 +325,7 @@ class _TermsPageState extends State<TermsPage> {
                         _buildSectionTitle('Governing Law', key: _governingLawSectionKey),
                         SizedBox(height: 16),
 
-                        _buildBodyText('These Terms are governed by applicable laws of the jurisdiction in which Denwee operates, without regard to conflict-of-law principles.'),
+                        _buildBodyText('These Terms are governed by applicable laws of the jurisdiction in which TipTap operates, without regard to conflict-of-law principles.'),
                         SizedBox(height: 40),
 
                         _buildSectionTitle('Contact', key: _contactSectionKey),
