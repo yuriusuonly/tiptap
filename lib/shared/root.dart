@@ -177,8 +177,8 @@ class RootNavigationShell extends StatelessWidget {
                           BlendMode.srcIn
                         ),
                         child: IntervalLottie(
-                          asset: 'animations/tap.json',
-                          interval: Duration(milliseconds: 2000),
+                          asset: 'animations/tap_gesture.json',
+                          interval: Duration(milliseconds: 3000),
                         ),
                       ),
                     ),
@@ -187,14 +187,8 @@ class RootNavigationShell extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          'Welcome',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: Colors.white
-                          )
-                        ),
                         PulseTransition(
-                          duration: Duration(milliseconds: 1500),
+                          duration: Duration(milliseconds: 3000),
                           child: Text(
                             'Tap to learn more',
                             style: Theme.of(context).textTheme.bodyLarge?.copyWith(

@@ -46,6 +46,7 @@ app.*.map.json
 
 # Local configurations and dependencies
 /.metadata
+/*-lock*
 /*.lock
 /.firebase*
 /firebase*
@@ -53,3 +54,5 @@ app.*.map.json
 /android/key.properties
 /android/app/*.jks
 /android/app/google-services.json
+/.agents
+/node_modules

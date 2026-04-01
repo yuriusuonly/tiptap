@@ -280,7 +280,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _sendEmail() async {
-    final Uri emailLaunchUri = Uri(
+    final emailLaunchUri = Uri(
       scheme: 'mailto',
       path: 'yuriusu.dev@gmail.com',
       queryParameters: {
@@ -290,6 +290,27 @@ class _SettingsPageState extends State<SettingsPage> {
     );
     if (await canLaunchUrl(emailLaunchUri)) {
       await launchUrl(emailLaunchUri);
+    }
+  }
+
+  Future<void> _goToPrivacyPage() async {
+    final privacyUri = Uri.parse('https://yuriusu-tiptap.firebaseapp.com/privacy');
+    if (await canLaunchUrl(privacyUri)) {
+      await launchUrl(privacyUri);
+    }
+  }
+
+  Future<void> _goToTermsPage() async {
+    final termsUri = Uri.parse('https://yuriusu-tiptap.firebaseapp.com/terms');
+    if (await canLaunchUrl(termsUri)) {
+      await launchUrl(termsUri);
+    }
+  }
+
+  Future<void> _goToGitHubPage() async {
+    final githubUri = Uri.parse('https://github.com/yuriusuonly/tiptap');
+    if (await canLaunchUrl(githubUri)) {
+      await launchUrl(githubUri);
     }
   }
 
@@ -303,17 +324,23 @@ class _SettingsPageState extends State<SettingsPage> {
         'title': 'Contact Support',
       },
       {
-        'onTap': () {},
+        'onTap': () async {
+          await _goToPrivacyPage();
+        },
         'leading': 'icons/policy.svg',
         'title': 'Privacy',
       },
       {
-        'onTap': () {},
+        'onTap': () async {
+          await _goToTermsPage();
+        },
         'leading': 'icons/contract.svg',
         'title': 'Terms',
       },
       {
-        'onTap': () {},
+        'onTap': () async {
+          await _goToGitHubPage();
+        },
         'leading': 'icons/info.svg',
         'title': 'About',
       },
