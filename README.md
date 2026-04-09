@@ -38,7 +38,7 @@ Such implementation includes the following and may actively change overtime:
 
 #### Transactions and monetization
 - [x] Google AdMob — Content unlocking free service
-- [ ] In-app-purchase — Subscriptions and paid services
+- [x] In-app-purchase — Subscriptions and paid services
 
 #### State management
 - [x] BLoC (with persistence) — State serves data from repository to the UI
@@ -119,7 +119,7 @@ flutter run \
 
 #### Build for deployment
 
-Build a executable release, replace the `<executable>` with target platform:
+Build an executable release, replace the `<executable>` with target platform:
 
 ```
 flutter build <executable> --target=lib/main.dart --dart-define-from-file=.env
@@ -162,5 +162,10 @@ flutter build <executable> --target=lib/main.dart --dart-define-from-file=.env
   - https://flutter.dev/
 - Animations
   - https://lottie.github.io/
+  - https://finsweet.com/lottieflow
+- Icons
+  - https://fonts.google.com/icons
+- Fonts
+  - https://fonts.google.com/
 - Design Orchestration
   - https://figma.com

@@ -8,7 +8,6 @@ import 'package:tiptap/shared/ai.dart';
 import 'package:tiptap/shared/authentication.dart';
 import 'package:tiptap/shared/root.dart';
 import 'package:tiptap/shared/streak.dart';
-import 'package:tiptap/shared/theme.dart';
 
 class DiscoverRoute extends StatefulShellBranch implements RootNavigationShellBranch {
   DiscoverRoute({required GlobalKey<NavigatorState> navigatorKey})
@@ -59,137 +58,144 @@ class DiscoverPage extends StatefulWidget {
 }
 
 class _DiscoverPageState extends State<DiscoverPage> {
-  final List<int> _history = [];
   Object? _error;
+  late final PageController _pageController;
 
   Future<void> _refresh() async {
     if (mounted) setState(() => _error = null);
     try {
       final ai = context.read<AIService>();
-      final result = await ai.askAI();
-      if (result != null) {
-        if (mounted) setState(() => _history.add(result));
+      await ai.askAI();
+      if (mounted) {
+        // Ensure the PageView has rebuilt with the new item before animating
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_pageController.hasClients && ai.state.isNotEmpty) {
+            _pageController.animateToPage(
+              ai.state.length - 1,
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.easeInOut,
+            );
+          }
+        });
       }
     } catch (error) {
       if (mounted) setState(() => _error = error);
     }
   }
 
-  @override
+  @override 
   void initState() {
     super.initState();
+    _pageController = PageController();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _refresh());
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final ai = context.watch<AIService>();
-    context.watch<ThemeService>();
+    context.watch<AuthenticationService>();
 
     return Scaffold(
-      body: BlocListener<AuthenticationService, dynamic>(
-        listener: (context, state) async {
-          setState(() {
-            _history.clear();
-          });
-          await _refresh();
-        },
-        child: PageView.builder(
-          key: ValueKey(Theme.of(context).brightness),
-          scrollDirection: Axis.vertical,
-          onPageChanged: (index) async {
-            if (index == _history.length) {
-              await _refresh();
+      body: PageView.builder(
+        controller: _pageController,
+        scrollDirection: Axis.vertical,
+        itemCount: ai.state.length + 1,
+        itemBuilder: (context, index) {
+          if (index == ai.state.length) {
+            if (_error != null) {
+              return _errorContent();
             }
-          },
-          itemCount: _history.length + 1,
-          itemBuilder: (context, index) {
-            if (_error != null && index == _history.length) {
-              return SizedBox(
-                width: double.infinity,
-                height: double.infinity,
-                child: InkWell(
-                  onTap: () async {
-                    await _refresh();
-                  },
-                  child: Center(
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.all(16),
-                      child: FadeIn(
-                        duration: Duration(milliseconds: 1000),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              '(= ФェФ=)',
-                              //'( ❍ᴥ❍ )',
-                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant
-                              ),
-                              textAlign: TextAlign.center
-                            ),
-                            const SizedBox(height: 8),
-                            Column(
-                              children: [
-                                Text(
-                                  'Something went wrong',
-                                  style: Theme.of(context).textTheme.titleLarge,
-                                  textAlign: TextAlign.center
-                                ),
-                                Text(
-                                  'Come back later for more interesting facts.',
-                                  style: Theme.of(context).textTheme.bodyLarge,
-                                  textAlign: TextAlign.center
-                                )
-                              ],
-                            ),
-                          ],
-                        ),
-                      )
-                    ),
-                  ),
-                )
-              );
-            }
-
-            if (index < _history.length) {
-              final data = ai.getByIndex(_history[index]);
-
-              return SizedBox(
-                width: double.infinity,
-                height: double.infinity,
-                child: InkWell(
-                  onTap: () {
-                    final streak = context.read<StreakService>();
-                    streak.recordActivity();
-                    context.goNamed(
-                      'fact',
-                      pathParameters: {
-                        'id': _history[index].toString()
-                      }
-                    );
-                  },
-                  child: Center(
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.all(16),
-                      child: FadeIn(
-                        duration: Duration(milliseconds: 1000),
-                        child: Text(
-                          data!['summary'],
-                          style: Theme.of(context).textTheme.bodyLarge,
-                          textAlign: TextAlign.center
-                        ),
-                      )
-                    ),
-                  ),
-                )
-              );
-            }
-
             return const Center(
-              child: CircularProgressIndicator()
+              child: CircularProgressIndicator(),
             );
           }
+          final data = ai.state[index];
+          return _dataContent(data);
+        }
+      ),
+    );
+  }
+
+  Widget _errorContent() {
+    return SizedBox(
+      width: double.infinity,
+      height: double.infinity,
+      child: InkWell(
+        onTap: () async {
+          await _refresh();
+        },
+        child: Center(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(16),
+            child: FadeIn(
+              duration: Duration(milliseconds: 1000),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    '(= ФェФ=)',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant
+                    ),
+                    textAlign: TextAlign.center
+                  ),
+                  const SizedBox(height: 16),
+                  Column(
+                    spacing: 4,
+                    children: [
+                      Text(
+                        'Something went wrong',
+                        style: Theme.of(context).textTheme.titleLarge,
+                        textAlign: TextAlign.center
+                      ),
+                      Text(
+                        'Come back later for more interesting facts.',
+                        style: Theme.of(context).textTheme.bodyLarge,
+                        textAlign: TextAlign.center
+                      )
+                    ],
+                  ),
+                ],
+              ),
+            )
+          ),
+        ),
+      )
+    );
+  }
+
+  Widget _dataContent(Map<String, dynamic> data) {
+    return SizedBox(
+      width: double.infinity,
+      height: double.infinity,
+      child: InkWell(
+        onTap: () {
+          final streak = context.read<StreakService>();
+          streak.recordActivity();
+          context.goNamed(
+            'fact',
+            extra: data
+          );
+        },
+        child: Center(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(16),
+            child: FadeIn(
+              duration: Duration(milliseconds: 1000),
+              child: Text(
+                data['summary'],
+                style: Theme.of(context).textTheme.bodyLarge,
+                textAlign: TextAlign.center
+              ),
+            )
+          ),
         ),
       )
     );

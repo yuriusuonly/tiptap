@@ -39,9 +39,9 @@ class BookmarksDetailsRoute extends GoRoute {
     : super(
         parentNavigatorKey: rootNavigatorKey,
         name: 'bookmarks',
-        path: 'bookmarks/:id',
+        path: 'bookmarks',
         pageBuilder: (context, state) {
-          final index = int.parse(state.pathParameters['id']!);
+          final data = state.extra as Map<String, dynamic>;
           return CustomTransitionPage(
             key: state.pageKey,
             transitionDuration: Duration(milliseconds: 500),
@@ -54,7 +54,7 @@ class BookmarksDetailsRoute extends GoRoute {
                 child: child
               );
             },
-            child: BookmarkDetailsPage(index: index)
+            child: BookmarkDetailsPage(data: data)
           );
         }
       );
@@ -68,6 +68,7 @@ class BookmarksStatPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     context.watch<ThemeService>();
+    context.watch<AIService>();
 
     return PopScope(
       canPop: true,
@@ -161,22 +162,16 @@ class BookmarksStatPage extends StatelessWidget {
 }
 
 class BookmarkDetailsPage extends StatelessWidget {
-  final int index;
+  final Map<String, dynamic> data;
 
   const BookmarkDetailsPage({
     super.key,
-    required this.index
+    required this.data
   });
 
   @override
   Widget build(BuildContext context) {
     final ai = context.watch<AIService>();
-    context.watch<ThemeService>();
-    final data = ai.getByIndex(index);
-
-    if (data == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
 
     final isBookmarked = data['bookmarked'] as bool? ?? false;
 
@@ -209,7 +204,7 @@ class BookmarkDetailsPage extends StatelessWidget {
                     delay: Duration(milliseconds: 1000),
                     child: IconButton(
                       onPressed: () {
-                        ai.toggleBookmark(index);
+                        ai.toggleBookmark(data);
                       },
                       icon: SvgPicture.asset(
                         isBookmarked ? 'icons/bookmark_filled.svg' : 'icons/bookmark.svg',

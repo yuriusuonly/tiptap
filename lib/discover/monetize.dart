@@ -17,7 +17,7 @@ class MonetizeRoute extends GoRoute {
         name: 'monetize',
         path: 'monetize',
         pageBuilder: (context, state) {
-          final index = int.parse(state.pathParameters['id']!);
+          final data = state.extra as Map<String, dynamic>;
           return CustomTransitionPage(
             key: state.pageKey,
             transitionDuration: Duration(milliseconds: 500),
@@ -30,18 +30,18 @@ class MonetizeRoute extends GoRoute {
                 child: child
               );
             },
-            child: MonetizePage(index: index)
+            child: MonetizePage(data: data)
           );
         }
       );
 }
 
 class MonetizePage extends StatefulWidget {
-  final int index;
+  final Map<String, dynamic> data;
 
   const MonetizePage({
     super.key,
-    required this.index
+    required this.data
   });
 
   @override
@@ -51,28 +51,41 @@ class MonetizePage extends StatefulWidget {
 class _MonetizePageState extends State<MonetizePage> {
   bool isAdLoading = false;
 
-  @override
-  Widget build(BuildContext context) {
-    final ai = context.read<AIService>();
+  Future<void> handleComplete(bool isRewarded) async {
     final ads = context.read<AdService>();
-    final gems = ads.gems;
+    final ai = context.read<AIService>();
 
-    Future<void> handleComplete(bool isRewarded) async {
+    try {
       if (isRewarded) {
         setState(() => isAdLoading = true);
-        await ads.showRewardedAd(() {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Gems +1'))
-          );
-          setState(() => isAdLoading = false);
-        });
+        await ads.showRewardedAd();
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Gems +1'))
+        );
       } else {
         ads.decreaseRewardedAdCount();
       }
-      await ai.markAsRewarded(widget.index);
-      ai.toggleBookmark(widget.index);
+
+      ai.markAsRewarded(widget.data);
+      ai.toggleBookmark(widget.data);
+
+      // ignore: use_build_context_synchronously
       if (context.mounted) context.pop();
+    } catch (error) {
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load Ad.'))
+      );
+    } finally {
+      if (mounted) setState(() => isAdLoading = false);
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ads = context.watch<AdService>();
+    final gems = ads.state;
 
     return PopScope(
       canPop: true,
@@ -111,44 +124,38 @@ class _MonetizePageState extends State<MonetizePage> {
                             elevation: 0,
                             clipBehavior: Clip.antiAlias,
                             child: InkWell(
-                              onTap: gems >= 1
+                              onTap: gems >= 1 || !isAdLoading
                                 ? () async {
                                     await handleComplete(false);
                                   }
                                 : null,
                               child: Padding(
                                 padding: const EdgeInsets.all(20),
-                                child: Opacity(
-                                  opacity: gems >= 1 ? 1.0 : 0.5,
-                                  child: Row(
-                                    children: [
-                                      SvgPicture.asset(
-                                        'icons/diamond.svg',
-                                        colorFilter: ColorFilter.mode(
-                                          Theme.of(context).colorScheme.onSurfaceVariant,
-                                          BlendMode.srcIn
-                                        ),
-                                        width: 32,
-                                        height: 32
+                                child: Row(
+                                  children: [
+                                    SvgPicture.asset(
+                                      'icons/diamond.svg',
+                                      colorFilter: ColorFilter.mode(
+                                        Theme.of(context).colorScheme.onSurfaceVariant,
+                                        BlendMode.srcIn
                                       ),
-                                      const SizedBox(width: 20),
-                                      Expanded(
-                                        child: Opacity(
-                                          opacity: isAdLoading ? 0.5 : 1.0,
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text('Use Gems', style: Theme.of(context).textTheme.titleMedium),
-                                              Text(gems >= 1
-                                                ? 'Spend 1 Gem to save the fact without watching an ad' 
-                                                : 'Not enough gems'
-                                              ),
-                                            ],
-                                          ),
+                                      width: 32,
+                                      height: 32
+                                    ),
+                                    const SizedBox(width: 20),
+                                    Expanded(
+                                      child: Opacity(
+                                        opacity: isAdLoading ? 0.5 : 1.0,
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text('Use Gems', style: Theme.of(context).textTheme.titleMedium),
+                                            Text('Spend 1 Gem to save the fact without watching an ad'),
+                                          ],
                                         ),
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),

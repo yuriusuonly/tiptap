@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:tiptap/profile/subscription.dart';
 import 'package:tiptap/profile/bookmark.dart';
 import 'package:tiptap/profile/gems.dart';
 import 'package:tiptap/profile/streak.dart';
@@ -29,6 +30,7 @@ class ProfileRoute extends StatefulShellBranch implements RootNavigationShellBra
               BookmarksStatRoute(),
               StreakStatRoute(),
               BookmarksDetailsRoute(),
+              SubscriptionRoute(),
             ]
           )
         ]
@@ -118,18 +120,8 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-class ProfileSection extends StatefulWidget {
+class ProfileSection extends StatelessWidget {
   const ProfileSection({super.key});
-
-  @override
-  State<ProfileSection> createState() => _ProfileSectionState();
-}
-
-class _ProfileSectionState extends State<ProfileSection> {
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,8 +131,8 @@ class _ProfileSectionState extends State<ProfileSection> {
         crossAxisAlignment: CrossAxisAlignment.center,
         spacing: 16,
         children: [
-          _profileBadge(),
-          _profileInfo(),
+          _profileBadge(context),
+          _profileInfo(context),
           const SizedBox(
             height: 16,
             child: Divider(height: 1),
@@ -150,7 +142,8 @@ class _ProfileSectionState extends State<ProfileSection> {
     );
   }
 
-  Widget _profileBadge() {
+  Widget _profileBadge(BuildContext context) {
+    final authentication = context.read<AuthenticationService>();
     final photo = context.watch<PhotoService>();
 
     return Badge(
@@ -171,7 +164,7 @@ class _ProfileSectionState extends State<ProfileSection> {
           height: 36,
           child: IconButton.filled(
             onPressed: () {
-              _showSettings();
+              _showSettings(context);
             },
             icon: SvgPicture.asset(
               'icons/settings.svg',
@@ -187,14 +180,14 @@ class _ProfileSectionState extends State<ProfileSection> {
       ),
       child: CircleAvatar(
         radius: 40,
-        backgroundImage: photo.imageBytes != null
-          ? MemoryImage(photo.imageBytes!)
-          : AssetImage('images/logo_1024x1024.png'),
+        backgroundImage: (authentication.state == null || photo.state == null)
+            ? const AssetImage('images/logo_1024x1024.png') as ImageProvider
+            : MemoryImage(photo.state!),
       ),
     );
   }
 
-  void _showSettings() {
+  void _showSettings(BuildContext context) {
     showModalBottomSheet(
       useRootNavigator: true,
       isScrollControlled: true,
@@ -207,7 +200,7 @@ class _ProfileSectionState extends State<ProfileSection> {
     );
   }
 
-  Widget _profileInfo() {
+  Widget _profileInfo(BuildContext context) {
     final authentication = context.watch<AuthenticationService>();
     final ai = context.watch<AIService>();
     final streak = context.watch<StreakService>();
@@ -219,7 +212,7 @@ class _ProfileSectionState extends State<ProfileSection> {
           context.goNamed('gems-stat');
         },
         'icon': 'icons/diamond.svg',
-        'value': ads.gems,
+        'value': ads.state,
         'label': 'Gems'
       },
       {
@@ -227,7 +220,7 @@ class _ProfileSectionState extends State<ProfileSection> {
           context.goNamed('bookmarks-stat');
         },
         'icon': 'icons/bookmark.svg',
-        'value': ai.bookmarks.length,
+        'value': ai.getBookmarks().length,
         'label': 'Bookmarks'
       },
       {
@@ -235,7 +228,7 @@ class _ProfileSectionState extends State<ProfileSection> {
           context.goNamed('streak-stat');
         },
         'icon': 'icons/mode_heat.svg',
-        'value': streak.count,
+        'value': streak.state['count'],
         'label': 'Streak'
       }
     ];
@@ -272,7 +265,7 @@ class _ProfileSectionState extends State<ProfileSection> {
                         spacing: 4,
                         children: [
                           Text(
-                            NumberFormat.compact().format(statsRow[i]['value']),
+                            NumberFormat.compact().format(statsRow[i]['value'] is num ? statsRow[i]['value'] : 0),
                             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: Theme.of(context).colorScheme.onSurfaceVariant
                             )
@@ -319,9 +312,11 @@ class BookmarksSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<AuthenticationService>();
+    final theme = context.watch<ThemeService>();
     final ai = context.watch<AIService>();
-    context.watch<ThemeService>();
-    final bookmarks = ai.bookmarks.reversed.toList();
+    final bookmarks = ai.getBookmarks();
+
     if (bookmarks.isEmpty) {
       return Center(
         child: FadeIn(
@@ -331,16 +326,16 @@ class BookmarksSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                //'(= ФェФ=)',
                 '( ❍ᴥ❍ )',
                 //'( ⌣ʟ⌣ )',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant
                 ),
                 textAlign: TextAlign.center
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
               Column(
+                spacing: 8,
                 children: [
                   Text(
                     'No bookmarks yet',
@@ -360,7 +355,7 @@ class BookmarksSection extends StatelessWidget {
       );
     } else {
       return GridView.builder(
-        key: ValueKey(Theme.of(context).brightness),
+        key: ValueKey(theme.themeMode.name),
         padding: EdgeInsets.all(4),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
@@ -370,8 +365,7 @@ class BookmarksSection extends StatelessWidget {
         ),
         itemCount: bookmarks.length,
         itemBuilder: (context, index) {
-          final globalIndex = bookmarks[index];
-          final data = ai.getByIndex(globalIndex);
+          final data = bookmarks[index];
 
           return FadeIn(
             duration: Duration(milliseconds: 1000),
@@ -383,16 +377,14 @@ class BookmarksSection extends StatelessWidget {
                 onTap: () {
                   context.goNamed(
                     'bookmarks',
-                    pathParameters: {
-                      'id': globalIndex.toString()
-                    }
+                    extra: data
                   );
                 },
                 child: Center(
                   child: Padding(
-                    padding: EdgeInsetsGeometry.all(8),
+                    padding: const EdgeInsets.all(8),
                     child: Text(
-                      '${data?['title'] ?? ''}',
+                      '${data['title']}',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant
                       ),

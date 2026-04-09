@@ -1,18 +1,18 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthenticationService extends Cubit<User?> {
-  late StreamSubscription<User?> _userSubscription;
+  late final StreamSubscription<User?> _userSubscription;
 
   AuthenticationService() : super(null) {
     _userSubscription = FirebaseAuth.instance
       .authStateChanges()
       .listen(
-        (User? user) {
+        (User? user) async {
           emit(user);
         }
       );
@@ -27,24 +27,17 @@ class AuthenticationService extends Cubit<User?> {
   Future<void> signInWithGoogle() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      if (kIsWeb) {
-        final GoogleAuthProvider googleProvider = GoogleAuthProvider();
-        await FirebaseAuth.instance.signInWithPopup(googleProvider);
-      } else {
-        final GoogleSignInAccount googleUser = await GoogleSignIn.instance.authenticate();
-        final GoogleSignInAuthentication googleAuth = googleUser.authentication;
-        final OAuthCredential credential = GoogleAuthProvider.credential(idToken: googleAuth.idToken);
-        await FirebaseAuth.instance.signInWithCredential(credential);
-      }
+      final GoogleSignInAccount googleUser = await GoogleSignIn.instance.authenticate();
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+      final OAuthCredential credential = GoogleAuthProvider.credential(idToken: googleAuth.idToken);
+      await FirebaseAuth.instance.signInWithCredential(credential);
     }
   }
 
   Future<void> signOut() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      if (!kIsWeb) {
-        await GoogleSignIn.instance.signOut();
-      }
+      await GoogleSignIn.instance.signOut();
       await FirebaseAuth.instance.signOut();
     }
   }
@@ -52,6 +45,7 @@ class AuthenticationService extends Cubit<User?> {
   Future<void> deleteUser() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
       await user.delete();
     }
   }
@@ -59,15 +53,10 @@ class AuthenticationService extends Cubit<User?> {
   Future<void> reauthenticate() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      if (kIsWeb) {
-        final GoogleAuthProvider googleProvider = GoogleAuthProvider();
-        await user.reauthenticateWithPopup(googleProvider);
-      } else {
-        final GoogleSignInAccount googleUser = await GoogleSignIn.instance.authenticate();
-        final GoogleSignInAuthentication googleAuth = googleUser.authentication;
-        final OAuthCredential credential = GoogleAuthProvider.credential(idToken: googleAuth.idToken);
-        await user.reauthenticateWithCredential(credential);
-      }
+      final GoogleSignInAccount googleUser = await GoogleSignIn.instance.authenticate();
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+      final OAuthCredential credential = GoogleAuthProvider.credential(idToken: googleAuth.idToken);
+      await user.reauthenticateWithCredential(credential);
     }
   }
 }

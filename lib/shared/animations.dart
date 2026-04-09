@@ -2,8 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
-/*
-class NavigationTransitionSwitcher extends StatefulWidget {
+/* class NavigationTransitionSwitcher extends StatefulWidget {
   final PageTransitionSwitcherTransitionBuilder transitionBuilder;
   final int currentIndex;
   final Widget child;
@@ -44,8 +43,7 @@ class _NavigationTransitionSwitcherState extends State<NavigationTransitionSwitc
       ),
     );
   }
-}
-*/
+} */
 
 class IntervalLottie extends StatefulWidget {
   final String asset;

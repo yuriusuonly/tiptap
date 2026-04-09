@@ -1,6 +1,5 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:animations/animations.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,7 +7,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tiptap/discover/monetize.dart';
 import 'package:tiptap/shared/ai.dart';
-import 'package:tiptap/shared/authentication.dart';
+import 'package:tiptap/shared/premium.dart';
 import 'package:tiptap/shared/root.dart';
 
 class FactDetailsRoute extends GoRoute {
@@ -16,9 +15,9 @@ class FactDetailsRoute extends GoRoute {
     : super(
         parentNavigatorKey: rootNavigatorKey,
         name: 'fact',
-        path: 'fact/:id',
+        path: 'fact',
         pageBuilder: (context, state) {
-          final index = int.parse(state.pathParameters['id']!);
+          final data = state.extra as Map<String, dynamic>;
           return CustomTransitionPage(
             key: state.pageKey,
             transitionDuration: Duration(milliseconds: 500),
@@ -31,7 +30,7 @@ class FactDetailsRoute extends GoRoute {
                 child: child
               );
             },
-            child: FactDetailsPage(index: index)
+            child: FactDetailsPage(data: data)
           );
         },
         routes: [
@@ -41,21 +40,17 @@ class FactDetailsRoute extends GoRoute {
 }
 
 class FactDetailsPage extends StatelessWidget {
-  final int index;
+  final Map<String, dynamic> data;
 
   const FactDetailsPage({
     super.key,
-    required this.index
+    required this.data
   });
 
   @override
   Widget build(BuildContext context) {
-    final ai = context.watch<AIService>();
-    final data = ai.getByIndex(index);
-
-    if (data == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
+    final premium = context.watch<PremiumService>();
+    context.watch<AIService>();
 
     final isBookmarked = data['bookmarked'] as bool? ?? false;
     final isRewarded = data['rewarded'] as bool? ?? false;
@@ -89,18 +84,14 @@ class FactDetailsPage extends StatelessWidget {
                     delay: Duration(milliseconds: 1000),
                     child: IconButton(
                       onPressed: () {
-                        if (kIsWeb || isRewarded) {
-                          ai.toggleBookmark(index);
+                        final isPremium = premium.state == true;
+                        if (isRewarded || isPremium) {
+                          context.read<AIService>().toggleBookmark(data);
                         } else {
-                          final authentication = context.read<AuthenticationService>();
-                          authentication.state == null
-                            ? context.goNamed(
-                                'monetize',
-                                pathParameters: {
-                                  'id': index.toString(),
-                                },
-                              )
-                            : ai.toggleBookmark(index);
+                          context.pushNamed(
+                            'monetize',
+                            extra: data
+                          );
                         }
                       },
                       icon: SvgPicture.asset(

@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:tiptap/discover/discover.dart';
+import 'package:tiptap/profile/profile.dart';
 import 'package:tiptap/shared/ad.dart';
 import 'package:tiptap/shared/ai.dart';
 import 'package:tiptap/shared/animations.dart';
 import 'package:tiptap/shared/authentication.dart';
-import 'package:tiptap/shared/database.dart';
 import 'package:tiptap/shared/first_launch.dart';
 import 'package:tiptap/shared/photo.dart';
+import 'package:tiptap/shared/premium.dart';
 import 'package:tiptap/shared/streak.dart';
 import 'package:tiptap/shared/theme.dart';
-import 'package:tiptap/discover/discover.dart';
-import 'package:tiptap/profile/profile.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'RootNavigatorKey');
 final discoverNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'DiscoverNavigatorKey');
@@ -27,13 +27,13 @@ class Root extends StatefulWidget {
 
 class _RootState extends State<Root> {
   late final AuthenticationService _authentication;
-  late final DatabaseService _database;
   late final ThemeService _theme;
   late final AIService _ai;
   late final StreakService _streak;
   late final AdService _ad;
   late final FirstLaunchService _firstLaunch;
   late final PhotoService _photo;
+  late final PremiumService _premium;
 
   final _router = GoRouter(
     navigatorKey: rootNavigatorKey,
@@ -46,13 +46,13 @@ class _RootState extends State<Root> {
   void initState() {
     super.initState();
     _authentication = AuthenticationService();
-    _database = DatabaseService(_authentication);
-    _theme = ThemeService(_database);
-    _ai = AIService(_database);
-    _streak = StreakService(_database);
-    _ad = AdService(_database);
-    _firstLaunch = FirstLaunchService(_database);
-    _photo = PhotoService(_authentication);
+    _theme = ThemeService();
+    _ai = AIService();
+    _streak = StreakService();
+    _ad = AdService();
+    _firstLaunch = FirstLaunchService();
+    _photo = PhotoService();
+    _premium = PremiumService();
   }
 
   @override
@@ -60,13 +60,13 @@ class _RootState extends State<Root> {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => _authentication),
-        BlocProvider(create: (_) => _database),
         BlocProvider(create: (_) => _theme),
         BlocProvider(create: (_) => _ai),
         BlocProvider(create: (_) => _streak),
         BlocProvider(create: (_) => _ad),
         BlocProvider(create: (_) => _firstLaunch),
-        BlocProvider(create: (_) => _photo)
+        BlocProvider(create: (_) => _photo),
+        BlocProvider(create: (_) => _premium)
       ],
       child: Builder(
         builder: (context) {
@@ -85,13 +85,13 @@ class _RootState extends State<Root> {
 
   @override
   void dispose() {
+    _premium.close();
     _photo.close();
     _firstLaunch.close();
     _ad.close();
     _streak.close();
     _ai.close();
     _theme.close();
-    _database.close();
     _authentication.close();
     super.dispose();
   }
@@ -105,10 +105,23 @@ class RootNavigationShellRoute extends StatefulShellRoute {
           ProfileRoute(navigatorKey: profileNavigatorKey)
         ],
         builder: (context, state, navigationShell) {
-          return RootNavigationShell(
-            navigationShell: navigationShell,
-          );
+          return RootNavigationShell(navigationShell: navigationShell);
         },
+        /* navigatorContainerBuilder: (context, navigationShell, children) {
+          return NavigationTransitionSwitcher(
+            key: ValueKey(navigationShell.currentIndex),
+            currentIndex: navigationShell.currentIndex,
+            transitionBuilder: (child, animation, secondaryAnimation) {
+              return SharedAxisTransition(
+                animation: animation,
+                secondaryAnimation: secondaryAnimation,
+                transitionType: SharedAxisTransitionType.horizontal,
+                child: child,
+              );
+            },
+            child: children[navigationShell.currentIndex],
+          );
+        }, */
       );
 }
 
@@ -163,7 +176,7 @@ class RootNavigationShell extends StatelessWidget {
             child: GestureDetector(
               onTap: () {
                 final firstLaunch = context.read<FirstLaunchService>();
-                firstLaunch.dismissIntro();
+                firstLaunch.dismissIntroduction();
               },
               child: Container(
                 color: Colors.black.withValues(alpha: 0.8),
@@ -190,7 +203,7 @@ class RootNavigationShell extends StatelessWidget {
                         PulseTransition(
                           duration: Duration(milliseconds: 3000),
                           child: Text(
-                            'Tap to learn more',
+                            'Turn curiosity into knowledge',
                             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                               color: Colors.white
                             ),

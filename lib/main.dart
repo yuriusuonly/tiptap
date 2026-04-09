@@ -29,10 +29,8 @@ Future<void> main() async {
     await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
   }
 
-  if (!kIsWeb) {
-    await GoogleSignIn.instance.initialize();
-    await MobileAds.instance.initialize();
-  }
+  await GoogleSignIn.instance.initialize();
+  await MobileAds.instance.initialize();
 
   FirebaseFirestore.instance.settings = const Settings(
     persistenceEnabled: true,
@@ -40,9 +38,7 @@ Future<void> main() async {
   );
 
   HydratedBloc.storage = await HydratedStorage.build(
-    storageDirectory: kIsWeb
-      ? HydratedStorageDirectory.web
-      : HydratedStorageDirectory((await getApplicationDocumentsDirectory()).path)
+    storageDirectory: HydratedStorageDirectory((await getApplicationDocumentsDirectory()).path)
   );
 
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);

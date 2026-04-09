@@ -1,22 +1,74 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:tiptap/shared/database.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
 
-class ThemeService extends Cubit<ThemeMode> {
-  final DatabaseService _databaseService;
-  StreamSubscription? _databaseSubscription;
+class ThemeService extends HydratedCubit<ThemeMode> {
+  StreamSubscription? _authenticationSubscription;
+  StreamSubscription? _firestoreSubscription;
 
-  ThemeService(this._databaseService)
-      : super(_parseThemeMode(_databaseService.get('theme'))) {
-    _databaseSubscription = _databaseService.stream
-      .listen(
-        (data) {
-          emit(_parseThemeMode(data['theme']));
+  ThemeService() : super(ThemeMode.system) {
+    _authenticationSubscription = FirebaseAuth.instance.authStateChanges().listen(
+      (user) {
+        _firestoreSubscription?.cancel();
+        if (user != null) {
+          _syncToFirestore(user.uid);
+        } else {
+          _reset();
         }
-      );
+      }
+    );
+  }
+
+  Future<void> _syncToFirestore(String userID) async {
+    final document = FirebaseFirestore.instance.collection('users').doc(userID);
+    final snapshot = await document.get();
+
+    ThemeMode mergedTheme = state;
+    bool needsUpdate = false;
+
+    if (snapshot.exists) {
+      final remoteThemeStr = snapshot.data()?['theme_mode'] as String?;
+      if (remoteThemeStr != null) {
+        mergedTheme = ThemeMode.values.byName(remoteThemeStr);
+      }
+    } else {
+      needsUpdate = true;
+    }
+
+    if (needsUpdate) {
+      await document.set({'theme_mode': mergedTheme.name}, SetOptions(merge: true));
+    }
+    super.emit(mergedTheme);
+
+    _firestoreSubscription = document.snapshots().listen((snapshot) {
+      if (snapshot.exists) {
+        final remoteThemeStr = snapshot.data()?['theme_mode'] as String? ?? ThemeMode.system.name;
+        final incomingTheme = ThemeMode.values.byName(remoteThemeStr);
+        if (incomingTheme != state) {
+          super.emit(incomingTheme);
+        }
+      }
+    });
+  }
+
+  void _reset() {
+    emit(ThemeMode.system);
+  }
+
+  @override
+  void emit(ThemeMode state) {
+    super.emit(state);
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .set({'theme_mode': state.name}, SetOptions(merge: true));
+    }
   }
 
   ThemeData get lightTheme => ThemeData.from(
@@ -45,21 +97,24 @@ class ThemeService extends Cubit<ThemeMode> {
     )
   );
 
-  static ThemeMode _parseThemeMode(dynamic value) {
-    try {
-      return ThemeMode.values.byName(value as String? ?? 'system');
-    } catch (_) {
-      return ThemeMode.system;
-    }
-  }
-
   ThemeMode get themeMode => state;
 
-  set themeMode(ThemeMode value) => _databaseService.set({'theme': value.name});
+  set themeMode(ThemeMode value) => emit(value);
 
   @override
-  Future<void> close() async {
-    await _databaseSubscription?.cancel();
-    return await super.close();
+  Future<void> close() {
+    _authenticationSubscription?.cancel();
+    _firestoreSubscription?.cancel();
+    return super.close();
+  }
+
+  @override
+  ThemeMode? fromJson(Map<String, dynamic> json) {
+    return ThemeMode.values.byName(json['theme_mode'] as String);
+  }
+
+  @override
+  Map<String, dynamic>? toJson(ThemeMode state) {
+    return {'theme_mode': state.name};
   }
 }

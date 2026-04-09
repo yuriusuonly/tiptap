@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tiptap/shared/authentication.dart';
-import 'package:tiptap/shared/database.dart';
 import 'package:tiptap/shared/photo.dart';
+import 'package:tiptap/shared/premium.dart';
 import 'package:tiptap/shared/theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -37,10 +37,14 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  void _showPremiumPage() {
+    if (mounted) context.pushNamed('subscription');
+  }
+
   Widget _accountSection() {
     final authentication = context.watch<AuthenticationService>();
-    final database = context.read<DatabaseService>();
     final photo = context.read<PhotoService>();
+    final premium = context.read<PremiumService>();
 
     return Column(
       spacing: 16,
@@ -60,9 +64,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 onTap: () async {
                   if (authentication.state == null) {
                     await authentication.signInWithGoogle();
+                    await premium.refresh();
+                    if (!premium.state) {
+                      _showPremiumPage();
+                    }
                   } else {
                     await authentication.signOut();
-                    database.deleteLocal();
+                    await premium.refresh();
                   }
                 },
                 leading: authentication.state == null
@@ -75,8 +83,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     )
                   : CircleAvatar(
-                      backgroundImage: photo.imageBytes != null
-                        ? MemoryImage(photo.imageBytes!)
+                      backgroundImage: photo.state != null
+                        ? MemoryImage(photo.state!)
                         : NetworkImage(authentication.state!.photoURL!),
                     ),
                 title: Text(
@@ -101,7 +109,38 @@ class _SettingsPageState extends State<SettingsPage> {
                     )
                   : null,
               ),
-              if (authentication.state != null)
+              if (authentication.state != null) ...[
+                ListTile(
+                  onTap: () async {
+                    if (premium.state == false) {
+                      _showPremiumPage();
+                    } else {
+                      await premium.manageSubscription();
+                      await premium.refresh();
+                    }
+                  },
+                  leading: Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                    child: SvgPicture.asset(
+                      premium.state == true
+                        ? 'icons/crown_filled.svg'
+                        : 'icons/crown.svg',
+                      colorFilter: ColorFilter.mode(
+                        premium.state == true
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                        BlendMode.srcIn
+                      ),
+                      width: 24,
+                      height: 24
+                    ),
+                  ),
+                  title: Text(
+                    premium.state == true
+                      ? 'Manage Subscription'
+                      : 'Upgrade to Premium'
+                  ),
+                ),
                 ListTile(
                   onTap: () {
                     _showAccountDeletionConfirmation();
@@ -122,6 +161,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     'Delete Account'
                   ),
                 )
+              ]
             ],
           )
         )
@@ -131,7 +171,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void _showAccountDeletionConfirmation() {
     final authentication = context.read<AuthenticationService>();
-    final database = context.read<DatabaseService>();
 
     showModal(
       configuration: const FadeScaleTransitionConfiguration(
@@ -156,9 +195,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ? [
               TextButton(
                 onPressed: () async {
-                  await database.deleteRemote();
                   await authentication.deleteUser();
-                  database.deleteLocal();
                   if (context.mounted) context.pop();
                 },
                 child: Text(

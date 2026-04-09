@@ -1,38 +1,34 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'package:tiptap/shared/authentication.dart';
 
-class PhotoService extends HydratedCubit<String?> {
-  final AuthenticationService _authenticationService;
+class PhotoService extends HydratedCubit<Uint8List?> {
   StreamSubscription? _userSubscription;
-  Uint8List? _imageBytes;
 
-  PhotoService(this._authenticationService) : super(null) {
-    _userSubscription = _authenticationService.stream.listen(
-      (user) {
+  PhotoService() : super(null) {
+    _userSubscription = FirebaseAuth.instance.authStateChanges().listen(
+      (User? user) {
         if (user?.photoURL != null) {
-          _fetchPhoto(user!.photoURL!);
+          _cachePhoto(user!.photoURL!);
         } else {
-          clearCache();
+          _clearCache();
         }
       },
     );
   }
 
-  Future<void> _fetchPhoto(String url) async {
+  Future<void> _cachePhoto(String url) async {
     final response = await get(Uri.parse(url));
-    _imageBytes = response.bodyBytes;
-    final base64string = base64Encode(_imageBytes!);
-    emit(base64string);
+    emit(response.bodyBytes);
   }
 
-  Uint8List? get imageBytes => _imageBytes;
-
-  void clearCache() => emit(null);
+  void _clearCache() {
+    emit(null);
+  }
 
   @override
   Future<void> close() {
@@ -41,8 +37,12 @@ class PhotoService extends HydratedCubit<String?> {
   }
 
   @override
-  String? fromJson(Map<String, dynamic> json) => json['photo'] as String?;
+  Uint8List? fromJson(Map<String, dynamic> json) {
+    return jsonDecode(json['user_photo']);
+  }
 
   @override
-  Map<String, dynamic>? toJson(String? state) => {'photo': state};
+  Map<String, dynamic>? toJson(Uint8List? state) {
+    return {'user_photo': jsonEncode(state)};
+  }
 }
