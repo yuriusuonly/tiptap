@@ -34,8 +34,12 @@ src/
     android/person.xml    # Android vector icon (Profile tab)
   components/
     logo.js               # shared logo component
+  store/
+    theme-store.js        # Zustand theme store (persisted with AsyncStorage)
   theme/
-    colors.js             # shared design tokens
+    colors.js             # shared design tokens (dark + light palettes)
+tailwind.config.js        # Nativewind/Tailwind theme (mirrors design tokens)
+global.css               # Tailwind entry imported by src/app/_layout.js
 ```
 
 Keep non-route code (components, hooks, utilities, theme) **outside** `src/app/`.
@@ -63,8 +67,10 @@ Keep non-route code (components, hooks, utilities, theme) **outside** `src/app/`
 ### Language & styling
 
 - **Vanilla JavaScript only** — JSX in `.js` files. No TypeScript, no `.ts`/`.tsx`, no `tsconfig.json`.
-- Build UI with React Native primitives (`View`, `Text`, `Image`, `StyleSheet`) so web (`react-native-web`) and Android stay consistent.
+- Style React Native components with **Nativewind** `className` utilities (Tailwind v3). Config lives in `tailwind.config.js`; `global.css` is imported in `src/app/_layout.js`.
+- `@expo/ui/jetpack-compose` components are Compose-native and do not accept `className` — style them with `src/theme/colors.js` tokens, `StyleSheet`, and Compose modifiers.
 - The Android shell uses `@expo/ui/jetpack-compose`; the web shell uses React Native Web. Keep vocabulary, colors, and layout rules shared.
+- Global state lives in **Zustand** stores under `src/store/`. Persist with AsyncStorage (`skipHydration: true` + `rehydrate()` in an effect) so static web rendering stays `window`-free.
 - The logo renders through `react-native-svg` in `src/components/logo.js` so it looks identical on web and Android.
 - Use the shared design tokens in `src/theme/colors.js` instead of hard-coded values. See `DESIGN.md`.
 

@@ -9,6 +9,8 @@ An AI-generated, TikTok-like app built with **Expo / React Native**. Runs on **A
 - **Expo SDK 57** with **Expo Router** (file-based routing)
 - **React Native 0.86** / **React 19**
 - **`@expo/ui` (Jetpack Compose)** for the Android navigation shell
+- **Nativewind** (Tailwind CSS v3) for styling React Native components
+- **Zustand** + **AsyncStorage** for global state and persistence
 - **`react-native-svg`** for the shared logo
 - **Vanilla JavaScript** (JSX in `.js` files — no TypeScript)
 - **npm** for dependency management
@@ -65,8 +67,12 @@ src/
     android/person.xml  # Android vector icon (Profile tab)
   components/
     logo.js             # shared logo component (react-native-svg)
+  store/
+    theme-store.js      # Zustand theme store (persisted with AsyncStorage)
   theme/
-    colors.js           # shared design tokens
+    colors.js           # shared design tokens (dark + light palettes)
+tailwind.config.js      # Nativewind/Tailwind theme (mirrors design tokens)
+global.css             # Tailwind entry imported by src/app/_layout.js
 ```
 
 Non-route code (components, hooks, utilities, theme) lives **outside** `src/app/`. All filenames use lower-case kebab-case; Expo Router's reserved route names (`index`, `_layout`, `+html`, `+not-found`) are the exception.

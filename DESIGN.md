@@ -79,6 +79,13 @@ Implemented in `src/app/index.android.js` using `@expo/ui/jetpack-compose`.
 - Selected tab uses the `accent` color with a translucent accent indicator.
 - **Profile → Preferences:** a rounded `Card` wraps a `LazyColumn` with a `PREFERENCES` subheader and a **Theme** row. The row opens an exposed dropdown (Material 3) with **Auto**, **Light**, and **Dark** options.
 - `Auto` follows the system color scheme; the selected mode swaps between the dark `colors` and light `lightColors` palettes from `src/theme/colors.js`.
+- The choice is stored in the Zustand `theme-store` and persisted to AsyncStorage, so it survives app restarts.
+
+### Styling and state
+
+- Web screens use **Nativewind** utility classes (`src/app/index.web.js`, `src/app/+not-found.js`); design tokens are mirrored in `tailwind.config.js`.
+- Android Compose views cannot take `className`, so they use the palette tokens and Compose modifiers directly.
+- Global state lives in `src/store/` (Zustand). Persisted stores skip hydration during static rendering and rehydrate in `src/app/_layout.js`.
 
 ### Not found
 
