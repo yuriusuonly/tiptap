@@ -1,0 +1,33 @@
+{
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "expo:start": "expo start",
+    "expo:install": "expo install",
+    "expo:export": "expo export --platform web --output-dir build/web",
+    "expo:serve": "expo serve build/web",
+    "eas:build:development": "eas build --local --platform android --profile development --output build/android/app.apk",
+    "eas:build:production": "eas build --platform android --profile production",
+    "adb:install": "adb install -r -d build/android/app.apk"
+  },
+  "dependencies": {
+    "@expo/ui": "~57.0.26",
+    "expo": "^57.0.1",
+    "expo-build-properties": "~57.0.23",
+    "expo-constants": "~57.0.23",
+    "expo-dev-client": "~57.0.21",
+    "expo-linking": "~57.0.13",
+    "expo-router": "~57.0.30",
+    "expo-status-bar": "~57.0.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.0",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "~4.26.0",
+    "react-native-svg": "15.15.4",
+    "react-native-web": "^0.21.0"
+  },
+  "devDependencies": {
+    "eas-cli": "^27.4.1"
+  }
+}

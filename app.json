@@ -1,0 +1,37 @@
+{
+  "name": "tiptap",
+  "slug": "tiptap",
+  "android": {
+    "package": "dev.yuriusu.tiptap"
+  },
+  "ios": {
+    "bundleIdentifier": "dev.yuriusu.tiptap"
+  },
+  "web": {
+    "output": "static"
+  },
+  "plugins": [
+    [
+      "expo-build-properties",
+      {
+        "android": {
+          "buildArchs": [
+            "x86_64"
+          ]
+        }
+      }
+    ],
+    [
+      "expo-router",
+      {
+        "sitemap": false
+      }
+    ],
+    "expo-status-bar"
+  ],
+  "extra": {
+    "eas": {
+      "projectId": "38a31c5d-eafb-4556-a842-c44039084b16"
+    }
+  }
+}
