@@ -1,8 +1,8 @@
 import Head from "expo-router/head";
 import {useEffect, useState} from "react";
-import {ScrollView, StyleSheet, Text, View, useWindowDimensions} from "react-native";
+import {ScrollView, Text, View, useWindowDimensions} from "react-native";
 import Logo from "../components/logo";
-import {colors, layout, radius, spacing, typography} from "../theme/colors";
+import {layout, spacing} from "../theme/colors";
 
 const TITLE = "Create.\nShare.\nRepeat.";
 const DESCRIPTION =
@@ -20,48 +20,102 @@ export default function IndexWeb() {
   const logoSize = isDesktop ? 260 : 180;
 
   return (
-    <View style={styles.root}>
+    <View className="flex-1 overflow-hidden bg-canvas">
       <Head>
         <title>Tiptap — AI video, reimagined</title>
       </Head>
 
-      <View pointerEvents="none" style={[styles.glow, styles.glowCyan, isDesktop && styles.glowCyanDesktop]} />
-      <View pointerEvents="none" style={[styles.glow, styles.glowAccent, isDesktop && styles.glowAccentDesktop]} />
+      <View
+        pointerEvents="none"
+        className={`absolute rounded-full bg-cyan opacity-[0.16] ${
+          isDesktop
+            ? "-left-[160px] -top-[240px] h-[520px] w-[520px]"
+            : "-left-[120px] -top-[140px] h-[320px] w-[320px]"
+        }`}
+      />
+      <View
+        pointerEvents="none"
+        className={`absolute rounded-full bg-accent opacity-[0.16] ${
+          isDesktop
+            ? "-bottom-[280px] -right-[200px] h-[560px] w-[560px]"
+            : "-bottom-[180px] -right-[140px] h-[360px] w-[360px]"
+        }`}
+      />
 
       <ScrollView
-        contentContainerStyle={[
-          styles.scrollContent,
-          {paddingHorizontal: gutter, paddingVertical: isDesktop ? spacing.xxxxl : spacing.xxxl},
-        ]}
+        className="flex-1"
+        contentContainerStyle={{
+          flexGrow: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          paddingHorizontal: gutter,
+          paddingVertical: isDesktop ? spacing.xxxxl : spacing.xxxl,
+        }}
         showsVerticalScrollIndicator={false}
       >
-        <View style={[styles.content, {maxWidth: layout.maxWidth}]}>
-          <View style={[styles.row, isDesktop ? styles.rowDesktop : styles.rowMobile]}>
-            <View style={[styles.copyPane, isDesktop ? styles.copyPaneDesktop : styles.copyPaneMobile]}>
-              <View style={styles.eyebrow}>
-                <View style={styles.eyebrowDot} />
-                <Text style={styles.eyebrowLabel}>AI VIDEO, REIMAGINED</Text>
+        <View className="w-full" style={{maxWidth: layout.maxWidth}}>
+          <View
+            className={
+              isDesktop
+                ? "w-full flex-row items-center justify-between gap-16"
+                : "w-full flex-col items-center gap-10"
+            }
+          >
+            <View
+              className={
+                isDesktop ? "w-full max-w-[560px] flex-1 items-start" : "w-full items-center"
+              }
+            >
+              <View className="mb-6 flex-row items-center gap-2 rounded-full border border-line bg-surface px-3 py-1">
+                <View className="h-1.5 w-1.5 rounded-full bg-accent" />
+                <Text className="text-[13px] font-semibold leading-[18px] tracking-[1.2px] text-muted">
+                  AI VIDEO, REIMAGINED
+                </Text>
               </View>
 
-              <Text style={[styles.title, isDesktop ? styles.titleDesktop : styles.titleMobile]}>{TITLE}</Text>
+              <Text
+                className={`font-extrabold tracking-[-1.5px] text-ink ${
+                  isDesktop ? "text-[64px] leading-[66px]" : "text-center text-[40px] leading-[42px]"
+                }`}
+              >
+                {TITLE}
+              </Text>
 
-              <Text style={[styles.description, isDesktop ? styles.descriptionDesktop : styles.descriptionMobile]}>
+              <Text
+                className={`mt-6 max-w-[460px] text-base leading-6 text-muted ${
+                  isDesktop ? "text-[18px] leading-[28px]" : "text-center"
+                }`}
+              >
                 {DESCRIPTION}
               </Text>
 
-              <View style={styles.metaRow}>
-                <Text style={styles.metaText}>Android</Text>
-                <View style={styles.metaDot} />
-                <Text style={styles.metaText}>Web</Text>
-                <View style={styles.metaDot} />
-                <Text style={styles.metaText}>Early preview</Text>
+              <View className="mt-8 flex-row flex-wrap items-center gap-2">
+                <Text className="text-[13px] font-medium leading-[18px] text-faint">Android</Text>
+                <View className="h-[3px] w-[3px] rounded-full bg-faint" />
+                <Text className="text-[13px] font-medium leading-[18px] text-faint">Web</Text>
+                <View className="h-[3px] w-[3px] rounded-full bg-faint" />
+                <Text className="text-[13px] font-medium leading-[18px] text-faint">
+                  Early preview
+                </Text>
               </View>
             </View>
 
-            <View style={[styles.logoPane, isDesktop ? styles.logoPaneDesktop : styles.logoPaneMobile]}>
-              <View pointerEvents="none" style={styles.logoHalo} />
+            <View
+              className={`items-center justify-center overflow-hidden border border-line bg-surface ${
+                isDesktop
+                  ? "h-[380px] w-[380px] gap-6 rounded-[32px] p-8"
+                  : "aspect-square w-full max-w-[320px] gap-4 rounded-[32px] p-6"
+              }`}
+              style={{boxShadow: "0 30px 80px rgba(0, 0, 0, 0.45)"}}
+            >
+              <View
+                pointerEvents="none"
+                className="absolute h-[220px] w-[220px] rounded-full bg-purple opacity-[0.22]"
+              />
               <Logo size={logoSize} />
-              <Text style={styles.logoCaption}>Short video. Infinite ideas.</Text>
+              <Text className="text-center text-[13px] font-semibold uppercase leading-[18px] tracking-[1.4px] text-faint">
+                Short video. Infinite ideas.
+              </Text>
             </View>
           </View>
         </View>
@@ -69,183 +123,3 @@ export default function IndexWeb() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: colors.background,
-    overflow: "hidden",
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  content: {
-    width: "100%",
-  },
-  row: {
-    width: "100%",
-  },
-  rowDesktop: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 64,
-  },
-  rowMobile: {
-    flexDirection: "column",
-    alignItems: "center",
-    gap: 40,
-  },
-  copyPane: {
-    width: "100%",
-  },
-  copyPaneDesktop: {
-    flex: 1,
-    maxWidth: 560,
-    alignItems: "flex-start",
-  },
-  copyPaneMobile: {
-    alignItems: "center",
-  },
-  eyebrow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surface,
-    marginBottom: spacing.xl,
-  },
-  eyebrowDot: {
-    width: 6,
-    height: 6,
-    borderRadius: radius.pill,
-    backgroundColor: colors.accent,
-  },
-  eyebrowLabel: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    fontWeight: "600",
-    letterSpacing: 1.2,
-  },
-  title: {
-    color: colors.textPrimary,
-    fontWeight: "800",
-    letterSpacing: -1.5,
-  },
-  titleDesktop: {
-    fontSize: 64,
-    lineHeight: 66,
-  },
-  titleMobile: {
-    fontSize: 40,
-    lineHeight: 42,
-    textAlign: "center",
-  },
-  description: {
-    ...typography.body,
-    color: colors.textSecondary,
-    marginTop: spacing.xl,
-    maxWidth: 460,
-  },
-  descriptionDesktop: {
-    fontSize: 18,
-    lineHeight: 28,
-  },
-  descriptionMobile: {
-    textAlign: "center",
-  },
-  metaRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    flexWrap: "wrap",
-    gap: spacing.sm,
-    marginTop: spacing.xxl,
-  },
-  metaText: {
-    ...typography.caption,
-    color: colors.textMuted,
-    fontWeight: "500",
-  },
-  metaDot: {
-    width: 3,
-    height: 3,
-    borderRadius: radius.pill,
-    backgroundColor: colors.textMuted,
-  },
-  logoPane: {
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.xl,
-    overflow: "hidden",
-    boxShadow: "0 30px 80px rgba(0, 0, 0, 0.45)",
-  },
-  logoPaneDesktop: {
-    width: 380,
-    height: 380,
-    padding: spacing.xxl,
-    gap: spacing.xl,
-  },
-  logoPaneMobile: {
-    width: "100%",
-    maxWidth: 320,
-    aspectRatio: 1,
-    padding: spacing.xl,
-    gap: spacing.lg,
-  },
-  logoHalo: {
-    position: "absolute",
-    width: 220,
-    height: 220,
-    borderRadius: radius.pill,
-    backgroundColor: colors.accentPurple,
-    opacity: 0.22,
-  },
-  logoCaption: {
-    ...typography.caption,
-    color: colors.textMuted,
-    fontWeight: "600",
-    letterSpacing: 1.4,
-    textTransform: "uppercase",
-    textAlign: "center",
-  },
-  glow: {
-    position: "absolute",
-    borderRadius: radius.pill,
-    opacity: 0.16,
-  },
-  glowCyan: {
-    width: 320,
-    height: 320,
-    top: -140,
-    left: -120,
-    backgroundColor: colors.accentCyan,
-  },
-  glowCyanDesktop: {
-    width: 520,
-    height: 520,
-    top: -240,
-    left: -160,
-  },
-  glowAccent: {
-    width: 360,
-    height: 360,
-    bottom: -180,
-    right: -140,
-    backgroundColor: colors.accent,
-  },
-  glowAccentDesktop: {
-    width: 560,
-    height: 560,
-    bottom: -280,
-    right: -200,
-  },
-});
