@@ -1,7 +1,6 @@
 import {useState} from "react";
-import {StyleSheet, useColorScheme} from "react-native";
+import {StyleSheet} from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";
-import {StatusBar} from "expo-status-bar";
 import {
   Box,
   Card,
@@ -25,7 +24,8 @@ import {
   paddingAll,
   Shapes,
 } from "@expo/ui/jetpack-compose/modifiers";
-import {radius, spacing, themes} from "../theme/colors";
+import {radius, spacing} from "../theme/colors";
+import {THEME_MODES, useResolvedTheme, useThemeStore} from "../store/theme-store";
 
 const TABS = {
   home: {
@@ -42,21 +42,11 @@ const TABS = {
   },
 };
 
-const THEME_MODES = [
-  {value: "auto", label: "Auto"},
-  {value: "light", label: "Light"},
-  {value: "dark", label: "Dark"},
-];
-
 export default function IndexAndroid() {
   const [selectedTab, setSelectedTab] = useState("home");
-  const [themeMode, setThemeMode] = useState("auto");
   const [themeMenuOpen, setThemeMenuOpen] = useState(false);
-  const systemScheme = useColorScheme();
-
-  const isLight =
-    themeMode === "light" || (themeMode === "auto" && systemScheme === "light");
-  const palette = isLight ? themes.light : themes.dark;
+  const {themeMode, palette} = useResolvedTheme();
+  const setThemeMode = useThemeStore((state) => state.setThemeMode);
   const activeTab = TABS[selectedTab];
 
   const tabColors = {
@@ -69,8 +59,6 @@ export default function IndexAndroid() {
 
   return (
     <SafeAreaView style={[styles.root, {backgroundColor: palette.background}]} edges={["top"]}>
-      <StatusBar style={isLight ? "dark" : "light"} />
-
       <Host style={styles.contentHost}>
         {selectedTab === "profile" ? (
           <ProfilePreferences
