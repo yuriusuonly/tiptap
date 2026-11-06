@@ -97,7 +97,27 @@ npx expo export --platform android   # Android JS bundle + XML assets
 
 ## Commit & PR conventions
 
-- Use **Conventional Commits**: `feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `style:`, `test:`.
+Commits use a **bracketed type prefix** followed by a short, imperative summary:
+
+```
+(feature) add web landing page and Android tab shell
+(chore) configure ESLint
+(fix) keep desktop layout after hydration
+(refactor) extract shared logo component
+(style) restyle the 404 page
+```
+
+| Prefix | Use for |
+| --- | --- |
+| `(feature)` | Newly added features |
+| `(chore)` | Configuration, cleanups, upgrades, dependency bumps |
+| `(fix)` | Bug fixes and hot fixes |
+| `(refactor)` | Code refactors and optimizations |
+| `(style)` | UI/UX changes |
+| `(format)` | Code formatting, lint fixes, and whitespace-only changes |
+
+- Keep the subject line short and imperative; add a body when the change needs context.
+- `(style)` means **UI/UX**; use `(format)` for code formatting such as Prettier or lint autofixes.
 - Keep PRs focused and small; describe the change and how it was verified (platforms tested: web / Android).
 - Reference related issues in the PR description.
 
