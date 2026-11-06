@@ -1,17 +1,31 @@
 import {useState} from "react";
-import {StyleSheet} from "react-native";
+import {StyleSheet, useColorScheme} from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";
+import {StatusBar} from "expo-status-bar";
 import {
   Box,
+  Card,
   Column,
+  DropdownMenuItem,
+  ExposedDropdownMenu,
+  ExposedDropdownMenuBox,
   Host,
   Icon,
+  LazyColumn,
+  ListItem,
   NavigationBar,
   NavigationBarItem,
   Text,
 } from "@expo/ui/jetpack-compose";
-import {fillMaxSize} from "@expo/ui/jetpack-compose/modifiers";
-import {colors} from "../theme/colors";
+import {
+  clip,
+  fillMaxSize,
+  fillMaxWidth,
+  menuAnchor,
+  paddingAll,
+  Shapes,
+} from "@expo/ui/jetpack-compose/modifiers";
+import {radius, spacing, themes} from "../theme/colors";
 
 const TABS = {
   home: {
@@ -28,43 +42,71 @@ const TABS = {
   },
 };
 
-const TAB_COLORS = {
-  selectedIconColor: colors.accent,
-  selectedTextColor: colors.accent,
-  selectedIndicatorColor: "#33FE2C55",
-  unselectedIconColor: colors.textMuted,
-  unselectedTextColor: colors.textMuted,
-};
+const THEME_MODES = [
+  {value: "auto", label: "Auto"},
+  {value: "light", label: "Light"},
+  {value: "dark", label: "Dark"},
+];
 
 export default function IndexAndroid() {
   const [selectedTab, setSelectedTab] = useState("home");
+  const [themeMode, setThemeMode] = useState("auto");
+  const [themeMenuOpen, setThemeMenuOpen] = useState(false);
+  const systemScheme = useColorScheme();
+
+  const isLight =
+    themeMode === "light" || (themeMode === "auto" && systemScheme === "light");
+  const palette = isLight ? themes.light : themes.dark;
   const activeTab = TABS[selectedTab];
 
+  const tabColors = {
+    selectedIconColor: palette.accent,
+    selectedTextColor: palette.accent,
+    selectedIndicatorColor: "#33FE2C55",
+    unselectedIconColor: palette.textMuted,
+    unselectedTextColor: palette.textMuted,
+  };
+
   return (
-    <SafeAreaView style={styles.root} edges={["top"]}>
+    <SafeAreaView style={[styles.root, {backgroundColor: palette.background}]} edges={["top"]}>
+      <StatusBar style={isLight ? "dark" : "light"} />
+
       <Host style={styles.contentHost}>
-        <Box modifiers={[fillMaxSize()]} contentAlignment="center">
-          <Column horizontalAlignment="center" verticalArrangement={{spacedBy: 8}}>
-            <Text
-              color={colors.textPrimary}
-              style={{fontSize: 30, fontWeight: "800", letterSpacing: -0.5}}
-            >
-              {activeTab.title}
-            </Text>
-            <Text
-              color={colors.textSecondary}
-              style={{fontSize: 16, lineHeight: 24, textAlign: "center"}}
-            >
-              {activeTab.subtitle}
-            </Text>
-          </Column>
-        </Box>
+        {selectedTab === "profile" ? (
+          <ProfilePreferences
+            palette={palette}
+            themeMode={themeMode}
+            expanded={themeMenuOpen}
+            onExpandedChange={setThemeMenuOpen}
+            onSelectTheme={(mode) => {
+              setThemeMode(mode);
+              setThemeMenuOpen(false);
+            }}
+          />
+        ) : (
+          <Box modifiers={[fillMaxSize()]} contentAlignment="center">
+            <Column horizontalAlignment="center" verticalArrangement={{spacedBy: 8}}>
+              <Text
+                color={palette.textPrimary}
+                style={{fontSize: 30, fontWeight: "800", letterSpacing: -0.5}}
+              >
+                {activeTab.title}
+              </Text>
+              <Text
+                color={palette.textSecondary}
+                style={{fontSize: 16, lineHeight: 24, textAlign: "center"}}
+              >
+                {activeTab.subtitle}
+              </Text>
+            </Column>
+          </Box>
+        )}
       </Host>
 
       <Host style={styles.navHost} matchContents={{vertical: true}}>
         <NavigationBar
-          containerColor={colors.surface}
-          contentColor={colors.textMuted}
+          containerColor={palette.surface}
+          contentColor={palette.textMuted}
           tonalElevation={0}
         >
           {Object.entries(TABS).map(([key, tab]) => (
@@ -72,7 +114,7 @@ export default function IndexAndroid() {
               key={key}
               selected={selectedTab === key}
               onClick={() => setSelectedTab(key)}
-              colors={TAB_COLORS}
+              colors={tabColors}
             >
               <NavigationBarItem.Icon>
                 <Icon source={tab.icon} contentDescription={tab.label} />
@@ -88,10 +130,96 @@ export default function IndexAndroid() {
   );
 }
 
+function ProfilePreferences({
+  palette,
+  themeMode,
+  expanded,
+  onExpandedChange,
+  onSelectTheme,
+}) {
+  const currentMode =
+    THEME_MODES.find((mode) => mode.value === themeMode) ?? THEME_MODES[0];
+
+  return (
+    <Box
+      modifiers={[fillMaxSize(), paddingAll(spacing.lg)]}
+      contentAlignment="topCenter"
+    >
+      <Card
+        colors={{containerColor: palette.surface, contentColor: palette.textPrimary}}
+        elevation={0}
+        border={{width: 1, color: palette.border}}
+        modifiers={[fillMaxWidth(), clip(Shapes.RoundedCorner(radius.lg))]}
+      >
+        <LazyColumn
+          contentPadding={{
+            start: spacing.sm,
+            top: spacing.sm,
+            end: spacing.sm,
+            bottom: spacing.md,
+          }}
+        >
+          <ListItem>
+            <ListItem.HeadlineContent>
+              <Text
+                color={palette.textMuted}
+                style={{fontSize: 12, fontWeight: "700", letterSpacing: 1.2}}
+              >
+                PREFERENCES
+              </Text>
+            </ListItem.HeadlineContent>
+          </ListItem>
+
+          <ExposedDropdownMenuBox
+            expanded={expanded}
+            onExpandedChange={onExpandedChange}
+            modifiers={[fillMaxWidth()]}
+          >
+            <ListItem modifiers={[fillMaxWidth(), menuAnchor("primaryNotEditable")]}>
+              <ListItem.HeadlineContent>
+                <Text color={palette.textPrimary} style={{fontSize: 16}}>
+                  Theme
+                </Text>
+              </ListItem.HeadlineContent>
+              <ListItem.SupportingContent>
+                <Text color={palette.textMuted} style={{fontSize: 13}}>
+                  Light, dark, or match your system
+                </Text>
+              </ListItem.SupportingContent>
+              <ListItem.TrailingContent>
+                <Text color={palette.textSecondary} style={{fontSize: 14}}>
+                  {`${currentMode.label}  ▾`}
+                </Text>
+              </ListItem.TrailingContent>
+            </ListItem>
+
+            <ExposedDropdownMenu
+              expanded={expanded}
+              onDismissRequest={() => onExpandedChange(false)}
+              containerColor={palette.surfaceRaised}
+            >
+              {THEME_MODES.map((mode) => (
+                <DropdownMenuItem
+                  key={mode.value}
+                  onClick={() => onSelectTheme(mode.value)}
+                  elementColors={{textColor: palette.textPrimary}}
+                >
+                  <DropdownMenuItem.Text>
+                    <Text color={palette.textPrimary}>{mode.label}</Text>
+                  </DropdownMenuItem.Text>
+                </DropdownMenuItem>
+              ))}
+            </ExposedDropdownMenu>
+          </ExposedDropdownMenuBox>
+        </LazyColumn>
+      </Card>
+    </Box>
+  );
+}
+
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   contentHost: {
     flex: 1,

@@ -25,6 +25,38 @@ export const colors = {
   danger: "#EF4444",
 };
 
+// Light-mode counterpart to `colors`. Keep the same keys so screens can swap
+// palettes without branching on individual tokens.
+export const lightColors = {
+  // Backgrounds
+  background: "#F7F7FA",
+  surface: "#FFFFFF",
+  surfaceRaised: "#F0F0F4",
+
+  // Borders / dividers
+  border: "#E4E4EA",
+
+  // Text
+  textPrimary: "#0B0B0F",
+  textSecondary: "#52525B",
+  textMuted: "#8A8A94",
+
+  // Brand accents
+  accent: "#FE2C55",
+  accentCyan: "#0FB5B0",
+  accentPurple: "#7C4DFF",
+
+  // Status
+  success: "#16A34A",
+  warning: "#D97706",
+  danger: "#DC2626",
+};
+
+export const themes = {
+  dark: colors,
+  light: lightColors,
+};
+
 export const gradients = {
   // Matches the gradient in src/assets/svg/icon.svg
   brand: ["#25F4EE", "#7C4DFF", "#FE2C55"],
