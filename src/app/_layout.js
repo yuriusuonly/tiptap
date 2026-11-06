@@ -7,10 +7,6 @@ export default () => {
     <>
       <Head>
         <title>TipTap</title>
-        <meta
-          name="description"
-          content="Tiptap is an AI-powered, TikTok-style feed for short videos. Create, remix, and share what everyone is watching next."
-        />
       </Head>
       <StatusBar style="light" />
       <Stack

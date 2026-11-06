@@ -23,10 +23,6 @@ export default function IndexWeb() {
     <View style={styles.root}>
       <Head>
         <title>Tiptap — AI video, reimagined</title>
-        <meta
-          name="description"
-          content="Tiptap is an AI-powered, TikTok-style feed for short videos. Create, remix, and share what everyone is watching next."
-        />
       </Head>
 
       <View pointerEvents="none" style={[styles.glow, styles.glowCyan, isDesktop && styles.glowCyanDesktop]} />
