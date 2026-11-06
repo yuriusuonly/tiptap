@@ -1,6 +1,7 @@
 {
   "name": "TipTap",
   "slug": "tiptap",
+  "userInterfaceStyle": "automatic",
   "android": {
     "package": "dev.yuriusu.tiptap"
   },
@@ -8,6 +9,7 @@
     "bundleIdentifier": "dev.yuriusu.tiptap"
   },
   "web": {
+    "bundler": "metro",
     "output": "static"
   },
   "plugins": [
