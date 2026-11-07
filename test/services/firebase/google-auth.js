@@ -4,22 +4,18 @@
  * stateful alternating results: the 1st run of each action fails, the 2nd
  * succeeds, then flips (failure ↔ success), after a fixed delay so
  * per-action circular progress is observable. Auth state (signed-out
- * start) is held in a module-level emitter (`subscribeAuthState`), and
- * successful sign-in/sign-out transitions emit the new state immediately —
- * so the Account card renders each state predictably. No native modules
- * are loaded. Loaded lazily by the real service only when `isTestMode`
- * (see `src/services/firebase/google-auth.js`).
+ * start) is held in a module-level emitter (`subscribeAuthState`).
+ * Sign-in success emits signed-in; sign-out success and delete-account
+ * success emit signed-out (delete-account logs the fake user out instead
+ * of actually deleting the fake account). Delete-account outcome is
+ * coordinated with `user-profile` via `mock-state` so the action flips as
+ * a unit. No native modules are loaded. Loaded lazily by the real service
+ * only when `isTestMode` (see `src/services/firebase/google-auth.js`).
  * @module test/services/firebase/google-auth
  */
+import {MOCK_TEST_USER, delay, isDeleteAccountSuccess} from "./mock-state";
 
-const MOCK_DELAY_MS = 1200;
-
-export const MOCK_TEST_USER = {
-  uid: "test-uid",
-  displayName: "Test User",
-  email: "test@example.com",
-  photoURL: null,
-};
+export {MOCK_TEST_USER};
 
 export const MOCK_AUTH_ERRORS = {
   signIn: {code: "auth/mock-failed", message: "Mock sign-in failed (test mode)"},
@@ -30,7 +26,6 @@ export const MOCK_AUTH_ERRORS = {
 let currentUser = null;
 let signInAttempts = 0;
 let signOutAttempts = 0;
-let deleteAttempts = 0;
 const listeners = new Set();
 
 function emit(user) {
@@ -45,13 +40,6 @@ function mockError(key) {
   error.code = code;
   return error;
 }
-
-function delay() {
-  return new Promise((resolve) => setTimeout(resolve, MOCK_DELAY_MS));
-}
-
-// Track subscriptions so a listener can be registered at any time and
-// receive the latest state (immediately + on transitions).
 
 export function configureGoogleSignIn() {
   // No-op in mock mode.
@@ -80,10 +68,10 @@ export async function signOutGoogle() {
 
 export async function deleteAuthUser() {
   await delay();
-  deleteAttempts += 1;
-  if (deleteAttempts % 2 === 1) {
+  if (!isDeleteAccountSuccess()) {
     throw mockError("delete");
   }
+  // Log the fake user out instead of actually deleting the fake account.
   currentUser = null;
   emit(currentUser);
 }

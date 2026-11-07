@@ -2,11 +2,12 @@
  * Android Account section: Google Sign-In (OAuth only) with Firestore user
  * record + preference sync. Each action shows its own circular progress.
  * Every failed response (sign-in/sign-out/account deletion/sync) surfaces
- * via the same toast; there are no inlined errors. Identity shows name/email (+photo).
+ * via the same toast; there are no inlined errors. Delete account uses a
+ * confirmation dialog (not inline). Identity shows name/email (+photo).
  * @module src/android/screens/profile/account-section
  */
 import {useEffect, useState} from "react";
-import {Image, Pressable, Text, View} from "react-native";
+import {Image, Modal, Pressable, Text, View} from "react-native";
 import {deleteAuthUser, signInWithGoogle, signOutGoogle} from "../../../services/firebase/google-auth";
 import {deleteUserData} from "../../../services/firebase/user-profile";
 import GoogleIcon from "../../../shared/assets/icons/google.svg";
@@ -154,48 +155,60 @@ export function AccountSection({onActionFailed}) {
               <Text className="py-1 text-[16px] text-accent">{isSigningIn ? "Signing out…" : "Sign out"}</Text>
               {isSigningIn ? <CircularProgress /> : null}
             </Pressable>
-            {confirmingDelete ? (
-              <View className="mt-2 border-t border-line pt-2">
-                <Text className="text-[14px] leading-[20px] text-ink">
-                  Delete your account and all synced data? This can&apos;t be undone.
-                </Text>
-                <View className="mt-2 flex-row items-center gap-5">
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel="Confirm delete account"
-                    disabled={isDeleting}
-                    onPress={handleDelete}
-                    className="flex-row items-center gap-2"
-                  >
-                    {isDeleting ? <CircularProgress /> : null}
-                    <Text className="py-1 text-[14px] font-semibold text-cyan">
-                      {isDeleting ? "Deleting…" : "Delete"}
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel="Cancel delete account"
-                    disabled={isDeleting}
-                    onPress={() => setConfirmingDelete(false)}
-                  >
-                    <Text className="py-1 text-[14px] text-muted">Cancel</Text>
-                  </Pressable>
-                </View>
-              </View>
-            ) : (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Delete account"
-                disabled={isDeleting}
-                onPress={() => setConfirmingDelete(true)}
-                className="border-t border-line pt-2"
-              >
-                <Text className="py-1 text-[14px] text-cyan">Delete account</Text>
-              </Pressable>
-            )}
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Delete account"
+              disabled={isDeleting}
+              onPress={() => setConfirmingDelete(true)}
+              className={`border-t border-line pt-2 ${isDeleting ? "opacity-50" : ""}`}
+            >
+              <Text className="py-1 text-[14px] text-cyan">Delete account</Text>
+            </Pressable>
           </View>
         ) : null}
       </View>
+
+      <Modal
+        visible={confirmingDelete}
+        transparent
+        animationType="none"
+        onRequestClose={() => {
+          if (!isDeleting) setConfirmingDelete(false);
+        }}
+      >
+        <View className="flex-1 items-center justify-center bg-ink/40 px-6">
+          <View className="w-full max-w-[320px] rounded-[28px] bg-surface p-6">
+            <Text className="text-[20px] font-semibold leading-[28px] text-ink">
+              Delete account?
+            </Text>
+            <Text className="mt-2 text-[14px] leading-[20px] text-muted">
+              Delete your account and all synced data? This can&apos;t be undone.
+            </Text>
+            <View className="mt-6 flex-row items-center justify-end gap-2">
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Cancel delete account"
+                disabled={isDeleting}
+                onPress={() => setConfirmingDelete(false)}
+              >
+                <Text className="px-3 py-2 text-[14px] font-semibold text-accent">Cancel</Text>
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Confirm delete account"
+                disabled={isDeleting}
+                onPress={handleDelete}
+                className="flex-row items-center gap-2"
+              >
+                {isDeleting ? <CircularProgress /> : null}
+                <Text className="px-3 py-2 text-[14px] font-semibold text-cyan">
+                  {isDeleting ? "Deleting…" : "Delete"}
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
