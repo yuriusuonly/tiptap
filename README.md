@@ -167,6 +167,8 @@ npx firebase deploy --only hosting
 
 After adding Firebase native deps/plugins or `google-services.json`, rebuild the Android dev client (`npm run android`) or create a new EAS build.
 
+> **Version constraint:** `@react-native-firebase/*` is pinned to `24.0.0` (Firebase BOM 34.10.0). Newer RNF (≥ 24.1.0: BOM ≥ 34.14.0) ships `firebase-auth` artifacts compiled with Kotlin ≥ 2.3 metadata, and RNF 27 (BOM 35.0.2) uses Kotlin 2.4 metadata — unreadable by the Kotlin 2.1.20 compiler that React Native 0.86 ships (`export-build-properties` `android.kotlinVersion` cannot bump the compiler; Expo's pika compiler plugin has no Kotlin 2.4 build). Revisit when upgrading React Native.
+
 ## Milestones
 
 - [x] Web landing page (`/`) + 404 page (`+not-found`), statically rendered
