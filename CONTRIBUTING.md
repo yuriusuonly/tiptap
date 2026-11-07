@@ -82,7 +82,7 @@ Layers point in one direction: `src/app` routes → `src/app/web` / `src/app/and
 - Global state lives in **Zustand** stores under `src/shared/store/`. Persist with AsyncStorage (`skipHydration: true` + `rehydrate()` in `src/shared/components/root.js`) so static web rendering stays `window`-free.
 - SVG icons in `src/shared/assets/icons/` are the source of truth. Render SVGs (including the brand logo `icon.svg`) with the shared cross-platform `src/shared/components/icon.js` wrapper: `<Icon as={Svg} size={24} accessibilityLabel="..." />` (pass `color` only for `fill="currentColor"` icons). `src/shared/assets/icons/icon.svg` remains the master for derived PNG assets.
 - Use the design tokens in `src/shared/constants/colors.js` instead of hard-coded values. See `DESIGN.md`.
-- Responsive breakpoints and per-class layout tokens live in `src/shared/constants/layout.js`; use `src/shared/hooks/use-responsive-layout.js` (`useResponsiveLayout`) for the four classes: Wearable `<480`, Phone `480–719`, Tablet `720–1079`, Desktop `>=1080`. Content is capped at `1920px`. Prefer Tailwind screen variants (`phone:`, `tablet:`, `desktop:`); on web, pass `{enabled: mounted}` so static rendering starts on the wearable class.
+- Responsive breakpoints and per-class layout tokens live in `src/shared/constants/layout.js`; use `src/shared/hooks/use-responsive-layout.js` (`useResponsiveLayout`) for the four classes: Wearable `<480`, Mobile `480–719`, Tablet `720–1279`, Desktop `>=1280`. Content is capped at `1920px`. Prefer Tailwind screen variants (`mobile:`, `tablet:`, `desktop:`); on web, pass `{enabled: mounted}` so static rendering starts on the wearable class.
 
 ### JSDoc
 

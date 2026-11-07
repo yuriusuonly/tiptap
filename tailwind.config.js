@@ -19,7 +19,7 @@ export default {
   theme: {
     extend: {
       screens: {
-        phone: `${breakpoints.phone}px`,
+        mobile: `${breakpoints.mobile}px`,
         tablet: `${breakpoints.tablet}px`,
         desktop: `${breakpoints.desktop}px`,
       },

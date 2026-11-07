@@ -2,12 +2,13 @@
  * Shared responsive layout tokens for web and Android. See DESIGN.md.
  *
  * Four supported layout classes, selected by viewport width (dp on Android,
- * CSS px on web):
+ * CSS px on web). Wearable is the default (base) layout; the rest apply at
+ * minimum widths:
  *
  *   wearable  < 480   (320 x 480 reference)
- *   phone     >= 480  (480 x 720 reference)
+ *   mobile    >= 480  (480 x 720 reference)
  *   tablet    >= 720  (720 x 1280 reference)
- *   desktop   >= 1080 (1080 x 1920 reference)
+ *   desktop   >= 1280 (1280 x 1920 reference)
  *
  * Content is centered and never grows wider than `contentMaxWidth` (1920) on
  * either platform.
@@ -15,14 +16,14 @@
  */
 
 export const breakpoints = {
-  phone: 480,
+  mobile: 480,
   tablet: 720,
-  desktop: 1080,
+  desktop: 1280,
 };
 
 export const contentMaxWidth = 1920;
 
-export const layoutClasses = ["wearable", "phone", "tablet", "desktop"];
+export const layoutClasses = ["wearable", "mobile", "tablet", "desktop"];
 
 /**
  * Resolves a viewport width to one of the four supported layout classes.
@@ -30,8 +31,8 @@ export const layoutClasses = ["wearable", "phone", "tablet", "desktop"];
  * smallest class so server HTML and the first client render stay identical.
  */
 export function getLayoutClass(width) {
-  if (!Number.isFinite(width) || width < breakpoints.phone) return "wearable";
-  if (width < breakpoints.tablet) return "phone";
+  if (!Number.isFinite(width) || width < breakpoints.mobile) return "wearable";
+  if (width < breakpoints.tablet) return "mobile";
   if (width < breakpoints.desktop) return "tablet";
   return "desktop";
 }
@@ -62,7 +63,7 @@ export const responsiveLayout = {
       secondary: {size: 260, bottom: -120, right: -100, opacity: 0.14},
     },
   },
-  phone: {
+  mobile: {
     gutter: 20,
     pagePaddingVertical: 32,
     stack: true,

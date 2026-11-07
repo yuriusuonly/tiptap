@@ -49,7 +49,7 @@ Use the system font (React Native default) for cross-platform consistency.
 | Class | Title (size / line-height) | Description | Logo card / logo |
 | --- | --- | --- | --- |
 | Wearable | 32 / 36 | 15 / 22 | 232 / 132 |
-| Phone | 40 / 44 | 16 / 24 | 300 / 168 |
+| Mobile | 40 / 44 | 16 / 24 | 300 / 168 |
 | Tablet | 52 / 56 | 17 / 26 | 360 / 210 |
 | Desktop | 64 / 66 | 18 / 28 | 380 / 260 |
 
@@ -67,10 +67,10 @@ Four responsive layout classes are shared by Web and Android. Breakpoints are mi
 
 | Class | Reference viewport | Width rule |
 | --- | --- | --- |
-| Wearable (low) | 320 × 480 | `< 480` |
-| Phone (SD) | 480 × 720 | `>= 480` and `< 720` |
-| Tablet (HD) | 720 × 1280 | `>= 720` and `< 1080` |
-| Desktop (FHD) | 1080 × 1920 | `>= 1080` |
+| Wearable (low) | 320 × 480 | `< 480` (default) |
+| Mobile (SD) | 480 × 720 | `>= 480` and `< 720` |
+| Tablet (HD) | 720 × 1280 | `>= 720` and `< 1280` |
+| Desktop (FHD) | 1280 × 1920 | `>= 1280` |
 
 - **Max content width:** `1920px` / `1920dp` (`contentMaxWidth: 1920`). Content is centered and never exceeds this cap on either platform.
 - **Source of truth:** `src/shared/constants/layout.js` exports `breakpoints`, `contentMaxWidth`, `getLayoutClass(width)`, and the per-class `responsiveLayout` tokens (gutters, vertical padding, title/description type, logo sizes, home copy, profile card width). `src/shared/hooks/use-responsive-layout.js` exposes the active `layoutClass`, `tokens`, and class flags using `useWindowDimensions`.
@@ -83,12 +83,12 @@ Four responsive layout classes are shared by Web and Android. Breakpoints are mi
 Implemented in `src/app/web/features/landing/landing-screen.js` (route: `src/app/index.js`).
 
 - Single centered page capped at `1280px` on desktop (web); shared content cap is `1920px` (`contentMaxWidth`) on other screens.
-- Gutter: `16` wearable, `20` phone, `32` tablet, `48` desktop; vertical padding `24 / 32 / 48 / 64`.
-- **Wearable, Phone, and Tablet:** stacked single column (eyebrow, title, description, meta, then logo), centered. Wearable/phone use compact type and logo sizes; tablet uses a comfortable scale.
-- **Desktop (`>= 1080`):** two-column row of equal `flex-1` panes with a `64px` gap, each pane centered (`items-center justify-center`); title/description/meta are centered within their pane, logo card is centered within its pane, and the row is capped at `1280px` and centered on the page.
+- Gutter: `16` wearable, `20` mobile, `32` tablet, `48` desktop; vertical padding `24 / 32 / 48 / 64`.
+- **Wearable, Mobile, and Tablet:** stacked single column (eyebrow, title, description, meta, then logo), centered. Wearable/mobile use compact type and logo sizes; tablet uses a comfortable scale.
+- **Desktop (`>= 1280`):** two-column row of equal `flex-1` panes with a `64px` gap, each pane centered (`items-center justify-center`); title/description/meta are centered within their pane, logo card is centered within its pane, and the row is capped at `1280px` and centered on the page.
 - Hero copy: “Create. Share. Repeat.” plus a short product description.
 - Logo pane uses `surface` with a border, per-class radius, and a purple halo behind the logo.
-- Responsive classes use Tailwind screen variants (`phone:`, `tablet:`, `desktop:`) with no inline style objects. The only computed value is the SVG logo `size` from layout tokens; the `mounted` guard keeps static HTML and the first client render identical.
+- Responsive classes use Tailwind screen variants (`mobile:`, `tablet:`, `desktop:`) with no inline style objects. The only computed value is the SVG logo `size` from layout tokens; the `mounted` guard keeps static HTML and the first client render identical.
 
 ### Android app
 
@@ -100,13 +100,13 @@ Implemented with file-based routes: `src/app/_layout.android.js` renders Expo Ro
 - Selected tab uses the `accent` color with a translucent accent indicator. State changes are plain color/layout changes — no animations or transitions.
 - Home and Profile content is centered and capped at `1920dp`, using the same per-class gutters as Web (`16 / 20 / 32 / 48`).
 - **Home** scales with the class: title `24 / 30` → `30 / 36` → `36 / 42` → `44 / 52`; subtitle `14 / 20` → `16 / 24` → `18 / 26` → `20 / 30`; copy width caps at `480 / 560 / 640 / 880`.
-- **Profile → Preferences:** a `PREFERENCES` subheader sits above a rounded surface card. The card is centered with a per-class max width (`560 / 560 / 640 / 720`) and compact padding on wearable/phone. The **Theme** row expands inline (no dropdown animation) with **Auto**, **Light**, and **Dark** options.
+- **Profile → Preferences:** a `PREFERENCES` subheader sits above a rounded surface card. The card is centered with a per-class max width (`560 / 560 / 640 / 720`) and compact padding on wearable/mobile. The **Theme** row expands inline (no dropdown animation) with **Auto**, **Light**, and **Dark** options.
 - `Auto` follows the system color scheme; the selected mode switches the CSS variables between light and dark values (matching `src/shared/constants/colors.js`).
 - The choice is stored in the Zustand theme store (`src/shared/store/theme-store.js`) and persisted to AsyncStorage, so it survives app restarts.
 
 ### Styling and state
 
-- All screens use **Nativewind** utility classes. Semantic colors resolve through CSS variables declared for `:root` (light) and `.dark:root` (dark) in `src/shared/stylesheets/global.css`; `tailwind.config.js` maps them to utilities such as `bg-background`, `bg-surface`, `text-ink`, `text-muted`, `border-line`, and `text-accent`. The responsive `phone` / `tablet` / `desktop` screens plus `max-w-content` map to `src/shared/constants/layout.js`.
+- All screens use **Nativewind** utility classes. Semantic colors resolve through CSS variables declared for `:root` (light) and `.dark:root` (dark) in `src/shared/stylesheets/global.css`; `tailwind.config.js` maps them to utilities such as `bg-background`, `bg-surface`, `text-ink`, `text-muted`, `border-line`, and `text-accent`. The responsive `mobile` / `tablet` / `desktop` screens plus `max-w-content` map to `src/shared/constants/layout.js`.
 - Do not use inline `style` objects for presentation. The theme store syncs the resolved scheme to Nativewind's `dark` class through `Root`.
 - Global state lives in `src/shared/store/` (Zustand). Persisted stores skip hydration during static rendering and rehydrate in `src/shared/components/root.js`.
 
@@ -116,7 +116,7 @@ Implemented with file-based routes: `src/app/_layout.android.js` renders Expo Ro
 
 ## Consistency checklist
 
-- Shared tokens, responsive breakpoints (480 / 720 / 1080), 1920px max content width, accent colors, and logo across platforms.
+- Shared tokens, responsive breakpoints (480 / 720 / 1280), 1920px max content width, accent colors, and logo across platforms.
 - Keep the same vocabulary and tone; screen-specific copy is expected (marketing landing vs. app tabs).
 - Use React Native primitives (`View`, `Text`, `Pressable`, `ScrollView`) styled with Nativewind classes so `react-native-web` matches native output.
 - Platform-specific shells (web split layout vs. Android bottom tabs) are allowed; the visual language and responsive scale are shared.

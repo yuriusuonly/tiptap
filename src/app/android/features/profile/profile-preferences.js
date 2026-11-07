@@ -20,7 +20,7 @@ export function ProfilePreferences() {
 
   return (
     <View>
-      <Text className="mb-1 text-[11px] font-bold uppercase tracking-[1.2px] text-muted phone:mb-2 phone:text-[12px] tablet:text-[12px] desktop:mb-3 desktop:text-[13px]">
+      <Text className="mb-1 text-[11px] font-bold uppercase tracking-[1.2px] text-muted mobile:mb-2 mobile:text-[12px] tablet:text-[12px] desktop:mb-3 desktop:text-[13px]">
         Preferences
       </Text>
 

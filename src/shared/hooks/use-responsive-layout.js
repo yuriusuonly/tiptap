@@ -22,10 +22,10 @@ export function useResponsiveLayout({enabled = true} = {}) {
     layoutClass,
     tokens: responsiveLayout[layoutClass],
     isWearable: layoutClass === "wearable",
-    isPhone: layoutClass === "phone",
+    isMobile: layoutClass === "mobile",
     isTablet: layoutClass === "tablet",
     isDesktop: layoutClass === "desktop",
-    isCompact: layoutClass === "wearable" || layoutClass === "phone",
+    isCompact: layoutClass === "wearable" || layoutClass === "mobile",
   };
 }
 
