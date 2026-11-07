@@ -4,7 +4,8 @@
  * under the "Account" label.
  * @module src/android/features/profile/account-section
  */
-import {Pressable, Text, View} from "react-native";
+import {useEffect, useState} from "react";
+import {Image, Pressable, Text, View} from "react-native";
 import {signInWithGoogle, signOutGoogle} from "../../../services/firebase/google-auth";
 import {useAuthStore} from "../../../shared/store/auth-store";
 import {usePreferencesSyncStore} from "../../../shared/store/preferences-sync-store";
@@ -19,6 +20,11 @@ const syncLabel = {
 export function AccountSection() {
   const {status, user, isSigningIn, error, setSigningIn, setError, clearError} = useAuthStore();
   const {syncStatus, syncError} = usePreferencesSyncStore();
+  const [photoFailed, setPhotoFailed] = useState(false);
+
+  useEffect(() => {
+    setPhotoFailed(false);
+  }, [user?.uid]);
 
   const handleSignIn = async () => {
     clearError();
@@ -75,7 +81,21 @@ export function AccountSection() {
 
         {status === "signedIn" && user ? (
           <View>
-            <View className="py-1">
+            <View className="flex-row items-center gap-3 py-1">
+              <View className="relative h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-raised">
+                <Text className="text-[16px] font-semibold text-accent">
+                  {(user.displayName ?? user.email ?? "?").charAt(0).toUpperCase()}
+                </Text>
+                {user.photoURL && !photoFailed ? (
+                  <Image
+                    source={{uri: user.photoURL}}
+                    onError={() => setPhotoFailed(true)}
+                    accessibilityLabel={`${user.displayName ?? "Account"} profile photo`}
+                    className="absolute inset-0 h-10 w-10"
+                  />
+                ) : null}
+              </View>
+              <View className="flex-1 py-1">
               <Text className="text-[16px] text-ink">{user.displayName ?? "Signed in"}</Text>
               {user.email ? (
                 <Text className="mt-0.5 text-[13px] leading-[18px] text-muted">{user.email}</Text>
@@ -83,6 +103,7 @@ export function AccountSection() {
               <Text className="mt-1 text-[13px] leading-[18px] text-muted">
                 {syncStatus === "error" ? (syncError ?? syncLabel.error) : syncLabel[syncStatus]}
               </Text>
+              </View>
             </View>
             <Pressable
               accessibilityRole="button"
