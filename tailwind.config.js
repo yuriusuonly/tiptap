@@ -1,7 +1,13 @@
+import {createRequire} from "node:module";
+
+// `nativewind/preset` is a CommonJS subpath without an `exports` map.
+const require = createRequire(import.meta.url);
+const nativewindPreset = require("nativewind/preset");
+
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
-  presets: [require("nativewind/preset")],
+  presets: [nativewindPreset],
   theme: {
     extend: {
       colors: {

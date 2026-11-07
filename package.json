@@ -1,5 +1,6 @@
 {
   "private": true,
+  "type": "module",
   "main": "expo-router/entry",
   "scripts": {
     "expo:start": "expo start",

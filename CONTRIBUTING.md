@@ -68,6 +68,7 @@ Keep non-route code (components, hooks, utilities, theme) **outside** `src/app/`
 ### Language & styling
 
 - **Vanilla JavaScript only** — JSX in `.js` files. No TypeScript, no `.ts`/`.tsx`, no `tsconfig.json`.
+- The package is **ESM** (`"type": "module"`): config files use `import`/`export default`, and CommonJS-only package subpaths are bridged with `createRequire(import.meta.url)`.
 - Style React Native components with **Nativewind** `className` utilities (Tailwind v3). Config lives in `tailwind.config.js`; `src/styles/global.css` is imported in `src/app/_layout.js`.
 - `@expo/ui/jetpack-compose` components are Compose-native and do not accept `className` — style them with `src/theme/colors.js` tokens, `StyleSheet`, and Compose modifiers.
 - The Android shell uses `@expo/ui/jetpack-compose`; the web shell uses React Native Web. Keep vocabulary, colors, and layout rules shared.

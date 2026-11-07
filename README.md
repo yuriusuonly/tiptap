@@ -13,6 +13,7 @@ An AI-generated, TikTok-like app built with **Expo / React Native**. Runs on **A
 - **Zustand** + **AsyncStorage** for global state and persistence
 - **`react-native-svg`** for the shared logo
 - **Vanilla JavaScript** (JSX in `.js` files — no TypeScript)
+- **ESM** (`"type": "module"`) with ESM config files
 - **npm** for dependency management
 
 ## Requirements

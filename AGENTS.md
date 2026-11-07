@@ -56,6 +56,7 @@ npm run adb:install                   # adb install -r -d the built APK
 ## Code conventions
 
 - **Vanilla JavaScript only.** JSX in `.js` files. Do not introduce TypeScript, `.ts`/`.tsx`, or a `tsconfig.json`.
+- The package is **ESM** (`"type": "module"`). Config files (`babel.config.js`, `metro.config.js`, `tailwind.config.js`) use `import`/`export default`. CommonJS-only package subpaths are bridged with `createRequire(import.meta.url)`.
 - Style React Native components with **Nativewind** `className` utilities (Tailwind v3 config in `tailwind.config.js`; `src/styles/global.css` is imported in `src/app/_layout.js`). Shared tokens still live in `src/theme/colors.js` and are mirrored in the Tailwind theme.
 - `@expo/ui/jetpack-compose` components are Compose-native and **do not accept `className`** — keep styling those with `src/theme/colors.js` tokens, `StyleSheet`, and Compose modifiers.
 - Global client state uses **Zustand** stores in `src/store/`. Persist with `zustand/middleware` + AsyncStorage and `skipHydration: true`, then call `store.persist.rehydrate()` in an effect so static web rendering never touches `localStorage`.
