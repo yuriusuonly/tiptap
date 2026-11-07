@@ -1,15 +1,17 @@
 /**
  * Android preferences: a plain expandable theme selector (no animations) that
  * persists the chosen mode through the shared theme store, plus rows to open
- * the web landing page and contact support.
+ * the web landing page and contact support. Failed URL opens surface via the
+ * same toast (no inlined errors).
  * @module src/android/screens/profile/profile-preferences
  */
 import {useState} from "react";
 import {Linking, Pressable, Text, View} from "react-native";
 import {APP_NAME, LANDING_PAGE_URL} from "../../../shared/constants/configuration";
 import {THEME_MODES, useResolvedTheme, useThemeStore} from "../../../shared/store/theme-store";
+import {ACTION_FAILED_MESSAGE} from "./account-section";
 
-export function ProfilePreferences() {
+export function ProfilePreferences({onActionFailed}) {
   const [expanded, setExpanded] = useState(false);
   const {themeMode} = useResolvedTheme();
   const setThemeMode = useThemeStore((state) => state.setThemeMode);
@@ -18,6 +20,14 @@ export function ProfilePreferences() {
   const selectMode = (mode) => {
     setThemeMode(mode);
     setExpanded(false);
+  };
+
+  const openUrl = async (url) => {
+    try {
+      await Linking.openURL(url);
+    } catch {
+      onActionFailed?.(ACTION_FAILED_MESSAGE);
+    }
   };
 
   return (
@@ -81,7 +91,7 @@ export function ProfilePreferences() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`About ${APP_NAME}. Open the landing page.`}
-          onPress={() => Linking.openURL(LANDING_PAGE_URL)}
+          onPress={() => openUrl(LANDING_PAGE_URL)}
           className="flex-row items-center justify-between gap-3 py-1"
         >
           <View className="flex-1">
@@ -96,7 +106,7 @@ export function ProfilePreferences() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Contact Support"
-          onPress={() => Linking.openURL("mailto:yuriusu.dev@gmail.com")}
+          onPress={() => openUrl("mailto:yuriusu.dev@gmail.com")}
           className="mt-2 flex-row items-center justify-between gap-3 border-t border-line pt-2 py-1"
         >
           <View className="flex-1">

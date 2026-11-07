@@ -18,7 +18,7 @@ export function ProfileScreen() {
       <View className="w-full max-w-[560px] self-center tablet:max-w-[640px] desktop:max-w-[720px]">
         <AccountSection onActionFailed={setToast} />
         <View className="mt-4 mobile:mt-5 tablet:mt-6 desktop:mt-8">
-          <ProfilePreferences />
+          <ProfilePreferences onActionFailed={setToast} />
         </View>
       </View>
       <Toast
