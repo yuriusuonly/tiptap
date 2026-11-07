@@ -6,7 +6,7 @@
 import Head from "expo-router/head";
 import {useEffect, useState} from "react";
 import {ScrollView, Text, View} from "react-native";
-import AppLogo from "../../../../shared/components/app-logo";
+import LogoIcon from "../../../../shared/assets/icons/icon.svg";
 import Icon from "../../../../shared/components/icon";
 import {useResponsiveLayout} from "../../../../shared/hooks/use-responsive-layout";
 
@@ -76,7 +76,7 @@ export function LandingScreen() {
                 pointerEvents="none"
                 className="absolute h-[160px] w-[160px] rounded-full bg-purple opacity-[0.22] phone:h-[200px] phone:w-[200px] tablet:h-[240px] tablet:w-[240px] desktop:h-[220px] desktop:w-[220px]"
               />
-              <Icon as={AppLogo} size={tokens.logoSize} accessibilityLabel="Tiptap logo" />
+              <Icon as={LogoIcon} size={tokens.logoSize} accessibilityLabel="Tiptap logo" />
               <Text className="text-center text-[13px] font-semibold uppercase leading-[18px] tracking-[1.4px] text-faint">
                 Short video. Infinite ideas.
               </Text>

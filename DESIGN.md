@@ -5,7 +5,7 @@ Tokens and layout rules that keep the web and Android UI consistent. Color, spac
 ## Brand
 
 - **Name:** Tiptap
-- **Logo:** `src/shared/assets/icons/icon.svg` — master SVG (gradient music note on a dark rounded square). Render via `src/shared/components/app-logo.js` (a `react-native-svg` component mirroring the master SVG) for reliable cross-platform rendering, optionally through `src/shared/components/icon.js`: `<Icon as={AppLogo} size={...} accessibilityLabel="Tiptap logo" />`. Derive `src/shared/assets/images/icon.png` from `icon.svg` for launcher/favicon use.
+- **Logo:** `src/shared/assets/icons/icon.svg` — master SVG (gradient music note on a dark rounded square). Render via `src/shared/components/icon.js`: `<Icon as={LogoIcon} size={...} accessibilityLabel="Tiptap logo" />` where `LogoIcon` is imported directly from `src/shared/assets/icons/icon.svg`. Derive `src/shared/assets/images/icon.png` from `icon.svg` for launcher/favicon use.
 - **Brand gradient:** cyan → purple → red (`#25F4EE → #7C4DFF → #FE2C55`), matching the SVG.
 
 ## Colors
@@ -96,7 +96,7 @@ Implemented with file-based routes: `src/app/_layout.android.js` renders Expo Ro
 
 - Bottom navigation is a React Native tab bar (`src/app/android/components/app-tab-bar.js`) with **Home** and **Profile** tabs (label + SVG icon each). No `@expo/ui`/Jetpack Compose, no XML/VectorDrawable icons.
 - `Pressable` tab items are the only touch targets; the icon wrapper and selection indicator use `pointerEvents="none"` so taps are never intercepted or propagated.
-- Icons are SVG files in `src/shared/assets/icons/`, rendered with `react-native-svg`. Use `src/shared/components/icon.js` (`as`, `size`, `accessibilityLabel`; `color` for `currentColor`). The complex gradient logo uses `src/shared/components/app-logo.js`.
+- Icons are SVG files in `src/shared/assets/icons/`, rendered with `react-native-svg`. Use `src/shared/components/icon.js` (`as`, `size`, `accessibilityLabel`; `color` for `currentColor`) for all icons including the gradient logo (`icon.svg`).
 - Selected tab uses the `accent` color with a translucent accent indicator. State changes are plain color/layout changes — no animations or transitions.
 - Home and Profile content is centered and capped at `1920dp`, using the same per-class gutters as Web (`16 / 20 / 32 / 48`).
 - **Home** scales with the class: title `24 / 30` → `30 / 36` → `36 / 42` → `44 / 52`; subtitle `14 / 20` → `16 / 24` → `18 / 26` → `20 / 30`; copy width caps at `480 / 560 / 640 / 880`.
