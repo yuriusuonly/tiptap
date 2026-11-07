@@ -133,74 +133,75 @@ function ProfilePreferences({
       modifiers={[fillMaxSize(), paddingAll(spacing.lg)]}
       contentAlignment="topCenter"
     >
-      <Card
-        colors={{containerColor: palette.surface, contentColor: palette.textPrimary}}
-        elevation={0}
-        border={{width: 1, color: palette.border}}
-        modifiers={[fillMaxWidth(), clip(Shapes.RoundedCorner(radius.lg))]}
+      <Column
+        modifiers={[fillMaxWidth()]}
+        verticalArrangement={{spacedBy: spacing.sm}}
       >
-        <LazyColumn
-          contentPadding={{
-            start: spacing.sm,
-            top: spacing.sm,
-            end: spacing.sm,
-            bottom: spacing.md,
-          }}
+        <Text
+          color={palette.textMuted}
+          style={{fontSize: 12, fontWeight: "700", letterSpacing: 1.2}}
         >
-          <ListItem>
-            <ListItem.HeadlineContent>
-              <Text
-                color={palette.textMuted}
-                style={{fontSize: 12, fontWeight: "700", letterSpacing: 1.2}}
-              >
-                PREFERENCES
-              </Text>
-            </ListItem.HeadlineContent>
-          </ListItem>
+          PREFERENCES
+        </Text>
 
-          <ExposedDropdownMenuBox
-            expanded={expanded}
-            onExpandedChange={onExpandedChange}
-            modifiers={[fillMaxWidth()]}
+        <Card
+          colors={{containerColor: palette.surface, contentColor: palette.textPrimary}}
+          elevation={0}
+          border={{width: 1, color: palette.border}}
+          modifiers={[fillMaxWidth(), clip(Shapes.RoundedCorner(radius.lg))]}
+        >
+          <LazyColumn
+            contentPadding={{
+              start: spacing.sm,
+              top: spacing.sm,
+              end: spacing.sm,
+              bottom: spacing.sm,
+            }}
           >
-            <ListItem modifiers={[fillMaxWidth(), menuAnchor("primaryNotEditable")]}>
-              <ListItem.HeadlineContent>
-                <Text color={palette.textPrimary} style={{fontSize: 16}}>
-                  Theme
-                </Text>
-              </ListItem.HeadlineContent>
-              <ListItem.SupportingContent>
-                <Text color={palette.textMuted} style={{fontSize: 13}}>
-                  Light, dark, or match your system
-                </Text>
-              </ListItem.SupportingContent>
-              <ListItem.TrailingContent>
-                <Text color={palette.textSecondary} style={{fontSize: 14}}>
-                  {`${currentMode.label}  ▾`}
-                </Text>
-              </ListItem.TrailingContent>
-            </ListItem>
-
-            <ExposedDropdownMenu
+            <ExposedDropdownMenuBox
               expanded={expanded}
-              onDismissRequest={() => onExpandedChange(false)}
-              containerColor={palette.surfaceRaised}
+              onExpandedChange={onExpandedChange}
+              modifiers={[fillMaxWidth()]}
             >
-              {THEME_MODES.map((mode) => (
-                <DropdownMenuItem
-                  key={mode.value}
-                  onClick={() => onSelectTheme(mode.value)}
-                  elementColors={{textColor: palette.textPrimary}}
-                >
-                  <DropdownMenuItem.Text>
-                    <Text color={palette.textPrimary}>{mode.label}</Text>
-                  </DropdownMenuItem.Text>
-                </DropdownMenuItem>
-              ))}
-            </ExposedDropdownMenu>
-          </ExposedDropdownMenuBox>
-        </LazyColumn>
-      </Card>
+              <ListItem modifiers={[fillMaxWidth(), menuAnchor("primaryNotEditable")]}>
+                <ListItem.HeadlineContent>
+                  <Text color={palette.textPrimary} style={{fontSize: 16}}>
+                    Theme
+                  </Text>
+                </ListItem.HeadlineContent>
+                <ListItem.SupportingContent>
+                  <Text color={palette.textMuted} style={{fontSize: 13}}>
+                    Light, dark, or match your system
+                  </Text>
+                </ListItem.SupportingContent>
+                <ListItem.TrailingContent>
+                  <Text color={palette.textSecondary} style={{fontSize: 14}}>
+                    {`${currentMode.label}  ▾`}
+                  </Text>
+                </ListItem.TrailingContent>
+              </ListItem>
+
+              <ExposedDropdownMenu
+                expanded={expanded}
+                onDismissRequest={() => onExpandedChange(false)}
+                containerColor={palette.surfaceRaised}
+              >
+                {THEME_MODES.map((mode) => (
+                  <DropdownMenuItem
+                    key={mode.value}
+                    onClick={() => onSelectTheme(mode.value)}
+                    elementColors={{textColor: palette.textPrimary}}
+                  >
+                    <DropdownMenuItem.Text>
+                      <Text color={palette.textPrimary}>{mode.label}</Text>
+                    </DropdownMenuItem.Text>
+                  </DropdownMenuItem>
+                ))}
+              </ExposedDropdownMenu>
+            </ExposedDropdownMenuBox>
+          </LazyColumn>
+        </Card>
+      </Column>
     </Box>
   );
 }
