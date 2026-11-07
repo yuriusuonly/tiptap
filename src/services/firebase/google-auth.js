@@ -64,16 +64,18 @@ export async function signInWithGoogle() {
 export async function signOutGoogle() {
   const {getAuth} = authSdk();
   const {GoogleSignin} = googleSigninSdk();
+  let authError = null;
   try {
     await getAuth().signOut();
-  } catch {
-    // Ignore — still attempt Google Sign-In sign-out below.
+  } catch (error) {
+    authError = error;
   }
   try {
     await GoogleSignin.signOut();
   } catch {
     // Ignore — Firebase sign-out above is the source of truth.
   }
+  if (authError) throw authError;
 }
 
 /**

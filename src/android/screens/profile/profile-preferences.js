@@ -2,7 +2,7 @@
  * Android preferences: a plain expandable theme selector (no animations) that
  * persists the chosen mode through the shared theme store, plus a row to open
  * the web landing page in the external browser.
- * @module src/android/features/profile/profile-preferences
+ * @module src/android/screens/profile/profile-preferences
  */
 import {useState} from "react";
 import {Linking, Pressable, Text, View} from "react-native";

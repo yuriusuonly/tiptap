@@ -60,14 +60,14 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for dependency, lint, and doctor commands
     │   ├── index.js              # web landing route
     │   ├── index.android.js      # Android Home route
     │   ├── +html.js              # web document shell (pre-paint theme script)
-    │   └── +not-found.js         # 404 route (thin bridge to web/features/not-found)
-    ├── web/                      # web-only features (not routes)
-    │   └── features/
+    │   └── +not-found.js         # 404 route (thin bridge to web/screens/not-found)
+    ├── web/                      # web-only screens (not routes)
+    │   └── screens/
     │       ├── landing/          # landing-screen.js
     │       └── not-found/        # not-found-screen.js
     ├── android/                  # Android-only UI (not routes)
     │   ├── components/           # app-tab-bar.js (React Native tab bar)
-    │   └── features/
+    │   └── screens/
     │       ├── home/             # home-screen.js
     │       ├── onboarding/       # onboarding-screen.js (first install, 3 pages)
     │       └── profile/          # profile-screen.js, profile-preferences.js
@@ -83,7 +83,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for dependency, lint, and doctor commands
             └── images/icon.png   # launcher icon + favicon (from icon.svg)
 ```
 
-Layers point in one direction: `src/app` routes → `src/web` / `src/android` features → `src/shared`. Shared code never imports platform features or routes. All filenames use lower-case kebab-case; Expo Router's reserved route names (`index`, `_layout`, `+html`, `+not-found`) are the exception.
+Layers point in one direction: `src/app` routes → `src/web` / `src/android` screens → `src/shared`. Shared code never imports platform screens or routes. All filenames use lower-case kebab-case; Expo Router's reserved route names (`index`, `_layout`, `+html`, `+not-found`) are the exception.
 
 SVG assets are the source of truth. Regenerate the launcher/fav icon PNG from `src/shared/assets/icons/icon.svg` after editing the logo:
 

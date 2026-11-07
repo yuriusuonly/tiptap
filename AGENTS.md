@@ -40,7 +40,7 @@ npm run android:release               # remote production AAB + submit (EAS)
 - `src/app/` — **file-based routing only** (six root files: `index.js`, `index.android.js`, `_layout.js`, `_layout.android.js`, `+html.js`, `+not-found.js`). `src/web/` and `src/android/` live **outside** `src/app/` so their files are not routes.
 - `src/web/` — **web-only** screens; `src/android/` — **Android-only** screens and components; `src/shared/` — cross-platform code only.
 - `src/services/` — reserved for future integrations (Firebase/API/storage adapters). Keep it free of UI imports.
-- Dependency direction: `app routes -> web/android features -> shared components`. Shared code must never import from `src/app/`, `src/web/`, or `src/android/`. See README.md (Project structure) and CONTRIBUTING.md (Architecture).
+- Dependency direction: `app routes -> web/android screens -> shared components`. Shared code must never import from `src/app/`, `src/web/`, or `src/android/`. See README.md (Project structure) and CONTRIBUTING.md (Architecture).
 
 ## Routing (Expo Router)
 
@@ -65,7 +65,7 @@ npm run android:release               # remote production AAB + submit (EAS)
 - Global client state uses **Zustand** stores in `src/shared/store/`. Persist with `zustand/middleware` + AsyncStorage and `skipHydration: true`, then call `store.persist.rehydrate()` in `src/shared/components/root.js` so static web rendering never touches `localStorage`.
 - The Android bottom navigation is a **React Native** tab bar (`src/android/components/app-tab-bar.js`) rendered by `src/app/_layout.android.js` with internal `home`/`profile` state. The `Pressable` tab item is the only touch target; icons and the selection indicator use `pointerEvents="none"` so taps are never intercepted or propagated. Do **not** reintroduce `@expo/ui`/Jetpack Compose navigation or VectorDrawable XML assets.
 - App icons: `app.config.js` points at `src/shared/assets/images/icon.png` (top-level and `android.icon`), which is exported from the master `src/shared/assets/icons/icon.svg` at 1024×1024 (Expo only accepts PNG launcher icons). The web favicon is configured via `app.config.js` `web.favicon` (`./src/shared/assets/images/icon.png`).
-- The web landing is statically rendered. `useWindowDimensions()` is 0 during SSG, so gate responsive branches behind a `mounted` flag (`src/web/features/landing/landing-screen.js`); otherwise hydration mismatches leave the mobile layout on desktop.
+- The web landing is statically rendered. `useWindowDimensions()` is 0 during SSG, so gate responsive branches behind a `mounted` flag (`src/web/screens/landing/landing-screen.js`); otherwise hydration mismatches leave the mobile layout on desktop.
 
 ## Build & test
 

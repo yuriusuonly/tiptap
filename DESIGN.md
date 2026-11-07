@@ -79,7 +79,7 @@ Four responsive layout classes are shared by Web and Android. Breakpoints are mi
 
 ### Web landing page
 
-Implemented in `src/web/features/landing/landing-screen.js` (route: `src/app/index.js`).
+Implemented in `src/web/screens/landing/landing-screen.js` (route: `src/app/index.js`).
 
 - Single centered page capped at `1280px` on desktop (web); shared content cap is `1920px` (`contentMaxWidth`) on other screens.
 - Gutter: `16` wearable, `20` mobile, `32` tablet, `48` desktop; vertical padding `24 / 32 / 48 / 64`.
@@ -91,7 +91,7 @@ Implemented in `src/web/features/landing/landing-screen.js` (route: `src/app/ind
 
 ### Android app
 
-`src/app/_layout.android.js` renders a custom React Native tab bar driven by internal `home`/`profile` state (`index` via `Slot`, Profile via direct import of `src/android/features/profile/profile-screen.js`). First-time installs see the onboarding flow (`src/android/features/onboarding/onboarding-screen.js`) — three pages with Skip/Next and dots — before the tabs. UI lives in `src/android/features`. `src/app/` holds only the six root route files, so web `/profile` is unmatched and falls through to `+not-found.js`.
+`src/app/_layout.android.js` renders a custom React Native tab bar driven by internal `home`/`profile` state (`index` via `Slot`, Profile via direct import of `src/android/screens/profile/profile-screen.js`). First-time installs see the onboarding flow (`src/android/screens/onboarding/onboarding-screen.js`) — three pages with Skip/Next and dots — before the tabs. UI lives in `src/android/screens`. `src/app/` holds only the six root route files, so web `/profile` is unmatched and falls through to `+not-found.js`.
 
 - Bottom navigation is a React Native tab bar (`src/android/components/app-tab-bar.js`) with **Home** and **Profile** tabs (label + SVG icon each). No `@expo/ui`/Jetpack Compose, no XML/VectorDrawable icons.
 - `Pressable` tab items are the only touch targets; the icon wrapper and selection indicator use `pointerEvents="none"` so taps are never intercepted or propagated.
@@ -112,7 +112,7 @@ Implemented in `src/web/features/landing/landing-screen.js` (route: `src/app/ind
 
 ### Not found
 
-- Web 404 route (`src/app/+not-found.js`, implemented in `src/web/features/not-found/not-found-screen.js`): centered message, accent `404`, and a “Back to TipTap” link. All unmatched web routes render it, including Android-only URLs like `/profile`.
+- Web 404 route (`src/app/+not-found.js`, implemented in `src/web/screens/not-found/not-found-screen.js`): centered message, accent `404`, and a “Back to TipTap” link. All unmatched web routes render it, including Android-only URLs like `/profile`.
 
 ## Consistency checklist
 

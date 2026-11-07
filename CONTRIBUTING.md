@@ -19,7 +19,7 @@ Use `npx expo install <package>` — never `npm install <package>` — when addi
 
 ## Project structure
 
-See [README.md](README.md#project-structure) for the full file tree. Layers point in one direction: `src/app` routes → `src/web` / `src/android` features → `src/shared`. Shared code must not import routes or platform features.
+See [README.md](README.md#project-structure) for the full file tree. Layers point in one direction: `src/app` routes → `src/web` / `src/android` screens → `src/shared`. Shared code must not import routes or platform screens.
 
 ### Architecture
 
@@ -43,7 +43,7 @@ flowchart TB
         NF["<i>+not-found.js</i>"]
     end
 
-    subgraph PLATFORM["Platform features"]
+    subgraph PLATFORM["Platform screens"]
         WEBF["src/web/<br/>landing, not-found"]
         ANDF["src/android/<br/>home, onboarding, profile,<br/>app-tab-bar"]
     end
@@ -136,7 +136,7 @@ flowchart LR
   - `*.js` — web and any platform without a specific route
 - `_layout.js` (web) and `_layout.android.js` (Android) define the root layouts. Android uses a custom React Native tab bar driven by internal `home`/`profile` state (`index` via `Slot`, Profile via direct import) — tabs are not file-based routes.
 - Shared routes keep a plain `.js` fallback: `index.js` + `index.android.js`, `_layout.js` + `_layout.android.js`. A platform-only file without a fallback sibling throws — never create a bare `*.android.js` route. The root holds only `index.js`, `index.android.js`, `_layout.js`, `_layout.android.js`, `+html.js`, and `+not-found.js`; unmatched web URLs such as `/profile` render `+not-found.js` with a 404 status.
-- Route files at `src/app/` root are thin: they re-export a feature from `src/web` or `src/android`, or define a navigator/redirect.
+- Route files at `src/app/` root are thin: they re-export a screen from `src/web` or `src/android`, or define a navigator/redirect.
 - Import navigation APIs (`Link`, `router`, `useLocalSearchParams`, `Redirect`) from `expo-router`.
 
 ### Language & styling

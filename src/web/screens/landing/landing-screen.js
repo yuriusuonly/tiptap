@@ -1,7 +1,7 @@
 /**
  * Web landing page with a responsive hero layout. Styling is entirely
  * Nativewind/Tailwind; only the responsive logo size comes from layout tokens.
- * @module src/web/features/landing/landing-screen
+ * @module src/web/screens/landing/landing-screen
  */
 import Head from "expo-router/head";
 import {useEffect, useState} from "react";
