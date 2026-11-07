@@ -21,14 +21,15 @@ export function ToastHost() {
 
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={hideToast}>
-      <View pointerEvents="box-none" className="flex-1" style={{paddingBottom: insets.bottom}}>
+      <View pointerEvents="box-none" className="flex-1">
         <Toast
           key={current.id}
           visible
           message={current.message}
           durationMs={current.durationMs}
           onDismiss={dismissToast}
-          className="absolute bottom-4 left-1/2 w-[calc(100%-32px)] max-w-[568px] -translate-x-1/2"
+          className="absolute left-1/2 w-[calc(100%-32px)] max-w-[568px] -translate-x-1/2"
+          style={{bottom: insets.bottom + 16}}
         />
       </View>
     </Modal>

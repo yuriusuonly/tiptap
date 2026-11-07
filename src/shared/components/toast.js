@@ -11,7 +11,7 @@
 import {useEffect} from "react";
 import {Pressable, Text, View} from "react-native";
 
-export function Toast({visible, message, onDismiss, durationMs = 4000, className}) {
+export function Toast({visible, message, onDismiss, durationMs = 4000, className, style}) {
   useEffect(() => {
     if (!visible) return undefined;
     const timer = setTimeout(() => {
@@ -23,7 +23,7 @@ export function Toast({visible, message, onDismiss, durationMs = 4000, className
   if (!visible || !message) return null;
 
   return (
-    <View className={className}>
+    <View className={className} style={style}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Dismiss message"
