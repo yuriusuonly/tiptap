@@ -1,7 +1,7 @@
 /**
  * Android Account section: Google Sign-In (OAuth only) with Firestore user
  * record + preference sync. Each action shows its own circular progress;
- * failed sign-in/sign-out/account-deletion surface via a snackbar; sync
+ * failed sign-in/sign-out/account-deletion surface via a toast; sync
  * failures show inline with Retry/Dismiss. Identity shows name/email (+photo).
  * @module src/android/screens/profile/account-section
  */
