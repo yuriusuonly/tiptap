@@ -4,7 +4,7 @@
  * @module src/app/_layout.android
  */
 import {Tabs} from "expo-router";
-import {AppTabBar} from "../android/components/app-tab-bar";
+import {AppTabBar} from "./android/components/app-tab-bar";
 import {AppProviders} from "../shared/components/app-providers";
 
 export default function RootLayout() {

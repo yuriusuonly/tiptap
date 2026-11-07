@@ -3,4 +3,4 @@
  * web `/profile` is unmatched and renders `+not-found.js` with a 404 status.
  * @module src/app/profile.android
  */
-export {default} from "../android/screens/profile/profile-screen";
+export {default} from "./android/features/profile/profile-screen";

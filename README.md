@@ -60,12 +60,11 @@ src/
     profile.android.js        # Android Profile tab route (Android-only; no web route)
     +html.js                  # web document shell
     +not-found.js             # 404 route (unmatched web routes, incl. /profile)
-  web/
-    screens/landing/          # web-only landing screen
-  android/
-    components/               # Android-only UI (React Native bottom tab bar)
-    screens/home/             # Android Home tab content
-    screens/profile/          # Android Profile tab content + theme preference
+    web/features/landing/     # web-only landing screen (also at /web/features/landing/landing-screen)
+    android/
+      components/             # Android-only UI (React Native bottom tab bar)
+      features/home/          # Android Home tab content (also at /android/features/home/home-screen)
+      features/profile/       # Android Profile tab content + theme preference
   shared/
     components/               # cross-platform UI (icon.js, app-logo.js, app-providers.js)
     hooks/                    # cross-platform hooks (responsive layout)
@@ -85,7 +84,7 @@ metro.config.js               # Metro + SVG transformer + Nativewind
 babel.config.js               # Babel + Nativewind
 ```
 
-Layers point in one direction: `src/app` → `src/web` / `src/android` → `src/shared`. Shared code never imports platform screens or routes. Non-route code lives **outside** `src/app/`. All filenames use lower-case kebab-case; Expo Router's reserved route names (`index`, `_layout`, `+html`, `+not-found`) are the exception.
+Layers point in one direction: `src/app` routes → `src/app/web` / `src/app/android` features → `src/shared`. Shared code never imports platform features or routes. `src/app/web` and `src/app/android` live under `src/app/` so file-based routing also exposes them at their path URLs. All filenames use lower-case kebab-case; Expo Router's reserved route names (`index`, `_layout`, `+html`, `+not-found`) are the exception.
 
 SVG assets are the source of truth. Regenerate the launcher/fav icon PNG from `src/shared/assets/icons/icon.svg` after editing the logo:
 

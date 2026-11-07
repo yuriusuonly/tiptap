@@ -2,14 +2,14 @@
  * Android bottom tab bar built from React Native primitives and SVG icons.
  * Pressables are the only touch targets; icons and the selection indicator are
  * non-interactive so taps always reach the tab item.
- * @module src/android/components/app-tab-bar
+ * @module src/app/android/components/app-tab-bar
  */
 import {Pressable, Text, View} from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";
-import HomeIcon from "../../shared/assets/icons/home.svg";
-import PersonIcon from "../../shared/assets/icons/person.svg";
-import Icon from "../../shared/components/icon";
-import {useResolvedTheme} from "../../shared/store/theme-store";
+import HomeIcon from "../../../shared/assets/icons/home.svg";
+import PersonIcon from "../../../shared/assets/icons/person.svg";
+import Icon from "../../../shared/components/icon";
+import {useResolvedTheme} from "../../../shared/store/theme-store";
 
 const ICONS = {
   index: HomeIcon,

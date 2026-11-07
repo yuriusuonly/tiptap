@@ -29,11 +29,11 @@ src/
     profile.android.js        # Android Profile tab route (Android-only; no web route)
     +html.js                  # web document shell
     +not-found.js             # 404 route (unmatched web routes, incl. /profile)
-  web/screens/landing/        # web-only landing screen
-  android/
-    components/               # Android-only UI (React Native tab bar)
-    screens/home/             # Android Home tab content
-    screens/profile/          # Android Profile tab content + theme preference
+    web/features/landing/     # web-only landing screen (also at /web/features/landing/landing-screen)
+    android/
+      components/             # Android-only UI (React Native tab bar)
+      features/home/          # Android Home tab content (also at /android/features/home/home-screen)
+      features/profile/       # Android Profile tab content + theme preference
   shared/
     components/               # cross-platform UI (icon.js, app-logo.js, app-providers.js)
     hooks/                    # use-responsive-layout.js
@@ -49,7 +49,7 @@ src/
       images/icon.png         # Android launcher icon + web favicon source
 ```
 
-Layers point in one direction: `src/app` → `src/web` / `src/android` → `src/shared`. Shared code must not import routes or platform screens. Keep non-route code (components, hooks, providers, stores, theme) **outside** `src/app/`. Configuration files (`tailwind.config.js`, `metro.config.js`, `babel.config.js`, `.svgrrc.json`) stay at the workspace root.
+Layers point in one direction: `src/app` routes → `src/app/web` / `src/app/android` features → `src/shared`. Shared code must not import routes or platform features. Keep shared code (components, hooks, store, constants, stylesheets, assets) in `src/shared/` outside `src/app/`. Configuration files (`tailwind.config.js`, `metro.config.js`, `babel.config.js`, `.svgrrc.json`) stay at the workspace root.
 
 ## Conventions
 
@@ -68,7 +68,7 @@ Layers point in one direction: `src/app` → `src/web` / `src/android` → `src/
   - `*.js` — web and any platform without a specific route
 - `_layout.js` (web) and `_layout.android.js` (Android) define the root navigators. Android uses file-based `Tabs`; each tab is a route (`index.android.js`, `profile.android.js`).
 - Shared routes keep a plain `.js` fallback: `index.js` + `index.android.js`, `_layout.js` + `_layout.android.js`. Android-only routes (e.g. `profile.android.js`) intentionally have no `.js` fallback; unmatched web URLs such as `/profile` render `+not-found.js` with a 404 status.
-- Route files are thin: they re-export a screen from `src/web` or `src/android`, or define a redirect. Do not put screen UI in `src/app`.
+- Route files at `src/app/` root are thin: they re-export a feature from `src/app/web` or `src/app/android`, or define a navigator/redirect. Feature files under `src/app/web/features/` and `src/app/android/features/` are file-based routes and are also reachable at their path URLs.
 - Import navigation APIs (`Link`, `router`, `useLocalSearchParams`, `Redirect`) from `expo-router`.
 
 ### Language & styling
