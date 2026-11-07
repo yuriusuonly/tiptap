@@ -1,29 +1,27 @@
 /**
  * Android Account section: Google Sign-In (OAuth only) with Firestore user
- * record + preference sync status. Rendered at the top of the Profile tab
- * under the "Account" label.
+ * record + preference sync. Loading/error presentation is centralized in
+ * `StateView`; the identity area shows the user's name and email only.
  * @module src/android/features/profile/account-section
  */
 import {useEffect, useState} from "react";
 import {Image, Pressable, Text, View} from "react-native";
-import {signInWithGoogle, signOutGoogle} from "../../../services/firebase/google-auth";
+import {deleteAuthUser, signInWithGoogle, signOutGoogle} from "../../../services/firebase/google-auth";
+import {deleteUserData} from "../../../services/firebase/user-profile";
+import {StateView} from "../../../shared/components/state-view";
 import {useAuthStore} from "../../../shared/store/auth-store";
-import {usePreferencesSyncStore} from "../../../shared/store/preferences-sync-store";
-
-const syncLabel = {
-  signedOut: "Signed out",
-  syncing: "Syncing preferences…",
-  synced: "Preferences up to date",
-  error: "Sync failed — will retry when the connection returns",
-};
+import {syncOnSignIn, usePreferencesSyncStore} from "../../../shared/store/preferences-sync-store";
 
 export function AccountSection() {
   const {status, user, isSigningIn, error, setSigningIn, setError, clearError} = useAuthStore();
-  const {syncStatus, syncError} = usePreferencesSyncStore();
+  const {syncStatus, syncError, setSyncStatus} = usePreferencesSyncStore();
   const [photoFailed, setPhotoFailed] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   useEffect(() => {
     setPhotoFailed(false);
+    setConfirmingDelete(false);
   }, [user?.uid]);
 
   const handleSignIn = async () => {
@@ -50,6 +48,48 @@ export function AccountSection() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!user) return;
+    clearError();
+    setIsDeleting(true);
+    try {
+      await deleteUserData(user.uid);
+      await deleteAuthUser();
+      await signOutGoogle();
+      setConfirmingDelete(false);
+    } catch (deleteError) {
+      setError(deleteError?.message ?? "Could not delete your account. Please try again.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleRetrySync = () => {
+    if (user) void syncOnSignIn(user);
+  };
+
+  const handleDismiss = () => {
+    clearError();
+    if (syncError) setSyncStatus("synced");
+  };
+
+  const isLoading =
+    status === "loading" ||
+    isSigningIn ||
+    isDeleting ||
+    (status === "signedIn" && syncStatus === "syncing");
+  const loadingText =
+    status === "loading"
+      ? "Checking account…"
+      : isDeleting
+        ? "Deleting account…"
+        : isSigningIn && status === "signedOut"
+          ? "Signing in…"
+          : isSigningIn
+            ? "Signing out…"
+            : "Syncing preferences…";
+  const errorMessage = syncError ?? error;
+
   return (
     <View>
       <Text className="mb-1 text-[11px] font-bold uppercase tracking-[1.2px] text-muted mobile:mb-2 mobile:text-[12px] tablet:text-[12px] desktop:mb-3 desktop:text-[13px]">
@@ -57,10 +97,13 @@ export function AccountSection() {
       </Text>
 
       <View className="rounded-[20px] border border-line bg-surface p-2 tablet:p-3 desktop:p-4">
-        {status === "loading" ? (
-          <Text className="py-1 text-[14px] text-muted">Checking account…</Text>
-        ) : null}
-
+        <StateView
+          isLoading={isLoading}
+          loadingText={loadingText}
+          error={errorMessage}
+          onRetry={syncError ? handleRetrySync : null}
+          onDismiss={errorMessage ? handleDismiss : null}
+        >
         {status === "signedOut" ? (
           <Pressable
             accessibilityRole="button"
@@ -95,14 +138,11 @@ export function AccountSection() {
                   />
                 ) : null}
               </View>
-              <View className="flex-1 py-1">
-              <Text className="text-[16px] text-ink">{user.displayName ?? "Signed in"}</Text>
-              {user.email ? (
-                <Text className="mt-0.5 text-[13px] leading-[18px] text-muted">{user.email}</Text>
-              ) : null}
-              <Text className="mt-1 text-[13px] leading-[18px] text-muted">
-                {syncStatus === "error" ? (syncError ?? syncLabel.error) : syncLabel[syncStatus]}
-              </Text>
+              <View className="flex-1">
+                <Text className="text-[16px] text-ink">{user.displayName ?? "Signed in"}</Text>
+                {user.email ? (
+                  <Text className="mt-0.5 text-[13px] leading-[18px] text-muted">{user.email}</Text>
+                ) : null}
               </View>
             </View>
             <Pressable
@@ -116,10 +156,44 @@ export function AccountSection() {
                 {isSigningIn ? "Signing out…" : "Sign out"}
               </Text>
             </Pressable>
+            {confirmingDelete ? (
+              <View className="mt-2 border-t border-line pt-2">
+                <Text className="text-[14px] leading-[20px] text-ink">
+                  Delete your account and all synced data? This can&apos;t be undone.
+                </Text>
+                <View className="mt-2 flex-row gap-5">
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Confirm delete account"
+                    disabled={isDeleting}
+                    onPress={handleDelete}
+                  >
+                    <Text className="py-1 text-[14px] font-semibold text-cyan">Delete</Text>
+                  </Pressable>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Cancel delete account"
+                    disabled={isDeleting}
+                    onPress={() => setConfirmingDelete(false)}
+                  >
+                    <Text className="py-1 text-[14px] text-muted">Cancel</Text>
+                  </Pressable>
+                </View>
+              </View>
+            ) : (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Delete account"
+                disabled={isDeleting}
+                onPress={() => setConfirmingDelete(true)}
+                className={`border-t border-line pt-2 ${isDeleting ? "opacity-50" : ""}`}
+              >
+                <Text className="py-1 text-[14px] text-cyan">Delete account</Text>
+              </Pressable>
+            )}
           </View>
         ) : null}
-
-        {error ? <Text className="mt-2 text-[13px] leading-[18px] text-muted">{error}</Text> : null}
+        </StateView>
       </View>
     </View>
   );

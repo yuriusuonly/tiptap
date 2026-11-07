@@ -45,3 +45,20 @@ export async function upsertUserProfile(user) {
     await setDoc(ref, {...common, createdAt: FieldValue.serverTimestamp()});
   }
 }
+
+/**
+ * Delete the user's Firestore data: every document in
+ * `users/{uid}/preferences` (e.g. `app`), then the `users/{uid}` document.
+ * @param {string} uid
+ */
+export async function deleteUserData(uid) {
+  const {collection, deleteDoc, doc, getDocs} = firestoreSdk();
+  const database = db();
+  const prefsSnapshot = await getDocs(
+    collection(database, "users", uid, "preferences")
+  );
+  await Promise.all(
+    prefsSnapshot.docs.map((prefsDoc) => deleteDoc(prefsDoc.ref))
+  );
+  await deleteDoc(doc(database, "users", uid));
+}

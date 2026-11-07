@@ -1,6 +1,6 @@
 /**
  * Android Google Sign-In via @react-native-google-signin/google-signin and
- * React Native Firebase Auth (@react-native-firebase/auth, modular API v27).
+ * React Native Firebase Auth (@react-native-firebase/auth, modular API).
  * Google OAuth only — no email/password, no web auth.
  *
  * Native modules are loaded lazily with `require` inside each function —
@@ -74,6 +74,38 @@ export async function signOutGoogle() {
   } catch {
     // Ignore — Firebase sign-out above is the source of truth.
   }
+}
+
+/**
+ * Delete the current Firebase Auth user. When Firebase reports the session
+ * is stale (`auth/requires-recent-login`), re-authenticates with the cached
+ * Google credential first, then retries the delete.
+ */
+export async function deleteAuthUser() {
+  const {getAuth, GoogleAuthProvider} = authSdk();
+  const {GoogleSignin} = googleSigninSdk();
+  const currentUser = getAuth().currentUser;
+  if (!currentUser) {
+    throw new Error("No signed-in user to delete.");
+  }
+  try {
+    await currentUser.delete();
+    return;
+  } catch (error) {
+    if (error?.code !== "auth/requires-recent-login") throw error;
+  }
+  await configureGoogleSignIn();
+  const silent = await GoogleSignin.signInSilently();
+  const idToken = silent?.data?.idToken ?? null;
+  if (!idToken) {
+    throw new Error(
+      "Sign-in expired. Please sign in again and retry deleting your account."
+    );
+  }
+  await currentUser.reauthenticateWithCredential(
+    GoogleAuthProvider.credential(idToken)
+  );
+  await currentUser.delete();
 }
 
 /**
