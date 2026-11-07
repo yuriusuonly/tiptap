@@ -9,7 +9,9 @@ import {useEffect, useState} from "react";
 import {Image, Pressable, Text, View} from "react-native";
 import {deleteAuthUser, signInWithGoogle, signOutGoogle} from "../../../services/firebase/google-auth";
 import {deleteUserData} from "../../../services/firebase/user-profile";
+import GoogleIcon from "../../../shared/assets/icons/google.svg";
 import {CircularProgress} from "../../../shared/components/circular-progress";
+import {Icon} from "../../../shared/components/icon";
 import {useAuthStore} from "../../../shared/store/auth-store";
 import {syncOnSignIn, usePreferencesSyncStore} from "../../../shared/store/preferences-sync-store";
 
@@ -94,18 +96,22 @@ export function AccountSection({onActionFailed}) {
             accessibilityLabel="Sign in with Google"
             disabled={isSigningIn}
             onPress={handleSignIn}
-            className={`flex-row items-center justify-between gap-3 py-1 ${isSigningIn ? "opacity-50" : ""}`}
+            className={`flex-row items-center gap-3 py-1 ${isSigningIn ? "opacity-50" : ""}`}
           >
+            <View className="h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-raised">
+              {isSigningIn ? (
+                <CircularProgress />
+              ) : (
+                <Icon as={GoogleIcon} size={24} accessibilityLabel="Google" />
+              )}
+            </View>
             <View className="flex-1">
               <Text className="text-[16px] text-ink">{isSigningIn ? "Signing in…" : "Sign in with Google"}</Text>
               <Text className="mt-0.5 text-[13px] leading-[18px] text-muted">
                 Sync your preferences across devices
               </Text>
             </View>
-            <View className="flex-row items-center gap-2">
-              {isSigningIn ? <CircularProgress /> : null}
-              <Text className="text-[14px] text-accent">↦</Text>
-            </View>
+            <Text className="text-[14px] text-accent">↦</Text>
           </Pressable>
         ) : status === "signedIn" && user ? (
           <View>
