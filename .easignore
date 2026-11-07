@@ -1,0 +1,32 @@
+# EAS copy rules: when this file exists, EAS does not use .gitignore for
+# selecting files to upload/copy. Mirrors .gitignore, except
+# `google-services.json` is INCLUDED so EAS prebuild can embed it (the file
+# stays gitignored for git; it contains only public client identifiers).
+# `credentials.json` / `credentials/` stay excluded (EAS local credentials
+# are read from the project root; secrets must not be uploaded).
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+/web/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+.metro-health-check*
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+.DS_Store
+*.pem
+.env*.local
+.firebaserc
+firebase.json
+firestore.rules
+firestore.indexes.json
+credentials.json
+credentials/
+*.tsbuildinfo
+/android
