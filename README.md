@@ -183,6 +183,7 @@ After adding Firebase native deps/plugins or `google-services.json`, rebuild the
 - [ ] Push notifications (FCM) — new-content heads-up on Android; FCM token registered per user/device
 - [ ] Firebase Hosting — deploy the static web landing export (web stays as-is, no Firebase SDK/auth in app)
 - [ ] Cloud Function / admin sender — trigger FCM on new `content` (planned; separate from client wiring)
+- [ ] GitHub Actions workflows — auto-added by Firebase init; removed for now, revisit later
 - [ ] ESLint — not configured (`npx expo lint` is currently a no-op)
 - [ ] Real content feed — Home is a static placeholder; no data layer yet
 - [ ] iOS production profile in `eas.json` — not configured
