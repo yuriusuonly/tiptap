@@ -12,7 +12,7 @@ export default () => {
       <Head>
         <title>404 — TipTap</title>
       </Head>
-      <View className="flex-1 items-center justify-center bg-canvas p-6">
+      <View className="flex-1 items-center justify-center bg-background p-6">
         <Text className="mb-2 text-[13px] font-bold leading-[18px] tracking-[2px] text-accent">
           404
         </Text>

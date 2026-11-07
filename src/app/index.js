@@ -1,7 +1,6 @@
 /**
- * Platform-less fallback that Expo Router's static web renderer requires for
- * `index.web.js`. The web client still resolves `index.web.js`; Android
- * resolves `index.android.js`.
+ * Web index route. Expo Router resolves `index.android.js` on Android, so this
+ * file stays a thin bridge to the web landing feature.
  * @module src/app/index
  */
-export {default} from "./index.web";
+export {default} from "../web/features/landing/landing-screen";

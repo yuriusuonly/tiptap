@@ -6,14 +6,14 @@ An AI-generated, TikTok-like app built with **Expo / React Native**. Runs on **A
 
 ## Tech stack
 
-- **Expo SDK 57** with **Expo Router** (file-based routing)
+- **Expo SDK 57** with **Expo Router** (file-based routing, including Android tabs)
 - **React Native 0.86** / **React 19**
-- **`@expo/ui` (Jetpack Compose)** for the Android navigation shell
+- **React Native components** for both web and Android UI (no Compose/native UI dependency)
 - **Nativewind** (Tailwind CSS v3) for styling React Native components
 - **Zustand** + **AsyncStorage** for global state and persistence
-- **`react-native-svg`** for the shared logo
+- **`react-native-svg`** for all icons and the shared logo (no XML/VectorDrawable icons)
 - **Vanilla JavaScript** (JSX in `.js` files — no TypeScript)
-- **ESM** (`"type": "module"`) with ESM config files
+- **ESM** (`"type": "module"`) with ESM config files at the workspace root
 - **npm** for dependency management
 
 ## Requirements
@@ -52,34 +52,42 @@ npx expo install --fix       # fix incompatible package versions
 
 ```
 src/
-  app/                  # Expo Router routes — every file is a screen
-    _layout.js          # root navigator (Stack)
-    index.js            # platform-less fallback (required by static web rendering)
-    index.web.js        # web landing page
-    index.android.js    # Android bottom-tab app
-    +html.js            # web document shell
-    +not-found.js       # 404 route
+  app/                        # Expo Router routing layer (thin route files)
+    _layout.js                # web root: shared providers + headerless Stack
+    _layout.android.js        # Android root: shared providers + file-based Tabs
+    index.js                  # web landing route
+    index.android.js          # Android Home tab route
+    profile.js                # web fallback for the Android-only Profile route (redirects home)
+    profile.android.js        # Android Profile tab route
+    +html.js                  # web document shell
+    +not-found.js             # 404 route
+  web/
+    features/landing/         # web-only landing screen
+  android/
+    components/               # Android-only UI (React Native bottom tab bar)
+    features/home/            # Android Home tab content
+    features/profile/         # Android Profile tab content + theme preference
+  shared/
+    components/               # cross-platform UI (icon.js, app-logo.js)
+    hooks/                    # cross-platform hooks (responsive layout)
+    providers/                # root providers (global styles, theme hydration, color scheme)
+    store/                    # Zustand stores (theme)
   assets/
-    icons/icon.svg      # project logo (master source)
-    icons/home.svg      # Home tab icon
-    icons/person.svg    # Profile tab icon
-    images/icon.png     # Android launcher icon + web favicon source (exported from icons/icon.svg)
-  components/
-    app-logo.js         # TipTap logo (react-native-svg, mirrors src/assets/icons/icon.svg)
-    icon.js             # shared cross-platform SVG icon wrapper (react-native-svg)
-  hooks/
-    use-responsive-layout.js  # active layout class + tokens (SSR-safe)
-  store/
-    theme-store.js      # Zustand theme store (persisted with AsyncStorage)
-  styles/
-    global.css          # Tailwind entry imported by src/app/_layout.js
+    icons/icon.svg            # project logo (master source)
+    icons/home.svg            # Home tab icon
+    icons/person.svg          # Profile tab icon
+    images/icon.png           # Android launcher icon + web favicon source (exported from icons/icon.svg)
+  styles/global.css           # Tailwind entry + light/dark CSS variables
   theme/
-    colors.js           # shared design tokens (dark + light palettes)
-    layout.js           # responsive breakpoints, 1920px cap, per-class layout tokens
-tailwind.config.js      # Nativewind/Tailwind theme (mirrors design tokens)
+    colors.js                 # shared design tokens (dark + light palettes)
+    layout.js                 # responsive breakpoints, 1920px cap, per-class layout tokens
+.svgrrc.json                  # SVGR config (workspace root)
+tailwind.config.js            # Nativewind/Tailwind theme (semantic CSS-variable colors)
+metro.config.js               # Metro + SVG transformer + Nativewind
+babel.config.js               # Babel + Nativewind
 ```
 
-Non-route code (components, hooks, utilities, theme) lives **outside** `src/app/`. All filenames use lower-case kebab-case; Expo Router's reserved route names (`index`, `_layout`, `+html`, `+not-found`) are the exception.
+Layers point in one direction: `src/app` → `src/web` / `src/android` → `src/shared`. Shared code never imports platform features or routes. Non-route code lives **outside** `src/app/`. All filenames use lower-case kebab-case; Expo Router's reserved route names (`index`, `_layout`, `+html`, `+not-found`) are the exception.
 
 SVG assets are the source of truth. Regenerate the launcher/fav icon PNG from `src/assets/icons/icon.svg` after editing the logo:
 
@@ -87,23 +95,23 @@ SVG assets are the source of truth. Regenerate the launcher/fav icon PNG from `s
 rsvg-convert -w 1024 -h 1024 -o src/assets/images/icon.png src/assets/icons/icon.svg
 ```
 
-## Platform-specific routes
+## Platform routes
 
 Expo Router resolves routes by platform using file extensions:
 
 | Extension | Loads on |
 | --- | --- |
-| `*.web.js` | Web only |
 | `*.android.js` | Android only |
-| `*.js` | Shared across platforms |
+| `*.js` | Web and any platform without a specific route |
 
 Routes live in **`src/app/`** — Expo Router auto-detects `src/app/` before a root `app/`, so do not create a root `app/` directory.
 
-Expo Router's static web renderer requires a platform-less fallback next to a platform route, so `src/app/index.js` re-exports `index.web.js`. Keep that file.
+Platform routes need a plain `.js` sibling for static web rendering. The app uses `index.js` (web landing) + `index.android.js` (Android Home), `profile.js` (web redirect) + `profile.android.js` (Android Profile), and `_layout.js` (web stack) + `_layout.android.js` (Android tabs). Android tab navigation is file-based: `_layout.android.js` renders Expo Router `Tabs`, and each tab is its own route file.
 
 ## Configuration
 
 - **`app.json`** — app name/slug, Android package `dev.yuriusu.tiptap`, web `output: "static"`, and plugins (`expo-build-properties` for the Android `x86_64` build arch, `expo-router`, `expo-status-bar`). Configure native behavior here and via config plugins — do not edit generated `ios/`/`android/` directories.
+- **`tailwind.config.js`**, **`metro.config.js`**, **`babel.config.js`**, **`.svgrrc.json`** — workspace-root tooling config. Keep config files out of `src/`.
 - **`eas.json`** — EAS `production` build profile (AAB, auto-increment) plus `submit.production`, used by `npm run android:release`.
 
 ## Building for Android

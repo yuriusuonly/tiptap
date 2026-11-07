@@ -33,36 +33,46 @@ npm run android                       # native dev build on device/emulator
 npm run android:release               # remote production AAB + submit (EAS)
 ```
 
+## Architecture (layered, platform-separated)
+
+- `src/app/` — **routing layer** only. Route files are thin bridges that re-export a feature or define a navigator.
+- `src/web/` — **web-only** features and components (`src/web/features/landing`).
+- `src/android/` — **Android-only** features and components (`src/android/features`, `src/android/components`).
+- `src/shared/` — cross-platform code only (`components`, `hooks`, `providers`, `store`).
+- `src/theme/`, `src/styles/`, `src/assets/` — shared design system, Tailwind entry, and assets.
+- `src/services/` — reserved for future integrations (Firebase/API/storage adapters). Keep it free of UI imports.
+- Dependency direction: `app -> web/android features -> shared components`. Shared code must never import from `src/app`, `src/web`, or `src/android`.
+
 ## Routing (Expo Router)
 
 - Routes live in **`src/app/`**. Expo Router auto-detects `src/app/` before a root `app/` directory — do not create a root `app/`.
-- Split platform-specific routes by extension: `*.web.js` (web only), `*.android.js` (Android only), plain `*.js` (shared).
-- Every file in `src/app/` is a screen; `_layout.js` / `_layout.<platform>.js` define navigators.
-- Keep non-route code (components, hooks, utils, theme) **outside** `src/app/`.
-- Web-only wrappers: `src/app/+html.js` (document shell) and `src/app/+not-found.js` (404).
-- Import `Link`, `router`, and `useLocalSearchParams` from `expo-router`.
-- UI entrypoints: `src/app/index.web.js` is the web landing page; `src/app/index.android.js` is the Android bottom-tab shell. `src/app/index.js` is a thin re-export fallback required by static web rendering — keep it.
-- Expo Router static web rendering requires a platform-less sibling for a platform route: `index.web.js` needs `index.js`. Do not delete the fallback.
+- Platform routes use extensions: `*.android.js` (Android only) with a plain `*.js` fallback. Expo Router requires the fallback for static web rendering, so every platform route has a sibling.
+- `src/app/_layout.js` is the web root (headerless `Stack`); `src/app/_layout.android.js` is the Android root (`Tabs` with a custom React Native tab bar).
+- `src/app/index.js` renders the web landing; `src/app/index.android.js` renders the Android Home tab.
+- `src/app/profile.js` is the web fallback for the Android-only Profile route and redirects home; `src/app/profile.android.js` renders the Android Profile tab.
+- Every file in `src/app/` is a screen; `_layout.js` / `_layout.<platform>.js` define navigators. Keep non-route code **outside** `src/app/`.
+- Web wrappers: `src/app/+html.js` (document shell) and `src/app/+not-found.js` (404).
+- Import navigation APIs (`Link`, `router`, `useLocalSearchParams`, `Redirect`) from `expo-router`.
 
 ## File naming
 
-- Use **lower-case kebab-case** for every file and directory (`icon.js`, `home.svg`, `index.web.js`).
+- Use **lower-case kebab-case** for every file and directory (`icon.js`, `home.svg`, `index.android.js`).
 - Expo Router reserved route names are the only exception: `index`, `_layout`, `+html`, `+not-found`.
+- Configuration files live at the workspace root (`babel.config.js`, `metro.config.js`, `tailwind.config.js`, `.svgrrc.json`), never under `src/`.
 - Keep JavaScript identifiers/components PascalCase (`Icon`); only filenames are kebab-case.
 
 ## Code conventions
 
 - **Vanilla JavaScript only.** JSX in `.js` files. Do not introduce TypeScript, `.ts`/`.tsx`, or a `tsconfig.json`.
 - The package is **ESM** (`"type": "module"`). Config files (`babel.config.js`, `metro.config.js`, `tailwind.config.js`) use `import`/`export default`. CommonJS-only package subpaths are bridged with `createRequire(import.meta.url)`.
-- SVG files under `src/assets/icons/` are imported as React components via `react-native-svg-transformer` (configured in `metro.config.js`) and rendered with `react-native-svg`. Pass a `color` prop to tint a `fill="currentColor"` icon.
-- Use the shared `src/components/icon.js` wrapper to render SVG icons consistently across platforms: `<Icon as={SvgComponent} size={24} color={...} accessibilityLabel="..." />`. `src/assets/icons/*.svg` files are the source of truth for icons — import simple/tintable SVGs (e.g. `home.svg`/`person.svg`) directly and render via `Icon`. The brand logo is rendered by `src/components/app-logo.js` (a `react-native-svg` component mirroring the master `src/assets/icons/icon.svg`, which remains the source for derived PNG assets) for reliable cross-platform rendering of its gradient.
-- Style React Native components with **Nativewind** `className` utilities (Tailwind v3 config in `tailwind.config.js`; `src/styles/global.css` is imported in `src/app/_layout.js`). Shared tokens still live in `src/theme/colors.js` and are mirrored in the Tailwind theme.
-- Responsive breakpoints and per-class layout tokens live in `src/theme/layout.js`; use `src/hooks/use-responsive-layout.js` (`useResponsiveLayout`) for the four classes: Wearable `<480`, Phone `480–719`, Tablet `720–1079`, Desktop `>=1080`. Content is capped at `1920px`. On web, pass `{enabled: mounted}` so static rendering starts on the wearable class. See `DESIGN.md`.
-- `@expo/ui/jetpack-compose` components are Compose-native and **do not accept `className`** — keep styling those with `src/theme/colors.js` tokens, `StyleSheet`, and Compose modifiers.
-- Global client state uses **Zustand** stores in `src/store/`. Persist with `zustand/middleware` + AsyncStorage and `skipHydration: true`, then call `store.persist.rehydrate()` in an effect so static web rendering never touches `localStorage`.
-- Icons are SVG files in `src/assets/icons/`, rendered with `react-native-svg` on both platforms. Use `src/components/icon.js` as the shared wrapper for SVG icon components (`as`, `size`, `accessibilityLabel`; `color` for `currentColor` icons). Simple icons (e.g. `home.svg`, `person.svg`) are imported directly via `react-native-svg-transformer`; the complex gradient logo uses `src/components/app-logo.js` (mirroring `src/assets/icons/icon.svg`). The Android bottom navigation (`@expo/ui/jetpack-compose` `NavigationBarItem`) uses Compose `Icon` with derived Android VectorDrawable XML assets (`src/assets/icons/home.xml`, `person.xml`, loaded via `require`) so icons render natively in-place and do not intercept taps (hosting RN views via `RNHostView` in that slot can block clicks). Keep the SVG files as masters and update derived XMLs if the SVGs change. Pass `colorScheme` (resolved `light`/`dark`) to `Host` so the Compose `MaterialTheme` matches the app's selected theme.
+- **SVG only — never XML icons.** SVG files under `src/assets/icons/` are imported as React components via `react-native-svg-transformer` (configured in `metro.config.js`) and rendered with `react-native-svg`. Pass a `color` prop to tint a `fill="currentColor"` icon.
+- Use the shared `src/shared/components/icon.js` wrapper to render SVG icons consistently across platforms: `<Icon as={SvgComponent} size={24} color={...} accessibilityLabel="..." />`. `src/assets/icons/*.svg` files are the source of truth for icons — import simple/tintable SVGs (e.g. `home.svg`/`person.svg`) directly and render via `Icon`. The brand logo is rendered by `src/shared/components/app-logo.js` (a `react-native-svg` component mirroring the master `src/assets/icons/icon.svg`, which remains the source for derived PNG assets) for reliable cross-platform rendering of its gradient.
+- Style React Native components with **Nativewind** `className` utilities (Tailwind v3 config in `tailwind.config.js`; `src/styles/global.css` is imported by `src/shared/providers/app-providers.js`). **Do not use inline `style` objects for presentation.** Semantic colors come from CSS variables in `global.css` and switch with the `dark` class (driven by the theme store). Shared tokens still live in `src/theme/colors.js` and are mirrored in the Tailwind theme.
+- Responsive breakpoints and per-class layout tokens live in `src/theme/layout.js`; use `src/shared/hooks/use-responsive-layout.js` (`useResponsiveLayout`) for the four classes: Wearable `<480`, Phone `480–719`, Tablet `720–1079`, Desktop `>=1080`. Content is capped at `1920px`. Prefer Tailwind screen variants (`phone:`, `tablet:`, `desktop:`); when a computed value is unavoidable (e.g. SVG `size`), use layout tokens, not ad-hoc numbers. On web, pass `{enabled: mounted}` so static rendering starts on the wearable class. See `DESIGN.md`.
+- Global client state uses **Zustand** stores in `src/shared/store/`. Persist with `zustand/middleware` + AsyncStorage and `skipHydration: true`, then call `store.persist.rehydrate()` in `src/shared/providers/app-providers.js` so static web rendering never touches `localStorage`.
+- The Android bottom navigation is a **React Native** tab bar (`src/android/components/app-tab-bar.js`) rendered by Expo Router `Tabs`. The `Pressable` tab item is the only touch target; icons and the selection indicator use `pointerEvents="none"` so taps are never intercepted or propagated. Do **not** reintroduce `@expo/ui`/Jetpack Compose navigation or VectorDrawable XML assets.
 - App icons: `app.json` points at `src/assets/images/icon.png` (top-level and `android.icon`), which is exported from the master `src/assets/icons/icon.svg` at 1024×1024 (Expo only accepts PNG launcher icons). The web favicon is configured via `app.json` `web.favicon` (`./src/assets/images/icon.png`).
-- The web landing is statically rendered. `useWindowDimensions()` is 0 during SSG, so gate responsive branches behind a `mounted` flag (`src/app/index.web.js`); otherwise hydration mismatches leave the mobile layout on desktop.
+- The web landing is statically rendered. `useWindowDimensions()` is 0 during SSG, so gate responsive branches behind a `mounted` flag (`src/web/features/landing/landing-screen.js`); otherwise hydration mismatches leave the mobile layout on desktop.
 
 ## Build & test
 

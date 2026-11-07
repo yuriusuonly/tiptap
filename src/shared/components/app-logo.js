@@ -3,7 +3,7 @@
  * Geometry/gradient mirror src/assets/icons/icon.svg (master asset) for reliable
  * rendering across web and Android (the direct SVG transform of complex gradients
  * can fail in some web dev/runtime paths).
- * @module src/components/app-logo
+ * @module src/shared/components/app-logo
  */
 import Svg, {Defs, Ellipse, G, LinearGradient, Path, Rect, Stop} from "react-native-svg";
 

@@ -1,5 +1,7 @@
 /**
  * Nativewind/Tailwind configuration derived from the shared design tokens.
+ * Semantic colors resolve through CSS variables defined in
+ * `src/styles/global.css`, so light/dark themes switch without inline styles.
  * @module tailwind.config
  */
 import {createRequire} from "node:module";
@@ -12,6 +14,7 @@ const nativewindPreset = require("nativewind/preset");
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
+  darkMode: "class",
   presets: [nativewindPreset],
   theme: {
     extend: {
@@ -24,16 +27,16 @@ export default {
         content: `${contentMaxWidth}px`,
       },
       colors: {
-        canvas: "#0B0B0F",
-        surface: "#15151B",
-        raised: "#1D1D25",
-        line: "#26262F",
-        ink: "#FFFFFF",
-        muted: "#A1A1AA",
-        faint: "#6B6B76",
-        accent: "#FE2C55",
-        cyan: "#25F4EE",
-        purple: "#7C4DFF",
+        background: "rgb(var(--color-background) / <alpha-value>)",
+        surface: "rgb(var(--color-surface) / <alpha-value>)",
+        raised: "rgb(var(--color-raised) / <alpha-value>)",
+        line: "rgb(var(--color-line) / <alpha-value>)",
+        ink: "rgb(var(--color-ink) / <alpha-value>)",
+        muted: "rgb(var(--color-muted) / <alpha-value>)",
+        faint: "rgb(var(--color-faint) / <alpha-value>)",
+        accent: "rgb(var(--color-accent) / <alpha-value>)",
+        cyan: "rgb(var(--color-cyan) / <alpha-value>)",
+        purple: "rgb(var(--color-purple) / <alpha-value>)",
       },
     },
   },
