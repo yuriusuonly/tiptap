@@ -5,11 +5,11 @@
  */
 import {Tabs} from "expo-router";
 import {AppTabBar} from "./android/components/app-tab-bar";
-import {AppProviders} from "../shared/components/app-providers";
+import {Root} from "../shared/components/root";
 
 export default function RootLayout() {
   return (
-    <AppProviders>
+    <Root>
       <Tabs
         tabBar={(props) => <AppTabBar {...props} />}
         screenOptions={{headerShown: false, animation: "none"}}
@@ -17,6 +17,6 @@ export default function RootLayout() {
         <Tabs.Screen name="index" options={{title: "Home"}} />
         <Tabs.Screen name="profile" options={{title: "Profile"}} />
       </Tabs>
-    </AppProviders>
+    </Root>
   );
 }

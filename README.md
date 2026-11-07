@@ -66,7 +66,7 @@ src/
       features/home/          # Android Home tab content (also at /android/features/home/home-screen)
       features/profile/       # Android Profile tab content + theme preference
   shared/
-    components/               # cross-platform UI (icon.js, app-logo.js, app-providers.js)
+    components/               # cross-platform UI (icon.js, app-logo.js, root.js)
     hooks/                    # cross-platform hooks (responsive layout)
     store/                    # Zustand stores (theme)
     constants/

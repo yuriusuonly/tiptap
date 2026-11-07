@@ -107,8 +107,8 @@ Implemented with file-based routes: `src/app/_layout.android.js` renders Expo Ro
 ### Styling and state
 
 - All screens use **Nativewind** utility classes. Semantic colors resolve through CSS variables declared for `:root` (light) and `.dark:root` (dark) in `src/shared/stylesheets/global.css`; `tailwind.config.js` maps them to utilities such as `bg-background`, `bg-surface`, `text-ink`, `text-muted`, `border-line`, and `text-accent`. The responsive `phone` / `tablet` / `desktop` screens plus `max-w-content` map to `src/shared/constants/layout.js`.
-- Do not use inline `style` objects for presentation. The theme store syncs the resolved scheme to Nativewind's `dark` class through `AppProviders`.
-- Global state lives in `src/shared/store/` (Zustand). Persisted stores skip hydration during static rendering and rehydrate in `src/shared/components/app-providers.js`.
+- Do not use inline `style` objects for presentation. The theme store syncs the resolved scheme to Nativewind's `dark` class through `Root`.
+- Global state lives in `src/shared/store/` (Zustand). Persisted stores skip hydration during static rendering and rehydrate in `src/shared/components/root.js`.
 
 ### Not found
 

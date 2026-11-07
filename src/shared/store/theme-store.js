@@ -25,7 +25,7 @@ export const useThemeStore = create(
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({themeMode: state.themeMode}),
       // Static rendering has no window/localStorage. Rehydrate in an effect
-      // after the app mounts (see src/shared/components/app-providers.js).
+      // after the app mounts (see src/shared/components/root.js).
       skipHydration: true,
     }
   )

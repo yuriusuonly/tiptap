@@ -4,12 +4,12 @@
  * @module src/app/_layout
  */
 import {Stack} from "expo-router";
-import {AppProviders} from "../shared/components/app-providers";
+import {Root} from "../shared/components/root";
 
 export default function RootLayout() {
   return (
-    <AppProviders>
+    <Root>
       <Stack screenOptions={{headerShown: false, animation: "none"}} />
-    </AppProviders>
+    </Root>
   );
 }

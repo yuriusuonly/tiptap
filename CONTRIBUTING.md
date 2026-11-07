@@ -35,7 +35,7 @@ src/
       features/home/          # Android Home tab content (also at /android/features/home/home-screen)
       features/profile/       # Android Profile tab content + theme preference
   shared/
-    components/               # cross-platform UI (icon.js, app-logo.js, app-providers.js)
+    components/               # cross-platform UI (icon.js, app-logo.js, root.js)
     hooks/                    # use-responsive-layout.js
     store/                    # Zustand theme store
     constants/
@@ -75,11 +75,11 @@ Layers point in one direction: `src/app` routes → `src/app/web` / `src/app/and
 
 - **Vanilla JavaScript only** — JSX in `.js` files. No TypeScript, no `.ts`/`.tsx`, no `tsconfig.json`.
 - The package is **ESM** (`"type": "module"`): config files use `import`/`export default`, and CommonJS-only package subpaths are bridged with `createRequire(import.meta.url)`.
-- Style React Native components with **Nativewind** `className` utilities (Tailwind v3). Config lives in `tailwind.config.js`; `src/shared/stylesheets/global.css` is imported by `src/shared/components/app-providers.js`.
+- Style React Native components with **Nativewind** `className` utilities (Tailwind v3). Config lives in `tailwind.config.js`; `src/shared/stylesheets/global.css` is imported by `src/shared/components/root.js`.
 - **Do not use inline `style` objects for presentation.** Use `className` for layout, spacing, typography, colors, borders, radii, and shadows. Colors use semantic CSS variables (`bg-background`, `text-ink`, `text-muted`, `border-line`, `bg-surface`, `text-accent`, …) defined for light/dark in `global.css`. The only accepted computed props are non-style values such as an SVG `size` derived from layout tokens.
 - The Android shell is **React Native** (no `@expo/ui`/Jetpack Compose). The bottom tab bar uses `Pressable` as the only touch target and marks icons/indicators `pointerEvents="none"` so taps are never intercepted. No XML/VectorDrawable icons — SVG only.
 - Avoid UX animations/transitions unless explicitly requested. Use plain state/color/layout changes.
-- Global state lives in **Zustand** stores under `src/shared/store/`. Persist with AsyncStorage (`skipHydration: true` + `rehydrate()` in `src/shared/components/app-providers.js`) so static web rendering stays `window`-free.
+- Global state lives in **Zustand** stores under `src/shared/store/`. Persist with AsyncStorage (`skipHydration: true` + `rehydrate()` in `src/shared/components/root.js`) so static web rendering stays `window`-free.
 - SVG icons in `src/shared/assets/icons/` are the source of truth. Render simple/tintable SVGs with the shared cross-platform `src/shared/components/icon.js` wrapper: `<Icon as={Svg} size={24} accessibilityLabel="..." />` (pass `color` for `fill="currentColor"`). The complex gradient logo uses `src/shared/components/app-logo.js` (mirrors `src/shared/assets/icons/icon.svg`); `src/shared/assets/icons/icon.svg` remains the master for derived PNG assets.
 - Use the design tokens in `src/shared/constants/colors.js` instead of hard-coded values. See `DESIGN.md`.
 - Responsive breakpoints and per-class layout tokens live in `src/shared/constants/layout.js`; use `src/shared/hooks/use-responsive-layout.js` (`useResponsiveLayout`) for the four classes: Wearable `<480`, Phone `480–719`, Tablet `720–1079`, Desktop `>=1080`. Content is capped at `1920px`. Prefer Tailwind screen variants (`phone:`, `tablet:`, `desktop:`); on web, pass `{enabled: mounted}` so static rendering starts on the wearable class.
