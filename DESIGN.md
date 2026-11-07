@@ -82,10 +82,10 @@ Four responsive layout classes are shared by Web and Android. Breakpoints are mi
 
 Implemented in `src/app/web/features/landing/landing-screen.js` (route: `src/app/index.js`).
 
-- Single centered page capped at `1920px` (`contentMaxWidth`).
+- Single centered page capped at `1280px` on desktop (web); shared content cap is `1920px` (`contentMaxWidth`) on other screens.
 - Gutter: `16` wearable, `20` phone, `32` tablet, `48` desktop; vertical padding `24 / 32 / 48 / 64`.
 - **Wearable, Phone, and Tablet:** stacked single column (eyebrow, title, description, meta, then logo), centered. Wearable/phone use compact type and logo sizes; tablet uses a comfortable scale.
-- **Desktop (`>= 1080`):** two-column row — title + description in one pane, logo in the other, with a `64px` gap.
+- **Desktop (`>= 1080`):** two-column row of equal `flex-1` panes with a `64px` gap, each pane centered (`items-center justify-center`); title/description/meta are centered within their pane, logo card is centered within its pane, and the row is capped at `1280px` and centered on the page.
 - Hero copy: “Create. Share. Repeat.” plus a short product description.
 - Logo pane uses `surface` with a border, per-class radius, and a purple halo behind the logo.
 - Responsive classes use Tailwind screen variants (`phone:`, `tablet:`, `desktop:`) with no inline style objects. The only computed value is the SVG logo `size` from layout tokens; the `mounted` guard keeps static HTML and the first client render identical.
