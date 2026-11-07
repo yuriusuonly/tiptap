@@ -4,24 +4,23 @@ Tokens and layout rules that keep the web and Android UI consistent. Color, spac
 
 ## Brand
 
-- **Name:** Tiptap
-- **Logo:** `src/shared/assets/icons/icon.svg` — master SVG (gradient music note on a dark rounded square). Render via `src/shared/components/icon.js`: `<Icon as={LogoIcon} size={...} accessibilityLabel="Tiptap logo" />` where `LogoIcon` is imported directly from `src/shared/assets/icons/icon.svg`. Derive `src/shared/assets/images/icon.png` from `icon.svg` for launcher/favicon use.
-- **Brand gradient:** cyan → purple → red (`#25F4EE → #7C4DFF → #FE2C55`), matching the SVG.
+- **Name:** TipTap (single source of truth: `EXPO_PUBLIC_APP_NAME` in `.env`, read via `src/shared/constants/configuration.js`)
+- **Logo:** `src/shared/assets/icons/icon.svg` — master SVG (title bar + paragraph lines on a feed card, on a dark gray rounded square). Render via `src/shared/components/icon.js`: `<Icon as={LogoIcon} size={...} accessibilityLabel="TipTap logo" />` where `LogoIcon` is imported directly from `src/shared/assets/icons/icon.svg`. Derive `src/shared/assets/images/icon.png` from `icon.svg` for launcher/favicon use.
+- **Brand accents:** cyan (`#25F4EE`) primary + red (`#FE2C55`) secondary on a neutral gray base.
 
 ## Colors
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `background` | `#0B0B0F` | App/page background |
-| `surface` | `#15151B` | Cards, panels |
-| `surfaceRaised` | `#1D1D25` | Elevated surfaces |
-| `border` | `#26262F` | Dividers, outlines |
+| `background` | `#0A0A0A` | App/page background (dark gray) |
+| `surface` | `#171717` | Cards, panels (gray) |
+| `surfaceRaised` | `#262626` | Elevated surfaces (gray) |
+| `border` | `#383838` | Dividers, outlines (gray) |
 | `textPrimary` | `#FFFFFF` | Primary text |
-| `textSecondary` | `#A1A1AA` | Secondary text |
-| `textMuted` | `#6B6B76` | Disabled/muted text |
-| `accent` | `#FE2C55` | Primary action / brand accent |
-| `accentCyan` | `#25F4EE` | Secondary accent |
-| `accentPurple` | `#7C4DFF` | Tertiary accent |
+| `textSecondary` | `#A3A3A3` | Secondary text (gray) |
+| `textMuted` | `#737373` | Disabled/muted text (gray) |
+| `accent` | `#25F4EE` | Primary action / brand accent (cyan) |
+| `accentCyan` | `#FE2C55` | Secondary accent (red) |
 | `success` | `#22C55E` | Success |
 | `warning` | `#F59E0B` | Warning |
 | `danger` | `#EF4444` | Error/destructive |
@@ -87,22 +86,23 @@ Implemented in `src/web/features/landing/landing-screen.js` (route: `src/app/ind
 - **Wearable, Mobile, and Tablet:** stacked single column (eyebrow, title, description, meta, then logo), centered. Wearable/mobile use compact type and logo sizes; tablet uses a comfortable scale.
 - **Desktop (`>= 1280`):** two-column row of equal `flex-1` panes with a `64px` gap, each pane centered (`items-center justify-center`); title/description/meta are centered within their pane, logo card is centered within its pane, and the row is capped at `1280px` and centered on the page.
 - Hero copy: “Create. Share. Repeat.” plus a short product description.
-- Logo pane uses `surface` with a border, per-class radius, and a purple halo behind the logo.
+- Logo pane uses `surface` with a border, per-class radius, and a cyan halo behind the logo.
 - Responsive classes use Tailwind screen variants (`mobile:`, `tablet:`, `desktop:`) with no inline style objects. The only computed value is the SVG logo `size` from layout tokens; the `mounted` guard keeps static HTML and the first client render identical.
 
 ### Android app
 
-`src/app/_layout.android.js` renders a custom React Native tab bar driven by internal `home`/`profile` state (`index` via `Slot`, Profile via direct import of `src/android/features/profile/profile-screen.js`). UI lives in `src/android/features`. `src/app/` holds only the six root route files, so web `/profile` is unmatched and falls through to `+not-found.js`.
+`src/app/_layout.android.js` renders a custom React Native tab bar driven by internal `home`/`profile` state (`index` via `Slot`, Profile via direct import of `src/android/features/profile/profile-screen.js`). First-time installs see the onboarding flow (`src/android/features/onboarding/onboarding-screen.js`) — three pages with Skip/Next and dots — before the tabs. UI lives in `src/android/features`. `src/app/` holds only the six root route files, so web `/profile` is unmatched and falls through to `+not-found.js`.
 
 - Bottom navigation is a React Native tab bar (`src/android/components/app-tab-bar.js`) with **Home** and **Profile** tabs (label + SVG icon each). No `@expo/ui`/Jetpack Compose, no XML/VectorDrawable icons.
 - `Pressable` tab items are the only touch targets; the icon wrapper and selection indicator use `pointerEvents="none"` so taps are never intercepted or propagated.
-- Icons are SVG files in `src/shared/assets/icons/`, rendered with `react-native-svg`. Use `src/shared/components/icon.js` (`as`, `size`, `accessibilityLabel`; `color` for `currentColor`) for all icons including the gradient logo (`icon.svg`).
+- Icons are SVG files in `src/shared/assets/icons/`, rendered with `react-native-svg`. Use `src/shared/components/icon.js` (`as`, `size`, `accessibilityLabel`; `color` for `currentColor`) for all icons including the brand logo (`icon.svg`).
 - Selected tab uses the `accent` color with a translucent accent indicator. State changes are plain color/layout changes — no animations or transitions.
 - Home and Profile content is centered and capped at `1920dp`, using the same per-class gutters as Web (`16 / 20 / 32 / 48`).
 - **Home** scales with the class: title `24 / 30` → `30 / 36` → `36 / 42` → `44 / 52`; subtitle `14 / 20` → `16 / 24` → `18 / 26` → `20 / 30`; copy width caps at `480 / 560 / 640 / 880`.
 - **Profile → Preferences:** a `PREFERENCES` subheader sits above a rounded surface card. The card is centered with a per-class max width (`560 / 560 / 640 / 720`) and compact padding on wearable/mobile. The **Theme** row expands inline (no dropdown animation) with **Auto**, **Light**, and **Dark** options.
 - `Auto` follows the system color scheme; the selected mode switches the CSS variables between light and dark values (matching `src/shared/constants/colors.js`).
 - The choice is stored in the Zustand theme store (`src/shared/store/theme-store.js`) and persisted to AsyncStorage, so it survives app restarts.
+- **Onboarding** (first install only): three intro pages with eyebrow, title, body copy, text-line mock, dot indicators, and Skip/Next (“Get started” on the last page). Horizontal swipe works too (a `PanResponder` in `onboarding-screen.js`: left advances, right goes back, 50dp threshold, no animation), and dots stay in sync. Completion is stored in the Zustand onboarding store (`src/shared/store/onboarding-store.js`) and persisted to AsyncStorage; while rehydration is pending the Android layout shows a blank background, never the onboarding flash. The Profile tab also offers a **More** section with an **About TipTap** row that opens the web landing page in the external browser. The URL is composed from `EXPO_PUBLIC_LANDING_PAGE_SCHEME` / `_HOST` / `_PORT` in `.env` (dev: `http://localhost:8081`) via `src/shared/constants/configuration.js` — the single composer — and Metro serves the web bundle on that same port from the same `.env` (`metro.config.js`), with no fallback values.
 
 ### Styling and state
 

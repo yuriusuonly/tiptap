@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for contributing to **Tiptap** — an AI-generated, TikTok-like app built with Expo/React Native for Android and the web. This document covers the conventions and workflow to follow.
+Thanks for contributing to **TipTap** — an endless scroll of AI-generated short titles and text paragraphs, built with Expo/React Native for Android and the web. This document covers the conventions and workflow to follow.
 
 ## Prerequisites
 
@@ -19,38 +19,105 @@ Use `npx expo install <package>` — never `npm install <package>` — when addi
 
 ## Project structure
 
-```
-src/
-  app/                        # Expo Router routing layer (thin route files)
-    _layout.js                # web root: providers + headerless Stack
-    _layout.android.js        # Android root: providers + custom tab bar
-    index.js                  # web landing route
-    index.android.js          # Android Home route
-    +html.js                  # web document shell
-    +not-found.js             # 404 route (thin bridge to web/features/not-found)
-  web/
-    features/landing/         # web-only landing screen
-    features/not-found/       # web-only 404 screen
-  android/
-    components/               # Android-only UI (React Native tab bar)
-    features/home/            # Android Home tab content
-    features/profile/         # Android Profile tab content + theme preference
-  shared/
-    components/               # cross-platform UI (icon.js, root.js)
-    hooks/                    # use-responsive-layout.js
-    store/                    # Zustand theme store
-    constants/
-      colors.js               # design tokens (dark + light palettes)
-      layout.js               # responsive breakpoints, 1920px cap, per-class tokens
-    stylesheets/global.css    # Tailwind entry + light/dark CSS variables
-    assets/
-      icons/icon.svg          # project logo (master source)
-      icons/home.svg          # Home tab icon
-      icons/person.svg        # Profile tab icon
-      images/icon.png         # Android launcher icon + web favicon source
+See [README.md](README.md#project-structure) for the full file tree. Layers point in one direction: `src/app` routes → `src/web` / `src/android` features → `src/shared`. Shared code must not import routes or platform features.
+
+### Architecture
+
+```mermaid
+flowchart TB
+    subgraph Config["Workspace root config"]
+        ENV[".env<br/>EXPO_PUBLIC_*"]
+        APPJS["app.config.js<br/>Expo app config"]
+        METRO["metro.config.js<br/>Metro + dev-server port"]
+        EAS["eas.json<br/>EAS profiles"]
+    end
+
+    ENV -->|reads| APPJS
+    ENV -->|reads| METRO
+    ENV -->|inlined at bundle time| CONF
+
+    subgraph APP["src/app — routes only"]
+        LAYOUT["<i>_layout.js / _layout.android.js</i>"]
+        INDEX["<i>index.js / index.android.js</i>"]
+        HTML["<i>+html.js</i>"]
+        NF["<i>+not-found.js</i>"]
+    end
+
+    subgraph PLATFORM["Platform features"]
+        WEBF["src/web/<br/>landing, not-found"]
+        ANDF["src/android/<br/>home, onboarding, profile,<br/>app-tab-bar"]
+    end
+
+    subgraph SHARED["src/shared"]
+        CONF["constants/configuration<br/>name, version, description,<br/>landing URL"]
+        TOKENS["constants/colors + layout<br/>tokens + breakpoints"]
+        ROOT["components/root<br/>rehydrate + colorScheme"]
+        STORE["store/theme + onboarding<br/>Zustand + AsyncStorage"]
+        ICON["components/icon + SVG assets"]
+    end
+
+    LAYOUT --> WEBF
+    LAYOUT --> ANDF
+    INDEX --> WEBF
+    INDEX --> ANDF
+    NF --> WEBF
+    HTML --> CONF
+    ANDF --> CONF
+    ROOT --> STORE
+    STORE --> CFG[AsyncStorage]
+    WEBF --> ICON
+    ANDF --> ICON
+    WEBF --> TOKENS
+    ANDF --> TOKENS
 ```
 
-Layers point in one direction: `src/app` routes → `src/web` / `src/android` features → `src/shared`. Shared code must not import routes or platform features. Keep shared code (components, hooks, store, constants, stylesheets, assets) in `src/shared/` outside `src/app/`. Configuration files (`tailwind.config.js`, `metro.config.js`, `babel.config.js`, `.svgrrc.json`) stay at the workspace root.
+### Startup, onboarding, and theming
+
+```mermaid
+flowchart TB
+    START["Android launch<br/>(RootLayout)"]
+    ROOT["&lt;Root&gt; mounts:<br/>rehydrate theme + onboarding"]
+    START --> ROOT
+    ROOT --> GATE{"hydrated?"}
+    GATE -- no --> BLANK["Blank &lt;View&gt;<br/>(bg-background)"]
+    GATE -- yes --> SEEN{"hasSeenOnboarding?"}
+    SEEN -- no --> ONB["OnboardingScreen<br/>(3 pages, swipe/Next/Skip)"]
+    ONB -->|complete| SEENFLAG["setState: hasSeenOnboarding = true<br/>(persisted AsyncStorage)"]
+    SEENFLAG --> TABS
+    SEEN -- yes --> TABS["Internal tabs (state)<br/>home via Slot / profile via import"]
+    TABS -->|More → About TipTap| LANDING["Linking.openURL<br/>(LANDING_PAGE_URL from .env)"]
+```
+
+### Routing and platform resolution
+
+```mermaid
+flowchart TB
+    URL["Web request URL"]
+    URL --> MATCH{"matches a src/app file?"}
+    MATCH -- "/" --> WEBHOME["index.js<br/>→ web landing"]
+    MATCH -- no match, e.g. /profile,<br/>/android/..., /web/... --> NOTFOUND["+not-found.js<br/>→ web 404 (status 404)"]
+    AND["Android launch"]
+    AND --> ALAYOUT["_layout.android.js<br/>(internal tab state)"]
+    ALAYOUT -->|onboarding not seen| ONB2["OnboardingScreen"]
+    ALAYOUT -->|seen| HOME["index.android.js<br/>→ Android Home"]
+    ALAYOUT -->|profile tab| PROF["ProfileScreen<br/>(direct import)"]
+```
+
+### Environment variables
+
+```mermaid
+flowchart LR
+    subgraph DOTENV[".env (single source of truth)"]
+        ID["EXPO_PUBLIC_APP_NAME<br/>EXPO_PUBLIC_APP_VERSION<br/>EXPO_PUBLIC_APP_DESCRIPTION"]
+        LP["EXPO_PUBLIC_LANDING_PAGE_<br/>SCHEME / HOST / PORT"]
+        EASID["EXPO_PUBLIC_EAS_PROJECT_ID"]
+    end
+
+    DOTENV -->|"Node: config eval"| APPCFG["app.config.js<br/>name + extra.eas.projectId"]
+    DOTENV -->|"Node: config eval"| METROCFG["metro.config.js<br/>server.port"]
+    DOTENV -->|"bundler-inlined"| RUNTIME["configuration.js<br/>APP_NAME, APP_VERSION,<br/>APP_DESCRIPTION, LANDING_PAGE_URL"]
+    RUNTIME --> SCREENS["landing, root, not-found,<br/>onboarding, profile"]
+```
 
 ## Conventions
 
@@ -76,14 +143,11 @@ Layers point in one direction: `src/app` routes → `src/web` / `src/android` fe
 
 - **Vanilla JavaScript only** — JSX in `.js` files. No TypeScript, no `.ts`/`.tsx`, no `tsconfig.json`.
 - The package is **ESM** (`"type": "module"`): config files use `import`/`export default`, and CommonJS-only package subpaths are bridged with `createRequire(import.meta.url)`.
-- Style React Native components with **Nativewind** `className` utilities (Tailwind v3). Config lives in `tailwind.config.js`; `src/shared/stylesheets/global.css` is imported by `src/shared/components/root.js`.
-- **Do not use inline `style` objects for presentation.** Use `className` for layout, spacing, typography, colors, borders, radii, and shadows. Colors use semantic CSS variables (`bg-background`, `text-ink`, `text-muted`, `border-line`, `bg-surface`, `text-accent`, …) defined for light/dark in `global.css`. The only accepted computed props are non-style values such as an SVG `size` derived from layout tokens.
+- Style React Native components with **Nativewind** `className` utilities; do **not** use inline `style` objects for presentation. Colors resolve through the semantic CSS variables in `src/shared/stylesheets/global.css` and the design tokens in `src/shared/constants/colors.js`. The only accepted computed props are non-style values such as an SVG `size` derived from layout tokens. See DESIGN.md for the color, typography, spacing, and responsive layout rules.
 - The Android shell is **React Native** (no `@expo/ui`/Jetpack Compose). The bottom tab bar uses `Pressable` as the only touch target and marks icons/indicators `pointerEvents="none"` so taps are never intercepted. No XML/VectorDrawable icons — SVG only.
 - Avoid UX animations/transitions unless explicitly requested. Use plain state/color/layout changes.
 - Global state lives in **Zustand** stores under `src/shared/store/`. Persist with AsyncStorage (`skipHydration: true` + `rehydrate()` in `src/shared/components/root.js`) so static web rendering stays `window`-free.
 - SVG icons in `src/shared/assets/icons/` are the source of truth. Render SVGs (including the brand logo `icon.svg`) with the shared cross-platform `src/shared/components/icon.js` wrapper: `<Icon as={Svg} size={24} accessibilityLabel="..." />` (pass `color` only for `fill="currentColor"` icons). `src/shared/assets/icons/icon.svg` remains the master for derived PNG assets.
-- Use the design tokens in `src/shared/constants/colors.js` instead of hard-coded values. See `DESIGN.md`.
-- Responsive breakpoints and per-class layout tokens live in `src/shared/constants/layout.js`; use `src/shared/hooks/use-responsive-layout.js` (`useResponsiveLayout`) for the four classes: Wearable `<480`, Mobile `480–719`, Tablet `720–1279`, Desktop `>=1280`. Content is capped at `1920px`. Prefer Tailwind screen variants (`mobile:`, `tablet:`, `desktop:`); on web, pass `{enabled: mounted}` so static rendering starts on the wearable class.
 
 ### JSDoc
 
@@ -114,12 +178,8 @@ Not allowed:
 ### Expo & native code
 
 - Check the versioned Expo docs for SDK 57 (`https://docs.expo.dev/versions/v57.0.0/`) before using an Expo/EAS/RN API — APIs change between SDK releases.
-- `ios/` and `android/` are generated (Continuous Native Generation). **Never create or edit them by hand** — configure native behavior in `app.json` and config plugins.
+- `ios/` and `android/` are generated (Continuous Native Generation). **Never create or edit them by hand** — configure native behavior in `app.config.js` and config plugins.
 - Adding a library with native code requires a local development build (`npx expo run:android`); Expo Go will not include it.
-
-### Firebase
-
-Firebase (Authentication + Firestore) is **not integrated yet**. Keep features static/mock until it is added.
 
 ## Verification
 
@@ -159,6 +219,8 @@ Commits use a **bracketed type prefix** followed by a short, imperative summary:
 | `(style)` | UI/UX changes |
 | `(format)` | Code formatting, lint fixes, and whitespace-only changes |
 
+- **Always commit.** After finishing any implementation (feature, fix, refactor, style, docs, or config change), commit the working tree immediately. Do not leave changes uncommitted.
+- **One logical change per commit, but merge related commits.** Group the files that belong to the same logical change (even across directories) — e.g. keep a feature and its direct styling together, but don't mix an unrelated style pass, refactor, or docs rework into the same commit. If subsequent implementations turn out to be related, merge them into one focused commit rather than stacking tiny ones.
 - Keep the subject line short and imperative; add a body when the change needs context.
 - `(style)` means **UI/UX**; use `(format)` for code formatting such as Prettier or lint autofixes.
 - Keep PRs focused and small; describe the change and how it was verified (platforms tested: web / Android).

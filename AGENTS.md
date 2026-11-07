@@ -1,4 +1,6 @@
-This is an Expo/React Native app (Expo SDK 57) targeting **Android** and **Web**. Prioritize mobile-first patterns and cross-platform consistency. Firebase is not integrated yet — keep content static/mock.
+This is an Expo/React Native app (Expo SDK 57) targeting **Android** and **Web**. Prioritize mobile-first patterns and cross-platform consistency.
+
+**Before implementing anything, read [README.md](README.md) `## Milestones`.** The Implemented / Not implemented / Known issues & fixes checklists are the project's state of record — check what already exists before building it. Do not re-implement work listed as implemented; check the Known issues & fixes list first so you don't reintroduce a fixed bug.
 
 ## Do not trust your training data
 
@@ -35,24 +37,16 @@ npm run android:release               # remote production AAB + submit (EAS)
 
 ## Architecture (layered, platform-separated)
 
-- `src/app/` — **file-based routing only**. The root holds only `index.js`, `index.android.js`, `_layout.js`, `_layout.android.js`, `+html.js`, and `+not-found.js`; thin bridges (`index`, `+not-found`) re-export screens from `src/web/features` or `src/android/features`. `src/web/` and `src/android/` live **outside** `src/app/` so their files are not routes.
-- `src/web/` — **web-only** screens (`src/web/features/landing`, `src/web/features/not-found`).
-- `src/android/` — **Android-only** screens and components (`src/android/features`, `src/android/components`).
-- `src/shared/` — cross-platform code only (`components`, `hooks`, `store`, `constants`, `stylesheets`, `assets`).
-- `src/shared/constants/` — design tokens (`colors.js`, `layout.js`); `src/shared/stylesheets/global.css` is the Tailwind entry; `src/shared/assets/` holds SVGs and the derived PNG.
+- `src/app/` — **file-based routing only** (six root files: `index.js`, `index.android.js`, `_layout.js`, `_layout.android.js`, `+html.js`, `+not-found.js`). `src/web/` and `src/android/` live **outside** `src/app/` so their files are not routes.
+- `src/web/` — **web-only** screens; `src/android/` — **Android-only** screens and components; `src/shared/` — cross-platform code only.
 - `src/services/` — reserved for future integrations (Firebase/API/storage adapters). Keep it free of UI imports.
-- Dependency direction: `app routes -> web/android features -> shared components`. Shared code must never import from `src/app/`, `src/web/`, or `src/android/`.
+- Dependency direction: `app routes -> web/android features -> shared components`. Shared code must never import from `src/app/`, `src/web/`, or `src/android/`. See README.md (Project structure) and CONTRIBUTING.md (Architecture).
 
 ## Routing (Expo Router)
 
-- Routes live in **`src/app/`**. Expo Router auto-detects `src/app/` before a root `app/` directory — do not create a root `app/`.
-- Platform routes use extensions: `*.android.js` (Android only) with a plain `*.js` fallback. A platform-only file in `src/app/` without a fallback sibling throws (`does not have a fallback sibling`), so never create a bare `*.android.js` route.
-- `src/app/_layout.js` is the web root (headerless `Stack`); `src/app/_layout.android.js` is the Android root (custom React Native tab bar). `src/app/` holds only the six root route files — the Android Home/Profile tabs are internal state in the Android layout (`index` via `Slot`, Profile via direct import), not file-based routes.
-- `src/app/index.js` renders the web landing; `src/app/index.android.js` renders the Android Home tab.
-- Web `/profile` has no route and renders `+not-found.js` with a 404 status.
-- Every file in `src/app/` is a screen; `_layout.js` / `_layout.<platform>.js` define navigators. Keep non-route code **outside** `src/app/` (`src/web/`, `src/android/`, `src/shared/`).
-- Web wrappers: `src/app/+html.js` (document shell) and `src/app/+not-found.js` (thin bridge to `src/web/features/not-found/not-found-screen.js`).
-- Import navigation APIs (`Link`, `router`, `useLocalSearchParams`, `Redirect`) from `expo-router`.
+- Routes live in **`src/app/`** (six files, see Architecture). Never create a bare `*.android.js` route without a plain `.js` fallback sibling — it throws (`does not have a fallback sibling`).
+- Android Home/Profile tabs are internal state in the Android layout (`index` via `Slot`, Profile via direct import), not file-based routes. Web `/profile` has no route and renders `+not-found.js` with a 404 status.
+- Import navigation APIs (`Link`, `router`, `useLocalSearchParams`, `Redirect`) from `expo-router`. See CONTRIBUTING.md (Routing).
 
 ## File naming
 
@@ -67,20 +61,21 @@ npm run android:release               # remote production AAB + submit (EAS)
 - The package is **ESM** (`"type": "module"`). Config files (`babel.config.js`, `metro.config.js`, `tailwind.config.js`) use `import`/`export default`. CommonJS-only package subpaths are bridged with `createRequire(import.meta.url)`.
 - **SVG only — never XML icons.** SVG files under `src/shared/assets/icons/` are imported as React components via `react-native-svg-transformer` (configured in `metro.config.js`) and rendered with `react-native-svg`. Pass a `color` prop to tint a `fill="currentColor"` icon.
 - Use the shared `src/shared/components/icon.js` wrapper to render SVG icons consistently across platforms: `<Icon as={SvgComponent} size={24} color={...} accessibilityLabel="..." />`. `src/shared/assets/icons/*.svg` files are the source of truth for icons — import SVGs (e.g. `home.svg`/`person.svg` and the brand logo `icon.svg`) directly and render via `Icon` (pass `color` only for tintable `fill="currentColor"` icons). `src/shared/assets/icons/icon.svg` remains the master for derived PNG assets.
-- Style React Native components with **Nativewind** `className` utilities (Tailwind v3 config in `tailwind.config.js`; `src/shared/stylesheets/global.css` is imported by `src/shared/components/root.js`). **Do not use inline `style` objects for presentation.** Semantic colors come from CSS variables in `global.css` and switch with the `dark` class (driven by the theme store). Shared tokens still live in `src/shared/constants/colors.js` and are mirrored in the Tailwind theme.
-- Responsive breakpoints and per-class layout tokens live in `src/shared/constants/layout.js`; use `src/shared/hooks/use-responsive-layout.js` (`useResponsiveLayout`) for the four classes: Wearable `<480`, Mobile `480–719`, Tablet `720–1279`, Desktop `>=1280`. Content is capped at `1920px`. Prefer Tailwind screen variants (`mobile:`, `tablet:`, `desktop:`); when a computed value is unavoidable (e.g. SVG `size`), use layout tokens, not ad-hoc numbers. On web, pass `{enabled: mounted}` so static rendering starts on the wearable class. See `DESIGN.md`.
+- Style React Native components with **Nativewind** `className` utilities (Tailwind v3 config in `tailwind.config.js`; `src/shared/stylesheets/global.css` is imported by `src/shared/components/root.js`). **Do not use inline `style` objects for presentation.** Semantic colors come from CSS variables in `global.css` and switch with the `dark` class (driven by the theme store). Shared tokens still live in `src/shared/constants/colors.js` and are mirrored in the Tailwind theme. Responsive rules live in `src/shared/constants/layout.js`; prefer Tailwind screen variants. See `DESIGN.md`.
 - Global client state uses **Zustand** stores in `src/shared/store/`. Persist with `zustand/middleware` + AsyncStorage and `skipHydration: true`, then call `store.persist.rehydrate()` in `src/shared/components/root.js` so static web rendering never touches `localStorage`.
 - The Android bottom navigation is a **React Native** tab bar (`src/android/components/app-tab-bar.js`) rendered by `src/app/_layout.android.js` with internal `home`/`profile` state. The `Pressable` tab item is the only touch target; icons and the selection indicator use `pointerEvents="none"` so taps are never intercepted or propagated. Do **not** reintroduce `@expo/ui`/Jetpack Compose navigation or VectorDrawable XML assets.
-- App icons: `app.json` points at `src/shared/assets/images/icon.png` (top-level and `android.icon`), which is exported from the master `src/shared/assets/icons/icon.svg` at 1024×1024 (Expo only accepts PNG launcher icons). The web favicon is configured via `app.json` `web.favicon` (`./src/shared/assets/images/icon.png`).
+- App icons: `app.config.js` points at `src/shared/assets/images/icon.png` (top-level and `android.icon`), which is exported from the master `src/shared/assets/icons/icon.svg` at 1024×1024 (Expo only accepts PNG launcher icons). The web favicon is configured via `app.config.js` `web.favicon` (`./src/shared/assets/images/icon.png`).
 - The web landing is statically rendered. `useWindowDimensions()` is 0 during SSG, so gate responsive branches behind a `mounted` flag (`src/web/features/landing/landing-screen.js`); otherwise hydration mismatches leave the mobile layout on desktop.
 
 ## Build & test
 
-Verify that changes work before completing the task. When feasible, run the relevant checks (for example `npx expo export --platform web` and/or `npx expo export --platform android` to confirm bundles and assets compile). If a change requires device/emulator interaction (e.g. native touch behavior), verify what you can statically and via export/build, and report any runtime verification that still needs manual confirmation.
+Verify changes with the checks in CONTRIBUTING.md (Verification). If a change requires device/emulator interaction (e.g. native touch behavior), verify what you can statically and via export/build, and report any runtime verification that still needs manual confirmation.
+
+**Always commit after every implementation** — see CONTRIBUTING.md (Commit & PR conventions): small, specific commits, merging related subsequent work where possible.
 
 ## Native directories
 
-`ios/` and `android/` are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins. After adding a library with native code, the app needs a development build (`npx expo run:android`), not Expo Go.
+`ios/` and `android/` are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.config.js` and config plugins. After adding a library with native code, the app needs a development build (`npx expo run:android`), not Expo Go.
 
 ## EAS
 
