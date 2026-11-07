@@ -7,7 +7,8 @@
  * @module src/shared/store/preferences-sync-store
  */
 import {create} from "zustand";
-import {getUserPreferences, setUserPreferences, upsertUserProfile} from "../../services/firebase/user-firestore";
+import {getUserPreferences, setUserPreferences} from "../../services/firebase/user-preferences";
+import {upsertUserProfile} from "../../services/firebase/user-profile";
 import {useAuthStore} from "./auth-store";
 import {useThemeStore} from "./theme-store";
 
