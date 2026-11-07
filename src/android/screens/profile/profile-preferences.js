@@ -1,8 +1,8 @@
 /**
  * Android preferences: a plain expandable theme selector (no animations) that
  * persists the chosen mode through the shared theme store, plus rows to open
- * the web landing page and contact support. Failed URL opens surface via the
- * same toast (no inlined errors).
+ * the web landing page, contact support, and legal pages. Failed URL opens
+ * surface via the same toast (no inlined errors).
  * @module src/android/screens/profile/profile-preferences
  */
 import {useState} from "react";
@@ -113,6 +113,36 @@ export function ProfilePreferences({onActionFailed}) {
             <Text className="text-[16px] text-ink">Contact Support</Text>
             <Text className="mt-0.5 text-[13px] leading-[18px] text-muted">
               Email support
+            </Text>
+          </View>
+          <Text className="text-[14px] text-accent">↦</Text>
+        </Pressable>
+
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Privacy Policy"
+          onPress={() => openUrl(`${LANDING_PAGE_URL}/policy`)}
+          className="mt-2 flex-row items-center justify-between gap-3 border-t border-line pt-2 py-1"
+        >
+          <View className="flex-1">
+            <Text className="text-[16px] text-ink">Privacy</Text>
+            <Text className="mt-0.5 text-[13px] leading-[18px] text-muted">
+              Privacy Policy
+            </Text>
+          </View>
+          <Text className="text-[14px] text-accent">↦</Text>
+        </Pressable>
+
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Terms of Service"
+          onPress={() => openUrl(`${LANDING_PAGE_URL}/terms`)}
+          className="mt-2 flex-row items-center justify-between gap-3 border-t border-line pt-2 py-1"
+        >
+          <View className="flex-1">
+            <Text className="text-[16px] text-ink">Terms</Text>
+            <Text className="mt-0.5 text-[13px] leading-[18px] text-muted">
+              Terms of Service
             </Text>
           </View>
           <Text className="text-[14px] text-accent">↦</Text>

@@ -4,6 +4,7 @@
  * @module src/web/screens/landing/landing-screen
  */
 import Head from "expo-router/head";
+import {Link} from "expo-router";
 import {useEffect, useState} from "react";
 import {Pressable, ScrollView, Text, View} from "react-native";
 import LogoIcon from "../../../shared/assets/icons/icon.svg";
@@ -122,6 +123,20 @@ export function LandingScreen() {
                 </Text>
               </View>
             </View>
+          </View>
+
+          <View className="mt-12 flex-row items-center justify-center gap-4 pb-2 mobile:mt-14 tablet:mt-16 desktop:mt-20">
+            <Link href="/policy" asChild>
+              <Pressable accessibilityRole="link" accessibilityLabel="Privacy Policy">
+                <Text className="text-[13px] font-medium leading-[18px] text-faint">Privacy</Text>
+              </Pressable>
+            </Link>
+            <View className="h-[3px] w-[3px] rounded-full bg-faint" />
+            <Link href="/terms" asChild>
+              <Pressable accessibilityRole="link" accessibilityLabel="Terms of Service">
+                <Text className="text-[13px] font-medium leading-[18px] text-faint">Terms</Text>
+              </Pressable>
+            </Link>
           </View>
         </View>
       </ScrollView>
