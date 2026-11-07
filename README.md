@@ -69,7 +69,8 @@ src/
     icons/person.svg    # Profile tab icon
     images/icon.png     # Android launcher icon + web favicon source (exported from icons/icon.svg)
   components/
-    logo.js             # shared logo component (react-native-svg)
+    app-logo.js         # TipTap logo (react-native-svg, mirrors src/assets/icons/icon.svg)
+    icon.js             # shared cross-platform SVG icon wrapper (react-native-svg)
   store/
     theme-store.js      # Zustand theme store (persisted with AsyncStorage)
   styles/

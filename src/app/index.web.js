@@ -1,7 +1,8 @@
 import Head from "expo-router/head";
 import {useEffect, useState} from "react";
 import {ScrollView, Text, View, useWindowDimensions} from "react-native";
-import Logo from "../components/logo";
+import AppLogo from "../components/app-logo";
+import Icon from "../components/icon";
 import {layout, spacing} from "../theme/colors";
 
 const TITLE = "Create.\nShare.\nRepeat.";
@@ -112,7 +113,7 @@ export default function IndexWeb() {
                 pointerEvents="none"
                 className="absolute h-[220px] w-[220px] rounded-full bg-purple opacity-[0.22]"
               />
-              <Logo size={logoSize} />
+              <Icon as={AppLogo} size={logoSize} accessibilityLabel="Tiptap logo" />
               <Text className="text-center text-[13px] font-semibold uppercase leading-[18px] tracking-[1.4px] text-faint">
                 Short video. Infinite ideas.
               </Text>

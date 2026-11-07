@@ -34,7 +34,8 @@ src/
     icons/person.svg      # Profile tab icon
     images/icon.png       # Android launcher icon + web favicon source (exported from icons/icon.svg)
   components/
-    logo.js               # shared logo component
+    app-logo.js           # TipTap logo (react-native-svg, mirrors src/assets/icons/icon.svg)
+    icon.js               # shared cross-platform SVG icon wrapper
   store/
     theme-store.js        # Zustand theme store (persisted with AsyncStorage)
   styles/
@@ -50,10 +51,10 @@ Keep non-route code (components, hooks, utilities, theme) **outside** `src/app/`
 
 ### File naming
 
-- All files and directories use **lower-case kebab-case**: `logo.js`, `home.svg`, `index.web.js`.
+- All files and directories use **lower-case kebab-case**: `icon.js`, `home.svg`, `index.web.js`.
 - Expo Router reserves a few route file names — use them as-is: `index`, `_layout`, `+html`, `+not-found`, `+middleware`.
 - Platform suffixes stay lower-case and come last: `index.web.js`, `index.android.js`.
-- JavaScript identifiers (components, exports) stay PascalCase — e.g. `export default function Logo()` in `logo.js`. Only the **filename** is kebab-case.
+- JavaScript identifiers (components, exports) stay PascalCase — e.g. `export function Icon()` in `icon.js`. Only the **filename** is kebab-case.
 
 ### Routing (Expo Router)
 
@@ -74,7 +75,7 @@ Keep non-route code (components, hooks, utilities, theme) **outside** `src/app/`
 - `@expo/ui/jetpack-compose` components are Compose-native and do not accept `className` — style them with `src/theme/colors.js` tokens, `StyleSheet`, and Compose modifiers.
 - The Android shell uses `@expo/ui/jetpack-compose`; the web shell uses React Native Web. Keep vocabulary, colors, and layout rules shared.
 - Global state lives in **Zustand** stores under `src/store/`. Persist with AsyncStorage (`skipHydration: true` + `rehydrate()` in an effect) so static web rendering stays `window`-free.
-- The logo renders through `react-native-svg` in `src/components/logo.js` so it looks identical on web and Android.
+- SVG icons in `src/assets/icons/` are the source of truth. Render simple/tintable SVGs with the shared cross-platform `src/components/icon.js` wrapper: `<Icon as={Svg} size={24} accessibilityLabel="..." />` (pass `color` for `fill="currentColor"`). The complex gradient logo uses `src/components/app-logo.js` (mirrors `src/assets/icons/icon.svg`); `src/assets/icons/icon.svg` remains the master for derived PNG assets.
 - Use the shared design tokens in `src/theme/colors.js` instead of hard-coded values. See `DESIGN.md`.
 
 ### Expo & native code
