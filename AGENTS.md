@@ -35,23 +35,23 @@ npm run android:release               # remote production AAB + submit (EAS)
 
 ## Architecture (layered, platform-separated)
 
-- `src/app/` — **file-based routing + platform features**. The root holds only `index.js`, `index.android.js`, `_layout.js`, `_layout.android.js`, `+html.js`, and `+not-found.js`; thin bridges (`index`, `_layout`, `+html`, `+not-found`) re-export screens from `src/app/web/features` or `src/app/android/features`; those folders live under `src/app/` so their file paths are also routes (file-based/path-based URLs such as `/web/features/...`).
-- `src/app/web/` — **web-only** screens (`src/app/web/features/landing`).
-- `src/app/android/` — **Android-only** screens and components (`src/app/android/features`, `src/app/android/components`).
+- `src/app/` — **file-based routing only**. The root holds only `index.js`, `index.android.js`, `_layout.js`, `_layout.android.js`, `+html.js`, and `+not-found.js`; thin bridges (`index`, `+not-found`) re-export screens from `src/web/features` or `src/android/features`. `src/web/` and `src/android/` live **outside** `src/app/` so their files are not routes.
+- `src/web/` — **web-only** screens (`src/web/features/landing`, `src/web/features/not-found`).
+- `src/android/` — **Android-only** screens and components (`src/android/features`, `src/android/components`).
 - `src/shared/` — cross-platform code only (`components`, `hooks`, `store`, `constants`, `stylesheets`, `assets`).
 - `src/shared/constants/` — design tokens (`colors.js`, `layout.js`); `src/shared/stylesheets/global.css` is the Tailwind entry; `src/shared/assets/` holds SVGs and the derived PNG.
 - `src/services/` — reserved for future integrations (Firebase/API/storage adapters). Keep it free of UI imports.
-- Dependency direction: `app routes -> app/web|android features -> shared components`. Shared code must never import from `src/app/`.
+- Dependency direction: `app routes -> web/android features -> shared components`. Shared code must never import from `src/app/`, `src/web/`, or `src/android/`.
 
 ## Routing (Expo Router)
 
 - Routes live in **`src/app/`**. Expo Router auto-detects `src/app/` before a root `app/` directory — do not create a root `app/`.
 - Platform routes use extensions: `*.android.js` (Android only) with a plain `*.js` fallback. A platform-only file in `src/app/` without a fallback sibling throws (`does not have a fallback sibling`), so never create a bare `*.android.js` route.
-- `src/app/_layout.js` is the web root (headerless `Stack`); `src/app/_layout.android.js` is the Android root (`Tabs` with a custom React Native tab bar).
+- `src/app/_layout.js` is the web root (headerless `Stack`); `src/app/_layout.android.js` is the Android root (custom React Native tab bar). `src/app/` holds only the six root route files — the Android Home/Profile tabs are internal state in the Android layout (`index` via `Slot`, Profile via direct import), not file-based routes.
 - `src/app/index.js` renders the web landing; `src/app/index.android.js` renders the Android Home tab.
-- There is no root `profile.android.js`: the Android Profile tab is the feature route `src/app/android/features/profile/profile-screen.js` (referenced as `android/features/profile/profile-screen` in the Android `Tabs`). Web `/profile` has no match and renders `+not-found.js` with a 404 status. Every other file under `src/app/` is also a file-based route, so `_layout.android.js` hides it with `href: null` and `app-tab-bar.js` filters to only `index` and `android/features/profile/profile-screen` — the Android tab bar shows only Home and Profile.
-- Every file in `src/app/` is a screen; `_layout.js` / `_layout.<platform>.js` define navigators. Platform features live under `src/app/web/features/` and `src/app/android/features/` — as file-based routing, each feature file is also reachable at its path URL (e.g. `/web/features/landing/landing-screen`). Keep shared code (components, hooks, store, constants, stylesheets, assets) in `src/shared/` outside `src/app/`.
-- Web wrappers: `src/app/+html.js` (document shell) and `src/app/+not-found.js` (thin bridge to `src/app/web/features/not-found/not-found-screen.js`, the 404 feature for all unmatched web routes, including Android-only URLs like `/profile`).
+- Web `/profile` has no route and renders `+not-found.js` with a 404 status.
+- Every file in `src/app/` is a screen; `_layout.js` / `_layout.<platform>.js` define navigators. Keep non-route code **outside** `src/app/` (`src/web/`, `src/android/`, `src/shared/`).
+- Web wrappers: `src/app/+html.js` (document shell) and `src/app/+not-found.js` (thin bridge to `src/web/features/not-found/not-found-screen.js`).
 - Import navigation APIs (`Link`, `router`, `useLocalSearchParams`, `Redirect`) from `expo-router`.
 
 ## File naming
@@ -70,9 +70,9 @@ npm run android:release               # remote production AAB + submit (EAS)
 - Style React Native components with **Nativewind** `className` utilities (Tailwind v3 config in `tailwind.config.js`; `src/shared/stylesheets/global.css` is imported by `src/shared/components/root.js`). **Do not use inline `style` objects for presentation.** Semantic colors come from CSS variables in `global.css` and switch with the `dark` class (driven by the theme store). Shared tokens still live in `src/shared/constants/colors.js` and are mirrored in the Tailwind theme.
 - Responsive breakpoints and per-class layout tokens live in `src/shared/constants/layout.js`; use `src/shared/hooks/use-responsive-layout.js` (`useResponsiveLayout`) for the four classes: Wearable `<480`, Mobile `480–719`, Tablet `720–1279`, Desktop `>=1280`. Content is capped at `1920px`. Prefer Tailwind screen variants (`mobile:`, `tablet:`, `desktop:`); when a computed value is unavoidable (e.g. SVG `size`), use layout tokens, not ad-hoc numbers. On web, pass `{enabled: mounted}` so static rendering starts on the wearable class. See `DESIGN.md`.
 - Global client state uses **Zustand** stores in `src/shared/store/`. Persist with `zustand/middleware` + AsyncStorage and `skipHydration: true`, then call `store.persist.rehydrate()` in `src/shared/components/root.js` so static web rendering never touches `localStorage`.
-- The Android bottom navigation is a **React Native** tab bar (`src/app/android/components/app-tab-bar.js`) rendered by Expo Router `Tabs`. The `Pressable` tab item is the only touch target; icons and the selection indicator use `pointerEvents="none"` so taps are never intercepted or propagated. Do **not** reintroduce `@expo/ui`/Jetpack Compose navigation or VectorDrawable XML assets.
+- The Android bottom navigation is a **React Native** tab bar (`src/android/components/app-tab-bar.js`) rendered by `src/app/_layout.android.js` with internal `home`/`profile` state. The `Pressable` tab item is the only touch target; icons and the selection indicator use `pointerEvents="none"` so taps are never intercepted or propagated. Do **not** reintroduce `@expo/ui`/Jetpack Compose navigation or VectorDrawable XML assets.
 - App icons: `app.json` points at `src/shared/assets/images/icon.png` (top-level and `android.icon`), which is exported from the master `src/shared/assets/icons/icon.svg` at 1024×1024 (Expo only accepts PNG launcher icons). The web favicon is configured via `app.json` `web.favicon` (`./src/shared/assets/images/icon.png`).
-- The web landing is statically rendered. `useWindowDimensions()` is 0 during SSG, so gate responsive branches behind a `mounted` flag (`src/app/web/features/landing/landing-screen.js`); otherwise hydration mismatches leave the mobile layout on desktop.
+- The web landing is statically rendered. `useWindowDimensions()` is 0 during SSG, so gate responsive branches behind a `mounted` flag (`src/web/features/landing/landing-screen.js`); otherwise hydration mismatches leave the mobile layout on desktop.
 
 ## Build & test
 

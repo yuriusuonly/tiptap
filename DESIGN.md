@@ -80,7 +80,7 @@ Four responsive layout classes are shared by Web and Android. Breakpoints are mi
 
 ### Web landing page
 
-Implemented in `src/app/web/features/landing/landing-screen.js` (route: `src/app/index.js`).
+Implemented in `src/web/features/landing/landing-screen.js` (route: `src/app/index.js`).
 
 - Single centered page capped at `1280px` on desktop (web); shared content cap is `1920px` (`contentMaxWidth`) on other screens.
 - Gutter: `16` wearable, `20` mobile, `32` tablet, `48` desktop; vertical padding `24 / 32 / 48 / 64`.
@@ -92,9 +92,9 @@ Implemented in `src/app/web/features/landing/landing-screen.js` (route: `src/app
 
 ### Android app
 
-Implemented with file-based routes: `src/app/_layout.android.js` renders Expo Router `Tabs` with `index` (Home) and `android/features/profile/profile-screen` (Profile). UI lives in `src/app/android/features`. There is no root `profile.android.js` (a bare platform file throws), so web `/profile` is unmatched and falls through to `+not-found.js`. All other `src/app/` files are also routes, so they are hidden with `href: null` and filtered out in `app-tab-bar.js` — only Home and Profile appear in the tab bar.
+`src/app/_layout.android.js` renders a custom React Native tab bar driven by internal `home`/`profile` state (`index` via `Slot`, Profile via direct import of `src/android/features/profile/profile-screen.js`). UI lives in `src/android/features`. `src/app/` holds only the six root route files, so web `/profile` is unmatched and falls through to `+not-found.js`.
 
-- Bottom navigation is a React Native tab bar (`src/app/android/components/app-tab-bar.js`) with **Home** and **Profile** tabs (label + SVG icon each). No `@expo/ui`/Jetpack Compose, no XML/VectorDrawable icons.
+- Bottom navigation is a React Native tab bar (`src/android/components/app-tab-bar.js`) with **Home** and **Profile** tabs (label + SVG icon each). No `@expo/ui`/Jetpack Compose, no XML/VectorDrawable icons.
 - `Pressable` tab items are the only touch targets; the icon wrapper and selection indicator use `pointerEvents="none"` so taps are never intercepted or propagated.
 - Icons are SVG files in `src/shared/assets/icons/`, rendered with `react-native-svg`. Use `src/shared/components/icon.js` (`as`, `size`, `accessibilityLabel`; `color` for `currentColor`) for all icons including the gradient logo (`icon.svg`).
 - Selected tab uses the `accent` color with a translucent accent indicator. State changes are plain color/layout changes — no animations or transitions.
@@ -112,7 +112,7 @@ Implemented with file-based routes: `src/app/_layout.android.js` renders Expo Ro
 
 ### Not found
 
-- Web 404 route (`src/app/+not-found.js`, implemented in `src/app/web/features/not-found/not-found-screen.js`): centered message, accent `404`, and a “Back to TipTap” link. All unmatched web routes render it, including Android-only URLs like `/profile`.
+- Web 404 route (`src/app/+not-found.js`, implemented in `src/web/features/not-found/not-found-screen.js`): centered message, accent `404`, and a “Back to TipTap” link. All unmatched web routes render it, including Android-only URLs like `/profile`.
 
 ## Consistency checklist
 

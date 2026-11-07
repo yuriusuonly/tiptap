@@ -54,17 +54,18 @@ npx expo install --fix       # fix incompatible package versions
 src/
   app/                        # Expo Router routing layer (thin route files)
     _layout.js                # web root: shared providers + headerless Stack
-    _layout.android.js        # Android root: shared providers + file-based Tabs
+    _layout.android.js        # Android root: shared providers + custom tab bar
     index.js                  # web landing route
-    index.android.js          # Android Home tab route
+    index.android.js          # Android Home route
     +html.js                  # web document shell
     +not-found.js             # 404 route (thin bridge to web/features/not-found)
-    web/features/landing/     # web-only landing screen (also at /web/features/landing/landing-screen)
-    web/features/not-found/   # web-only 404 screen (also at /web/features/not-found/not-found-screen)
-    android/
-      components/             # Android-only UI (React Native bottom tab bar)
-      features/home/          # Android Home tab content (also at /android/features/home/home-screen)
-      features/profile/       # Android Profile tab content + theme preference
+  web/
+    features/landing/         # web-only landing screen
+    features/not-found/       # web-only 404 screen
+  android/
+    components/               # Android-only UI (React Native tab bar)
+    features/home/            # Android Home tab content
+    features/profile/         # Android Profile tab content + theme preference
   shared/
     components/               # cross-platform UI (icon.js, root.js)
     hooks/                    # cross-platform hooks (responsive layout)
@@ -84,7 +85,7 @@ metro.config.js               # Metro + SVG transformer + Nativewind
 babel.config.js               # Babel + Nativewind
 ```
 
-Layers point in one direction: `src/app` routes → `src/app/web` / `src/app/android` features → `src/shared`. Shared code never imports platform features or routes. `src/app/web` and `src/app/android` live under `src/app/` so file-based routing also exposes them at their path URLs. All filenames use lower-case kebab-case; Expo Router's reserved route names (`index`, `_layout`, `+html`, `+not-found`) are the exception.
+Layers point in one direction: `src/app` routes → `src/web` / `src/android` features → `src/shared`. Shared code never imports platform features or routes. All filenames use lower-case kebab-case; Expo Router's reserved route names (`index`, `_layout`, `+html`, `+not-found`) are the exception.
 
 SVG assets are the source of truth. Regenerate the launcher/fav icon PNG from `src/shared/assets/icons/icon.svg` after editing the logo:
 
@@ -103,7 +104,7 @@ Expo Router resolves routes by platform using file extensions:
 
 Routes live in **`src/app/`** — Expo Router auto-detects `src/app/` before a root `app/`, so do not create a root `app/` directory.
 
-Shared routes use a plain `.js` sibling (`index.js` + `index.android.js`, `_layout.js` + `_layout.android.js`). There is no root `profile.android.js` (a platform-only file without a fallback sibling throws); the Android Profile tab is the feature route `android/features/profile/profile-screen`, and web `/profile` is unmatched so it renders `+not-found.js` with a 404 status. Android tab navigation is file-based: `_layout.android.js` renders Expo Router `Tabs` with `index` (Home) and `android/features/profile/profile-screen` (Profile) visible — all other file-based routes are hidden with `href: null` and filtered out in the tab bar, so only two tabs appear.
+Shared routes use a plain `.js` sibling (`index.js` + `index.android.js`, `_layout.js` + `_layout.android.js`). `src/app/` holds only those six root files; `src/web/` and `src/android/` sit outside so their files are not routes. The Android Home/Profile tabs are internal state in `_layout.android.js` (`index` via `Slot`, Profile via direct import), not file-based routes. Web `/profile` is unmatched so it renders `+not-found.js` with a 404 status.
 
 ## Configuration
 

@@ -1,14 +1,14 @@
 /**
  * Web landing page with a responsive hero layout. Styling is entirely
  * Nativewind/Tailwind; only the responsive logo size comes from layout tokens.
- * @module src/app/web/features/landing/landing-screen
+ * @module src/web/features/landing/landing-screen
  */
 import Head from "expo-router/head";
 import {useEffect, useState} from "react";
 import {ScrollView, Text, View} from "react-native";
-import LogoIcon from "../../../../shared/assets/icons/icon.svg";
-import Icon from "../../../../shared/components/icon";
-import {useResponsiveLayout} from "../../../../shared/hooks/use-responsive-layout";
+import LogoIcon from "../../../shared/assets/icons/icon.svg";
+import Icon from "../../../shared/components/icon";
+import {useResponsiveLayout} from "../../../shared/hooks/use-responsive-layout";
 
 const TITLE = "Create.\nShare.\nRepeat.";
 const DESCRIPTION =

@@ -1,7 +1,6 @@
 /**
- * Web 404 screen for unmatched routes. Rendered via `src/app/+not-found.js`
- * and also reachable at its file path URL.
- * @module src/app/web/features/not-found/not-found-screen
+ * Web 404 screen for unmatched routes. Rendered via `src/app/+not-found.js`.
+ * @module src/web/features/not-found/not-found-screen
  */
 import Head from "expo-router/head";
 import {Link} from "expo-router";

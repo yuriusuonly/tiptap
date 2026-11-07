@@ -23,17 +23,18 @@ Use `npx expo install <package>` — never `npm install <package>` — when addi
 src/
   app/                        # Expo Router routing layer (thin route files)
     _layout.js                # web root: providers + headerless Stack
-    _layout.android.js        # Android root: providers + file-based Tabs
+    _layout.android.js        # Android root: providers + custom tab bar
     index.js                  # web landing route
-    index.android.js          # Android Home tab route
+    index.android.js          # Android Home route
     +html.js                  # web document shell
     +not-found.js             # 404 route (thin bridge to web/features/not-found)
-    web/features/landing/     # web-only landing screen (also at /web/features/landing/landing-screen)
-    web/features/not-found/   # web-only 404 screen (also at /web/features/not-found/not-found-screen)
-    android/
-      components/             # Android-only UI (React Native tab bar)
-      features/home/          # Android Home tab content (also at /android/features/home/home-screen)
-      features/profile/       # Android Profile tab content + theme preference
+  web/
+    features/landing/         # web-only landing screen
+    features/not-found/       # web-only 404 screen
+  android/
+    components/               # Android-only UI (React Native tab bar)
+    features/home/            # Android Home tab content
+    features/profile/         # Android Profile tab content + theme preference
   shared/
     components/               # cross-platform UI (icon.js, root.js)
     hooks/                    # use-responsive-layout.js
@@ -49,7 +50,7 @@ src/
       images/icon.png         # Android launcher icon + web favicon source
 ```
 
-Layers point in one direction: `src/app` routes → `src/app/web` / `src/app/android` features → `src/shared`. Shared code must not import routes or platform features. Keep shared code (components, hooks, store, constants, stylesheets, assets) in `src/shared/` outside `src/app/`. Configuration files (`tailwind.config.js`, `metro.config.js`, `babel.config.js`, `.svgrrc.json`) stay at the workspace root.
+Layers point in one direction: `src/app` routes → `src/web` / `src/android` features → `src/shared`. Shared code must not import routes or platform features. Keep shared code (components, hooks, store, constants, stylesheets, assets) in `src/shared/` outside `src/app/`. Configuration files (`tailwind.config.js`, `metro.config.js`, `babel.config.js`, `.svgrrc.json`) stay at the workspace root.
 
 ## Conventions
 
@@ -66,9 +67,9 @@ Layers point in one direction: `src/app` routes → `src/app/web` / `src/app/and
 - Split platform-specific routes with file extensions:
   - `*.android.js` — Android only
   - `*.js` — web and any platform without a specific route
-- `_layout.js` (web) and `_layout.android.js` (Android) define the root navigators. Android uses file-based `Tabs`; only `index` (Home) and `android/features/profile/profile-screen` (Profile) are visible tabs — every other file-based route is hidden with `href: null` in the Android layout and filtered out in `app-tab-bar.js` so the bar always shows two tabs.
+- `_layout.js` (web) and `_layout.android.js` (Android) define the root layouts. Android uses a custom React Native tab bar driven by internal `home`/`profile` state (`index` via `Slot`, Profile via direct import) — tabs are not file-based routes.
 - Shared routes keep a plain `.js` fallback: `index.js` + `index.android.js`, `_layout.js` + `_layout.android.js`. A platform-only file without a fallback sibling throws — never create a bare `*.android.js` route. The root holds only `index.js`, `index.android.js`, `_layout.js`, `_layout.android.js`, `+html.js`, and `+not-found.js`; unmatched web URLs such as `/profile` render `+not-found.js` with a 404 status.
-- Route files at `src/app/` root are thin: they re-export a feature from `src/app/web` or `src/app/android`, or define a navigator/redirect. Feature files under `src/app/web/features/` and `src/app/android/features/` are file-based routes and are also reachable at their path URLs.
+- Route files at `src/app/` root are thin: they re-export a feature from `src/web` or `src/android`, or define a navigator/redirect.
 - Import navigation APIs (`Link`, `router`, `useLocalSearchParams`, `Redirect`) from `expo-router`.
 
 ### Language & styling
