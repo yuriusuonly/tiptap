@@ -11,6 +11,12 @@
  * Call sites are Android-guarded; web never calls these functions.
  * @module src/services/firebase/user-preferences
  */
+import {isTestMode} from "../../shared/constants/configuration";
+
+// eslint-disable-next-line no-undef
+function mockPreferences() {
+  return require("../../../test/services/firebase/user-preferences");
+}
 
 // eslint-disable-next-line no-undef
 function firestoreSdk() {
@@ -28,6 +34,7 @@ function db() {
  * @returns {Promise<{themeMode: string, updatedAt: number} | null>}
  */
 export async function getUserPreferences(uid) {
+  if (isTestMode) return mockPreferences().getUserPreferences(uid);
   const {doc, getDoc} = firestoreSdk();
   const ref = doc(db(), "users", uid, "preferences", "app");
   const snapshot = await getDoc(ref);
@@ -44,6 +51,7 @@ export async function getUserPreferences(uid) {
  * @param {{themeMode: string, updatedAt: number}} prefs
  */
 export async function setUserPreferences(uid, prefs) {
+  if (isTestMode) return mockPreferences().setUserPreferences(uid, prefs);
   const {doc, setDoc} = firestoreSdk();
   const ref = doc(db(), "users", uid, "preferences", "app");
   await setDoc(

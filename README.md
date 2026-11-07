@@ -106,6 +106,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md#routing-expo-router) and [DESIGN.md](DESIG
 | `EXPO_PUBLIC_APP_NAME` | App display name — used as the app `name` in `app.config.js` and the `APP_NAME` constant |
 | `EXPO_PUBLIC_APP_VERSION` | App version, exposed as the `APP_VERSION` constant |
 | `EXPO_PUBLIC_APP_DESCRIPTION` | App description, exposed as the `APP_DESCRIPTION` constant (document meta tag) |
+| `EXPO_PUBLIC_APP_MODE` | App mode: `development` (real services, local; default) / `production` (real services, remote) / `test` (mocks served; failure states only) — see `test/services/firebase/` |
 | `EXPO_PUBLIC_EAS_PROJECT_ID` | EAS project ID — used as `extra.eas.projectId` in `app.config.js` |
 | `EXPO_PUBLIC_LANDING_PAGE_SCHEME` | Landing page (web) URL scheme, used in `LANDING_PAGE_URL` |
 | `EXPO_PUBLIC_LANDING_PAGE_HOST` | Landing page host (development: `localhost`) |

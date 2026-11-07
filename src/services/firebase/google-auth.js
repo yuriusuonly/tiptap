@@ -10,7 +10,12 @@
  * UI); web never renders or calls these functions.
  * @module src/services/firebase/google-auth
  */
-import {requireGoogleWebClientId} from "../../shared/constants/configuration";
+import {isTestMode, requireGoogleWebClientId} from "../../shared/constants/configuration";
+
+// eslint-disable-next-line no-undef
+function mockAuth() {
+  return require("../../../test/services/firebase/google-auth");
+}
 
 let configured = false;
 
@@ -29,6 +34,7 @@ function googleSigninSdk() {
  * import time. Uses the type-3 web client ID from configuration.
  */
 export function configureGoogleSignIn() {
+  if (isTestMode) return mockAuth().configureGoogleSignIn();
   if (configured) return;
   const {GoogleSignin} = googleSigninSdk();
   GoogleSignin.configure({
@@ -42,6 +48,7 @@ export function configureGoogleSignIn() {
  * @returns {Promise<{uid: string, displayName: string | null, email: string | null, photoURL: string | null}>}
  */
 export async function signInWithGoogle() {
+  if (isTestMode) return mockAuth().signInWithGoogle();
   const {getAuth, GoogleAuthProvider, signInWithCredential} = authSdk();
   const {GoogleSignin} = googleSigninSdk();
   await configureGoogleSignIn();
@@ -62,6 +69,7 @@ export async function signInWithGoogle() {
 }
 
 export async function signOutGoogle() {
+  if (isTestMode) return mockAuth().signOutGoogle();
   const {getAuth} = authSdk();
   const {GoogleSignin} = googleSigninSdk();
   let authError = null;
@@ -84,6 +92,7 @@ export async function signOutGoogle() {
  * Google credential first, then retries the delete.
  */
 export async function deleteAuthUser() {
+  if (isTestMode) return mockAuth().deleteAuthUser();
   const {getAuth, GoogleAuthProvider} = authSdk();
   const {GoogleSignin} = googleSigninSdk();
   const currentUser = getAuth().currentUser;
@@ -117,6 +126,7 @@ export async function deleteAuthUser() {
  * @returns {() => void} Unsubscribe function.
  */
 export function subscribeAuthState(callback) {
+  if (isTestMode) return mockAuth().subscribeAuthState(callback);
   const {getAuth, onAuthStateChanged} = authSdk();
   return onAuthStateChanged(getAuth(), (firebaseUser) => {
     callback(firebaseUser ? toAuthUser(firebaseUser) : null);

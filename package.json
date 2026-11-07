@@ -4,6 +4,7 @@
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
+    "start:test": "EXPO_PUBLIC_APP_MODE=test expo start",
     "web": "expo start --web",
     "android:build": "eas build --platform android --profile development --local --output android/build/development.apk",
     "android:install": "adb install -r android/build/development.apk",

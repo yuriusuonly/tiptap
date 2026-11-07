@@ -10,6 +10,12 @@
  * Call sites are Android-guarded; web never calls these functions.
  * @module src/services/firebase/user-profile
  */
+import {isTestMode} from "../../shared/constants/configuration";
+
+// eslint-disable-next-line no-undef
+function mockProfile() {
+  return require("../../../test/services/firebase/user-profile");
+}
 
 // eslint-disable-next-line no-undef
 function firestoreSdk() {
@@ -27,6 +33,7 @@ function db() {
  * @param {{uid: string, displayName?: string | null, email?: string | null, photoURL?: string | null}} user
  */
 export async function upsertUserProfile(user) {
+  if (isTestMode) return mockProfile().upsertUserProfile(user);
   const {doc, FieldValue, getDoc, setDoc} = firestoreSdk();
   const ref = doc(db(), "users", user.uid);
   const existing = await getDoc(ref);
@@ -52,6 +59,7 @@ export async function upsertUserProfile(user) {
  * @param {string} uid
  */
 export async function deleteUserData(uid) {
+  if (isTestMode) return mockProfile().deleteUserData(uid);
   const {collection, deleteDoc, doc, getDocs} = firestoreSdk();
   const database = db();
   const prefsSnapshot = await getDocs(

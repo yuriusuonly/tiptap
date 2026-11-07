@@ -14,6 +14,7 @@
 const appName = process.env.EXPO_PUBLIC_APP_NAME;
 const appVersion = process.env.EXPO_PUBLIC_APP_VERSION;
 const appDescription = process.env.EXPO_PUBLIC_APP_DESCRIPTION;
+const appMode = process.env.EXPO_PUBLIC_APP_MODE ?? "development";
 const landingPageScheme = process.env.EXPO_PUBLIC_LANDING_PAGE_SCHEME;
 const landingPageHost = process.env.EXPO_PUBLIC_LANDING_PAGE_HOST;
 const landingPagePort = process.env.EXPO_PUBLIC_LANDING_PAGE_PORT;
@@ -52,6 +53,22 @@ export const APP_VERSION = appVersion;
 
 /** App description used in document meta tags. */
 export const APP_DESCRIPTION = appDescription;
+
+/**
+ * App mode: "development" (real services, local) | "production" (real
+ * services, remote) | "test" (mocks served; failure states only). Defaults
+ * to "development" when unset (e.g. static rendering).
+ */
+export const APP_MODE = appMode;
+
+/** True in "test" mode — services serve their `test/` mock modules. */
+export const isTestMode = APP_MODE === "test";
+
+/** True in "development" mode (real services, local; same behavior as production). */
+export const isDevelopmentMode = APP_MODE === "development";
+
+/** True in "production" mode (real services, remote). */
+export const isProductionMode = APP_MODE === "production";
 
 /**
  * Landing page (web) URL. Development builds point at the local web dev
