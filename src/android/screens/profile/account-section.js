@@ -98,7 +98,7 @@ export function AccountSection({onActionFailed}) {
             onPress={handleSignIn}
             className={`flex-row items-center gap-3 py-1 ${isSigningIn ? "opacity-50" : ""}`}
           >
-            <View className="h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-raised">
+            <View className="h-10 w-10 items-center justify-center overflow-hidden">
               {isSigningIn ? (
                 <CircularProgress />
               ) : (
