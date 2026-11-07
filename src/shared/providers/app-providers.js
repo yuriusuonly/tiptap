@@ -1,7 +1,7 @@
 /**
- * Root providers: global styles, theme hydration, Nativewind color-scheme
+ * Shared root providers: global styles, theme hydration, Nativewind color-scheme
  * sync, document title, and status bar. Used by both platform layouts.
- * @module src/providers/app-providers
+ * @module src/shared/providers/app-providers
  */
 import Head from "expo-router/head";
 import {StatusBar} from "expo-status-bar";
@@ -9,7 +9,7 @@ import {colorScheme} from "nativewind";
 import {useEffect} from "react";
 import {Platform} from "react-native";
 import {useResolvedTheme, useThemeStore} from "../store/theme-store";
-import "../styles/global.css";
+import "../../styles/global.css";
 
 export function AppProviders({children}) {
   const {themeMode, scheme, isLight} = useResolvedTheme();

@@ -1,6 +1,6 @@
 /**
  * Android Profile tab content: centered preferences surface.
- * @module src/screens/profile
+ * @module src/android/features/profile/profile-screen
  */
 import {View} from "react-native";
 import {ProfilePreferences} from "./profile-preferences";

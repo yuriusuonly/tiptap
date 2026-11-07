@@ -52,26 +52,26 @@ npx expo install --fix       # fix incompatible package versions
 
 ```
 src/
-  app/                        # Expo Router routes only (thin route files)
-    _layout.js                # web root: root providers + headerless Stack
-    _layout.android.js        # Android root: root providers + file-based Tabs
+  app/                        # Expo Router routing layer (thin route files)
+    _layout.js                # web root: shared providers + headerless Stack
+    _layout.android.js        # Android root: shared providers + file-based Tabs
     index.js                  # web landing route
     index.android.js          # Android Home tab route
     profile.js                # web fallback for the Android-only Profile route (redirects home)
     profile.android.js        # Android Profile tab route
     +html.js                  # web document shell
     +not-found.js             # 404 route
-  screens/                    # screen bodies rendered by routes (Option B)
-    landing/                  # web landing (index.js)
-    home/                     # Android Home tab (index.js)
-    profile/                  # Android Profile tab (index.js + private profile-preferences.js)
-  components/                 # reusable UI, one named export each
-    icon.js                   # generic SVG icon wrapper
-    app-logo.js               # Tiptap logo (mirrors assets/icons/icon.svg)
-    app-tab-bar.js            # Android React Native bottom tab bar (Android layout only)
-  hooks/                      # reusable hooks (use-responsive-layout.js)
-  providers/                  # root providers (global styles, theme hydration, color scheme)
-  store/                      # Zustand stores (theme-store.js)
+  web/
+    features/landing/         # web-only landing screen
+  android/
+    components/               # Android-only UI (React Native bottom tab bar)
+    features/home/            # Android Home tab content
+    features/profile/         # Android Profile tab content + theme preference
+  shared/
+    components/               # cross-platform UI (icon.js, app-logo.js)
+    hooks/                    # cross-platform hooks (responsive layout)
+    providers/                # root providers (global styles, theme hydration, color scheme)
+    store/                    # Zustand stores (theme)
   assets/
     icons/icon.svg            # project logo (master source)
     icons/home.svg            # Home tab icon
@@ -79,7 +79,7 @@ src/
     images/icon.png           # Android launcher icon + web favicon source (exported from icons/icon.svg)
   styles/global.css           # Tailwind entry + light/dark CSS variables
   theme/
-    colors.js                 # design tokens (dark + light palettes)
+    colors.js                 # shared design tokens (dark + light palettes)
     layout.js                 # responsive breakpoints, 1920px cap, per-class layout tokens
 .svgrrc.json                  # SVGR config (workspace root)
 tailwind.config.js            # Nativewind/Tailwind theme (semantic CSS-variable colors)
@@ -87,7 +87,7 @@ metro.config.js               # Metro + SVG transformer + Nativewind
 babel.config.js               # Babel + Nativewind
 ```
 
-Follows the Expo `expo-project-structure` skill (Option B), adapted for vanilla JS and Nativewind: `src/app` is routes-only, screens live in `screens/`, reusable UI in `components/`, and `hooks`/`providers`/`store`/`theme` sit alongside. `app -> screens/components -> hooks/store/theme`; screens and components never import from `src/app/`. `src/utils/` and `src/server/` + `src/app/api/` are reserved for when the first helper / API route lands. Non-route code lives **outside** `src/app/`. All filenames use lower-case kebab-case; Expo Router's reserved route names (`index`, `_layout`, `+html`, `+not-found`) are the exception.
+Layers point in one direction: `src/app` → `src/web` / `src/android` → `src/shared`. Shared code never imports platform features or routes. Non-route code lives **outside** `src/app/`. All filenames use lower-case kebab-case; Expo Router's reserved route names (`index`, `_layout`, `+html`, `+not-found`) are the exception.
 
 SVG assets are the source of truth. Regenerate the launcher/fav icon PNG from `src/assets/icons/icon.svg` after editing the logo:
 
@@ -106,7 +106,7 @@ Expo Router resolves routes by platform using file extensions:
 
 Routes live in **`src/app/`** — Expo Router auto-detects `src/app/` before a root `app/`, so do not create a root `app/` directory.
 
-Platform routes need a plain `.js` sibling for static web rendering. The app uses `index.js` (web landing screen) + `index.android.js` (Android Home screen), `profile.js` (web redirect) + `profile.android.js` (Android Profile screen), and `_layout.js` (web stack) + `_layout.android.js` (Android tabs). Android tab navigation is file-based: `_layout.android.js` renders Expo Router `Tabs`, and each tab is its own route file that re-exports its screen from `src/screens/`.
+Platform routes need a plain `.js` sibling for static web rendering. The app uses `index.js` (web landing) + `index.android.js` (Android Home), `profile.js` (web redirect) + `profile.android.js` (Android Profile), and `_layout.js` (web stack) + `_layout.android.js` (Android tabs). Android tab navigation is file-based: `_layout.android.js` renders Expo Router `Tabs`, and each tab is its own route file.
 
 ## Configuration
 
