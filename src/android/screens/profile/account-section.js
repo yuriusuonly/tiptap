@@ -1,8 +1,8 @@
 /**
  * Android Account section: Google Sign-In (OAuth only) with Firestore user
- * record + preference sync. Each action shows its own circular progress;
- * failed sign-in/sign-out/account-deletion surface via a toast; sync
- * failures show inline with Retry/Dismiss. Identity shows name/email (+photo).
+ * record + preference sync. Each action shows its own circular progress.
+ * Every failed response (sign-in/sign-out/account deletion/sync) surfaces
+ * via the same toast; there are no inlined errors. Identity shows name/email (+photo).
  * @module src/android/screens/profile/account-section
  */
 import {useEffect, useState} from "react";
@@ -13,11 +13,13 @@ import GoogleIcon from "../../../shared/assets/icons/google.svg";
 import {CircularProgress} from "../../../shared/components/circular-progress";
 import {Icon} from "../../../shared/components/icon";
 import {useAuthStore} from "../../../shared/store/auth-store";
-import {syncOnSignIn, usePreferencesSyncStore} from "../../../shared/store/preferences-sync-store";
+import {usePreferencesSyncStore} from "../../../shared/store/preferences-sync-store";
+
+export const ACTION_FAILED_MESSAGE = "Something went wrong";
 
 export function AccountSection({onActionFailed}) {
   const {status, user, isSigningIn, setSigningIn, clearError} = useAuthStore();
-  const {syncStatus, syncError, setSyncStatus} = usePreferencesSyncStore();
+  const {syncStatus, syncError} = usePreferencesSyncStore();
   const [photoFailed, setPhotoFailed] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -27,6 +29,14 @@ export function AccountSection({onActionFailed}) {
     setConfirmingDelete(false);
   }, [user?.uid]);
 
+  // Surface background preference-sync failures through the shared toast
+  // (fired only when a new error value arrives).
+  useEffect(() => {
+    if (syncError) {
+      onActionFailed?.(ACTION_FAILED_MESSAGE);
+    }
+  }, [syncError, onActionFailed]);
+
   const handleSignIn = async () => {
     clearError();
     setSigningIn(true);
@@ -34,7 +44,7 @@ export function AccountSection({onActionFailed}) {
       await signInWithGoogle();
     } catch (signInError) {
       if (signInError?.code !== "cancelled") {
-        onActionFailed?.("Sign-in failed");
+        onActionFailed?.(ACTION_FAILED_MESSAGE);
       }
     } finally {
       setSigningIn(false);
@@ -47,7 +57,7 @@ export function AccountSection({onActionFailed}) {
     try {
       await signOutGoogle();
     } catch {
-      onActionFailed?.("Sign-out failed");
+      onActionFailed?.(ACTION_FAILED_MESSAGE);
     } finally {
       setSigningIn(false);
     }
@@ -67,18 +77,10 @@ export function AccountSection({onActionFailed}) {
       }
       setConfirmingDelete(false);
     } catch {
-      onActionFailed?.("Account deletion failed");
+      onActionFailed?.(ACTION_FAILED_MESSAGE);
     } finally {
       setIsDeleting(false);
     }
-  };
-
-  const handleRetrySync = () => {
-    if (user) void syncOnSignIn(user);
-  };
-
-  const handleDismissSyncError = () => {
-    setSyncStatus("synced");
   };
 
   return (
@@ -138,26 +140,6 @@ export function AccountSection({onActionFailed}) {
                   <View className="mt-1 flex-row items-center gap-2">
                     <CircularProgress />
                     <Text className="text-[13px] leading-[18px] text-muted">Syncing preferences…</Text>
-                  </View>
-                ) : syncStatus === "error" && syncError ? (
-                  <View>
-                    <Text className="mt-1 text-[13px] leading-[18px] text-cyan">{syncError}</Text>
-                    <View className="mt-1 flex-row gap-5">
-                      <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel="Retry preference sync"
-                        onPress={handleRetrySync}
-                      >
-                        <Text className="py-1 text-[13px] font-semibold text-accent">Retry</Text>
-                      </Pressable>
-                      <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel="Dismiss sync error"
-                        onPress={handleDismissSyncError}
-                      >
-                        <Text className="py-1 text-[13px] text-muted">Dismiss</Text>
-                      </Pressable>
-                    </View>
                   </View>
                 ) : null}
               </View>
