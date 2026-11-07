@@ -96,18 +96,30 @@ export function LandingScreen() {
                 </Text>
               </View>
 
-              <View className="mt-10 items-center justify-center mobile:mt-12">
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={`Theme: ${currentMode.label}. Activate to change theme.`}
-                  onPress={cycleTheme}
-                  className="items-center justify-center rounded-full border border-line bg-surface px-4 py-2"
-                >
-                  <Icon as={ThemeIcon} size={20} color={palette.accent} />
-                </Pressable>
-                <Text className="mt-2 text-[11px] font-medium uppercase leading-4 tracking-[1px] text-faint">
-                  {currentMode.label}
-                </Text>
+              <View className="mt-10 flex-row items-center justify-center gap-5 mobile:mt-12 mobile:gap-6">
+                <Link href="/policy" asChild>
+                  <Pressable accessibilityRole="link" accessibilityLabel="Privacy Policy">
+                    <Text className="text-[13px] font-medium leading-[18px] text-faint">Privacy</Text>
+                  </Pressable>
+                </Link>
+                <View className="items-center justify-center">
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`Theme: ${currentMode.label}. Activate to change theme.`}
+                    onPress={cycleTheme}
+                    className="items-center justify-center rounded-full border border-line bg-surface px-4 py-2"
+                  >
+                    <Icon as={ThemeIcon} size={20} color={palette.accent} />
+                  </Pressable>
+                  <Text className="mt-2 text-[11px] font-medium uppercase leading-4 tracking-[1px] text-faint">
+                    {currentMode.label}
+                  </Text>
+                </View>
+                <Link href="/terms" asChild>
+                  <Pressable accessibilityRole="link" accessibilityLabel="Terms of Service">
+                    <Text className="text-[13px] font-medium leading-[18px] text-faint">Terms</Text>
+                  </Pressable>
+                </Link>
               </View>
             </View>
 
@@ -125,19 +137,6 @@ export function LandingScreen() {
             </View>
           </View>
 
-          <View className="mt-12 flex-row items-center justify-center gap-4 pb-2 mobile:mt-14 tablet:mt-16 desktop:mt-20">
-            <Link href="/policy" asChild>
-              <Pressable accessibilityRole="link" accessibilityLabel="Privacy Policy">
-                <Text className="text-[13px] font-medium leading-[18px] text-faint">Privacy</Text>
-              </Pressable>
-            </Link>
-            <View className="h-[3px] w-[3px] rounded-full bg-faint" />
-            <Link href="/terms" asChild>
-              <Pressable accessibilityRole="link" accessibilityLabel="Terms of Service">
-                <Text className="text-[13px] font-medium leading-[18px] text-faint">Terms</Text>
-              </Pressable>
-            </Link>
-          </View>
         </View>
       </ScrollView>
     </View>
