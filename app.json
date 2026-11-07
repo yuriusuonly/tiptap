@@ -1,11 +1,11 @@
 {
   "name": "TipTap",
   "slug": "tiptap",
-  "icon": "./src/assets/images/icon.png",
+  "icon": "./src/shared/assets/images/icon.png",
   "userInterfaceStyle": "automatic",
   "android": {
     "package": "dev.yuriusu.tiptap",
-    "icon": "./src/assets/images/icon.png"
+    "icon": "./src/shared/assets/images/icon.png"
   },
   "ios": {
     "bundleIdentifier": "dev.yuriusu.tiptap"
@@ -13,7 +13,7 @@
   "web": {
     "bundler": "metro",
     "output": "static",
-    "favicon": "./src/assets/images/icon.png"
+    "favicon": "./src/shared/assets/images/icon.png"
   },
   "plugins": [
     [

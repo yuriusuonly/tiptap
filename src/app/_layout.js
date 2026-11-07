@@ -4,7 +4,7 @@
  * @module src/app/_layout
  */
 import {Stack} from "expo-router";
-import {AppProviders} from "../shared/providers/app-providers";
+import {AppProviders} from "../shared/components/app-providers";
 
 export default function RootLayout() {
   return (

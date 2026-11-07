@@ -1,7 +1,7 @@
 /**
  * Android theme preference: a plain expandable selector (no animations) that
  * persists the chosen mode through the shared theme store.
- * @module src/android/features/profile/profile-preferences
+ * @module src/android/screens/profile/profile-preferences
  */
 import {useState} from "react";
 import {Pressable, Text, View} from "react-native";

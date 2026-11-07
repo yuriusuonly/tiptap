@@ -3,7 +3,7 @@
  * @module src/shared/hooks/use-responsive-layout
  */
 import {useWindowDimensions} from "react-native";
-import {getLayoutClass, responsiveLayout} from "../../theme/layout";
+import {getLayoutClass, responsiveLayout} from "../constants/layout";
 
 /**
  * Returns the active responsive layout class and its tokens.

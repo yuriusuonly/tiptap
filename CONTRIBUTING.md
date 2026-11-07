@@ -30,28 +30,27 @@ src/
     profile.android.js        # Android Profile tab route
     +html.js                  # web document shell
     +not-found.js             # 404 route
-  web/features/landing/       # web-only landing screen
+  web/screens/landing/        # web-only landing screen
   android/
     components/               # Android-only UI (React Native tab bar)
-    features/home/            # Android Home tab content
-    features/profile/         # Android Profile tab content + theme preference
+    screens/home/             # Android Home tab content
+    screens/profile/          # Android Profile tab content + theme preference
   shared/
-    components/               # cross-platform UI (icon.js, app-logo.js)
+    components/               # cross-platform UI (icon.js, app-logo.js, app-providers.js)
     hooks/                    # use-responsive-layout.js
-    providers/                # root providers (styles, theme hydration, color scheme)
     store/                    # Zustand theme store
-  assets/
-    icons/icon.svg            # project logo (master source)
-    icons/home.svg            # Home tab icon
-    icons/person.svg          # Profile tab icon
-    images/icon.png           # Android launcher icon + web favicon source
-  styles/global.css           # Tailwind entry + light/dark CSS variables
-  theme/
-    colors.js                 # shared design tokens (dark + light palettes)
-    layout.js                 # responsive breakpoints, 1920px cap, per-class tokens
+    constants/
+      colors.js               # design tokens (dark + light palettes)
+      layout.js               # responsive breakpoints, 1920px cap, per-class tokens
+    stylesheets/global.css    # Tailwind entry + light/dark CSS variables
+    assets/
+      icons/icon.svg          # project logo (master source)
+      icons/home.svg          # Home tab icon
+      icons/person.svg        # Profile tab icon
+      images/icon.png         # Android launcher icon + web favicon source
 ```
 
-Layers point in one direction: `src/app` → `src/web` / `src/android` → `src/shared`. Shared code must not import routes or platform features. Keep non-route code (components, hooks, providers, stores, theme) **outside** `src/app/`. Configuration files (`tailwind.config.js`, `metro.config.js`, `babel.config.js`, `.svgrrc.json`) stay at the workspace root.
+Layers point in one direction: `src/app` → `src/web` / `src/android` → `src/shared`. Shared code must not import routes or platform screens. Keep non-route code (components, hooks, providers, stores, theme) **outside** `src/app/`. Configuration files (`tailwind.config.js`, `metro.config.js`, `babel.config.js`, `.svgrrc.json`) stay at the workspace root.
 
 ## Conventions
 
@@ -70,26 +69,26 @@ Layers point in one direction: `src/app` → `src/web` / `src/android` → `src/
   - `*.js` — web and any platform without a specific route
 - `_layout.js` (web) and `_layout.android.js` (Android) define the root navigators. Android uses file-based `Tabs`; each tab is a route (`index.android.js`, `profile.android.js`).
 - Expo Router requires a plain `.js` fallback next to every platform route: `index.js` + `index.android.js`, `profile.js` + `profile.android.js`, `_layout.js` + `_layout.android.js`. Keep every fallback.
-- Route files are thin: they re-export a feature from `src/web` or `src/android`, or define a redirect. Do not put feature UI in `src/app`.
+- Route files are thin: they re-export a screen from `src/web` or `src/android`, or define a redirect. Do not put screen UI in `src/app`.
 - Import navigation APIs (`Link`, `router`, `useLocalSearchParams`, `Redirect`) from `expo-router`.
 
 ### Language & styling
 
 - **Vanilla JavaScript only** — JSX in `.js` files. No TypeScript, no `.ts`/`.tsx`, no `tsconfig.json`.
 - The package is **ESM** (`"type": "module"`): config files use `import`/`export default`, and CommonJS-only package subpaths are bridged with `createRequire(import.meta.url)`.
-- Style React Native components with **Nativewind** `className` utilities (Tailwind v3). Config lives in `tailwind.config.js`; `src/styles/global.css` is imported by `src/shared/providers/app-providers.js`.
+- Style React Native components with **Nativewind** `className` utilities (Tailwind v3). Config lives in `tailwind.config.js`; `src/shared/stylesheets/global.css` is imported by `src/shared/components/app-providers.js`.
 - **Do not use inline `style` objects for presentation.** Use `className` for layout, spacing, typography, colors, borders, radii, and shadows. Colors use semantic CSS variables (`bg-background`, `text-ink`, `text-muted`, `border-line`, `bg-surface`, `text-accent`, …) defined for light/dark in `global.css`. The only accepted computed props are non-style values such as an SVG `size` derived from layout tokens.
 - The Android shell is **React Native** (no `@expo/ui`/Jetpack Compose). The bottom tab bar uses `Pressable` as the only touch target and marks icons/indicators `pointerEvents="none"` so taps are never intercepted. No XML/VectorDrawable icons — SVG only.
 - Avoid UX animations/transitions unless explicitly requested. Use plain state/color/layout changes.
-- Global state lives in **Zustand** stores under `src/shared/store/`. Persist with AsyncStorage (`skipHydration: true` + `rehydrate()` in `src/shared/providers/app-providers.js`) so static web rendering stays `window`-free.
-- SVG icons in `src/assets/icons/` are the source of truth. Render simple/tintable SVGs with the shared cross-platform `src/shared/components/icon.js` wrapper: `<Icon as={Svg} size={24} accessibilityLabel="..." />` (pass `color` for `fill="currentColor"`). The complex gradient logo uses `src/shared/components/app-logo.js` (mirrors `src/assets/icons/icon.svg`); `src/assets/icons/icon.svg` remains the master for derived PNG assets.
-- Use the shared design tokens in `src/theme/colors.js` instead of hard-coded values. See `DESIGN.md`.
-- Responsive breakpoints and per-class layout tokens live in `src/theme/layout.js`; use `src/shared/hooks/use-responsive-layout.js` (`useResponsiveLayout`) for the four classes: Wearable `<480`, Phone `480–719`, Tablet `720–1079`, Desktop `>=1080`. Content is capped at `1920px`. Prefer Tailwind screen variants (`phone:`, `tablet:`, `desktop:`); on web, pass `{enabled: mounted}` so static rendering starts on the wearable class.
+- Global state lives in **Zustand** stores under `src/shared/store/`. Persist with AsyncStorage (`skipHydration: true` + `rehydrate()` in `src/shared/components/app-providers.js`) so static web rendering stays `window`-free.
+- SVG icons in `src/shared/assets/icons/` are the source of truth. Render simple/tintable SVGs with the shared cross-platform `src/shared/components/icon.js` wrapper: `<Icon as={Svg} size={24} accessibilityLabel="..." />` (pass `color` for `fill="currentColor"`). The complex gradient logo uses `src/shared/components/app-logo.js` (mirrors `src/shared/assets/icons/icon.svg`); `src/shared/assets/icons/icon.svg` remains the master for derived PNG assets.
+- Use the design tokens in `src/shared/constants/colors.js` instead of hard-coded values. See `DESIGN.md`.
+- Responsive breakpoints and per-class layout tokens live in `src/shared/constants/layout.js`; use `src/shared/hooks/use-responsive-layout.js` (`useResponsiveLayout`) for the four classes: Wearable `<480`, Phone `480–719`, Tablet `720–1079`, Desktop `>=1080`. Content is capped at `1920px`. Prefer Tailwind screen variants (`phone:`, `tablet:`, `desktop:`); on web, pass `{enabled: mounted}` so static rendering starts on the wearable class.
 
 ### JSDoc
 
 - **Every JavaScript module** starts with a JSDoc block containing an `@module` intro tag that names the module and summarizes its responsibility.
-- Use the repo-relative path without the `.js` extension, e.g. `@module src/theme/layout`.
+- Use the repo-relative path without the `.js` extension, e.g. `@module src/shared/constants/layout`.
 - Keep the intro short and useful: what the module exports, when to use it, and any important constraint (SSR safety, platform-only behavior, etc.).
 - **Never use `@example` tags** in JSDoc blocks. Inline code comments and documentation code blocks are fine; the JSDoc example tag is not.
 
@@ -98,7 +97,7 @@ Allowed:
 ```js
 /**
  * Shared responsive layout tokens and breakpoint helpers.
- * @module src/theme/layout
+ * @module src/shared/constants/layout
  */
 ```
 
@@ -106,7 +105,7 @@ Not allowed:
 
 ```js
 /**
- * @module src/theme/layout
+ * @module src/shared/constants/layout
  * @example
  * getLayoutClass(720);
  */

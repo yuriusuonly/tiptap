@@ -1,7 +1,7 @@
 /**
  * Shared color, spacing, radius, and typography tokens for web and Android.
  * See DESIGN.md for the full system.
- * @module src/theme/colors
+ * @module src/shared/constants/colors
  */
 
 export const colors = {
@@ -62,7 +62,7 @@ export const themes = {
 };
 
 export const gradients = {
-  // Matches the gradient in src/assets/icons/icon.svg
+  // Matches the gradient in src/shared/assets/icons/icon.svg
   brand: ["#25F4EE", "#7C4DFF", "#FE2C55"],
 };
 
@@ -94,4 +94,4 @@ export const typography = {
 };
 
 // Responsive breakpoints, content width, and per-class layout tokens live in
-// `src/theme/layout.js` so they can be shared by Web and Android.
+// `src/shared/constants/layout.js` so they can be shared by Web and Android.

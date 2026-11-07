@@ -6,7 +6,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {useColorScheme} from "react-native";
 import {create} from "zustand";
 import {createJSONStorage, persist} from "zustand/middleware";
-import {themes} from "../../theme/colors";
+import {themes} from "../constants/colors";
 
 export const THEME_MODES = [
   {value: "auto", label: "Auto"},
@@ -25,7 +25,7 @@ export const useThemeStore = create(
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({themeMode: state.themeMode}),
       // Static rendering has no window/localStorage. Rehydrate in an effect
-      // after the app mounts (see src/shared/providers/app-providers.js).
+      // after the app mounts (see src/shared/components/app-providers.js).
       skipHydration: true,
     }
   )

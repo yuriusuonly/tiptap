@@ -22,4 +22,4 @@ config.resolver.assetExts = config.resolver.assetExts.filter(
 );
 config.resolver.sourceExts = [...config.resolver.sourceExts, "svg"];
 
-export default withNativeWind(config, {input: "./src/styles/global.css"});
+export default withNativeWind(config, {input: "./src/shared/stylesheets/global.css"});

@@ -62,37 +62,36 @@ src/
     +html.js                  # web document shell
     +not-found.js             # 404 route
   web/
-    features/landing/         # web-only landing screen
+    screens/landing/          # web-only landing screen
   android/
     components/               # Android-only UI (React Native bottom tab bar)
-    features/home/            # Android Home tab content
-    features/profile/         # Android Profile tab content + theme preference
+    screens/home/             # Android Home tab content
+    screens/profile/          # Android Profile tab content + theme preference
   shared/
-    components/               # cross-platform UI (icon.js, app-logo.js)
+    components/               # cross-platform UI (icon.js, app-logo.js, app-providers.js)
     hooks/                    # cross-platform hooks (responsive layout)
-    providers/                # root providers (global styles, theme hydration, color scheme)
     store/                    # Zustand stores (theme)
-  assets/
-    icons/icon.svg            # project logo (master source)
-    icons/home.svg            # Home tab icon
-    icons/person.svg          # Profile tab icon
-    images/icon.png           # Android launcher icon + web favicon source (exported from icons/icon.svg)
-  styles/global.css           # Tailwind entry + light/dark CSS variables
-  theme/
-    colors.js                 # shared design tokens (dark + light palettes)
-    layout.js                 # responsive breakpoints, 1920px cap, per-class layout tokens
+    constants/
+      colors.js               # design tokens (dark + light palettes)
+      layout.js               # responsive breakpoints, 1920px cap, per-class layout tokens
+    stylesheets/global.css    # Tailwind entry + light/dark CSS variables
+    assets/
+      icons/icon.svg          # project logo (master source)
+      icons/home.svg          # Home tab icon
+      icons/person.svg        # Profile tab icon
+      images/icon.png         # Android launcher icon + web favicon source (exported from icons/icon.svg)
 .svgrrc.json                  # SVGR config (workspace root)
 tailwind.config.js            # Nativewind/Tailwind theme (semantic CSS-variable colors)
 metro.config.js               # Metro + SVG transformer + Nativewind
 babel.config.js               # Babel + Nativewind
 ```
 
-Layers point in one direction: `src/app` → `src/web` / `src/android` → `src/shared`. Shared code never imports platform features or routes. Non-route code lives **outside** `src/app/`. All filenames use lower-case kebab-case; Expo Router's reserved route names (`index`, `_layout`, `+html`, `+not-found`) are the exception.
+Layers point in one direction: `src/app` → `src/web` / `src/android` → `src/shared`. Shared code never imports platform screens or routes. Non-route code lives **outside** `src/app/`. All filenames use lower-case kebab-case; Expo Router's reserved route names (`index`, `_layout`, `+html`, `+not-found`) are the exception.
 
-SVG assets are the source of truth. Regenerate the launcher/fav icon PNG from `src/assets/icons/icon.svg` after editing the logo:
+SVG assets are the source of truth. Regenerate the launcher/fav icon PNG from `src/shared/assets/icons/icon.svg` after editing the logo:
 
 ```bash
-rsvg-convert -w 1024 -h 1024 -o src/assets/images/icon.png src/assets/icons/icon.svg
+rsvg-convert -w 1024 -h 1024 -o src/shared/assets/images/icon.png src/shared/assets/icons/icon.svg
 ```
 
 ## Platform routes

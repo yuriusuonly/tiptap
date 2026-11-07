@@ -1,6 +1,6 @@
 /**
  * Cross-platform TipTap logo rendered with react-native-svg primitives.
- * Geometry/gradient mirror src/assets/icons/icon.svg (master asset) for reliable
+ * Geometry/gradient mirror src/shared/assets/icons/icon.svg (master asset) for reliable
  * rendering across web and Android (the direct SVG transform of complex gradients
  * can fail in some web dev/runtime paths).
  * @module src/shared/components/app-logo

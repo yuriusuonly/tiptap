@@ -35,13 +35,13 @@ npm run android:release               # remote production AAB + submit (EAS)
 
 ## Architecture (layered, platform-separated)
 
-- `src/app/` — **routing layer** only. Route files are thin bridges that re-export a feature or define a navigator.
-- `src/web/` — **web-only** features and components (`src/web/features/landing`).
-- `src/android/` — **Android-only** features and components (`src/android/features`, `src/android/components`).
-- `src/shared/` — cross-platform code only (`components`, `hooks`, `providers`, `store`).
-- `src/theme/`, `src/styles/`, `src/assets/` — shared design system, Tailwind entry, and assets.
+- `src/app/` — **routing layer** only. Route files are thin bridges that re-export a screen or define a navigator.
+- `src/web/` — **web-only** screens and components (`src/web/screens/landing`).
+- `src/android/` — **Android-only** screens and components (`src/android/screens`, `src/android/components`).
+- `src/shared/` — cross-platform code only (`components`, `hooks`, `store`, `constants`, `stylesheets`, `assets`).
+- `src/shared/constants/` — design tokens (`colors.js`, `layout.js`); `src/shared/stylesheets/global.css` is the Tailwind entry; `src/shared/assets/` holds SVGs and the derived PNG.
 - `src/services/` — reserved for future integrations (Firebase/API/storage adapters). Keep it free of UI imports.
-- Dependency direction: `app -> web/android features -> shared components`. Shared code must never import from `src/app`, `src/web`, or `src/android`.
+- Dependency direction: `app -> web/android screens -> shared components`. Shared code must never import from `src/app`, `src/web`, or `src/android`.
 
 ## Routing (Expo Router)
 
@@ -65,14 +65,14 @@ npm run android:release               # remote production AAB + submit (EAS)
 
 - **Vanilla JavaScript only.** JSX in `.js` files. Do not introduce TypeScript, `.ts`/`.tsx`, or a `tsconfig.json`.
 - The package is **ESM** (`"type": "module"`). Config files (`babel.config.js`, `metro.config.js`, `tailwind.config.js`) use `import`/`export default`. CommonJS-only package subpaths are bridged with `createRequire(import.meta.url)`.
-- **SVG only — never XML icons.** SVG files under `src/assets/icons/` are imported as React components via `react-native-svg-transformer` (configured in `metro.config.js`) and rendered with `react-native-svg`. Pass a `color` prop to tint a `fill="currentColor"` icon.
-- Use the shared `src/shared/components/icon.js` wrapper to render SVG icons consistently across platforms: `<Icon as={SvgComponent} size={24} color={...} accessibilityLabel="..." />`. `src/assets/icons/*.svg` files are the source of truth for icons — import simple/tintable SVGs (e.g. `home.svg`/`person.svg`) directly and render via `Icon`. The brand logo is rendered by `src/shared/components/app-logo.js` (a `react-native-svg` component mirroring the master `src/assets/icons/icon.svg`, which remains the source for derived PNG assets) for reliable cross-platform rendering of its gradient.
-- Style React Native components with **Nativewind** `className` utilities (Tailwind v3 config in `tailwind.config.js`; `src/styles/global.css` is imported by `src/shared/providers/app-providers.js`). **Do not use inline `style` objects for presentation.** Semantic colors come from CSS variables in `global.css` and switch with the `dark` class (driven by the theme store). Shared tokens still live in `src/theme/colors.js` and are mirrored in the Tailwind theme.
-- Responsive breakpoints and per-class layout tokens live in `src/theme/layout.js`; use `src/shared/hooks/use-responsive-layout.js` (`useResponsiveLayout`) for the four classes: Wearable `<480`, Phone `480–719`, Tablet `720–1079`, Desktop `>=1080`. Content is capped at `1920px`. Prefer Tailwind screen variants (`phone:`, `tablet:`, `desktop:`); when a computed value is unavoidable (e.g. SVG `size`), use layout tokens, not ad-hoc numbers. On web, pass `{enabled: mounted}` so static rendering starts on the wearable class. See `DESIGN.md`.
-- Global client state uses **Zustand** stores in `src/shared/store/`. Persist with `zustand/middleware` + AsyncStorage and `skipHydration: true`, then call `store.persist.rehydrate()` in `src/shared/providers/app-providers.js` so static web rendering never touches `localStorage`.
+- **SVG only — never XML icons.** SVG files under `src/shared/assets/icons/` are imported as React components via `react-native-svg-transformer` (configured in `metro.config.js`) and rendered with `react-native-svg`. Pass a `color` prop to tint a `fill="currentColor"` icon.
+- Use the shared `src/shared/components/icon.js` wrapper to render SVG icons consistently across platforms: `<Icon as={SvgComponent} size={24} color={...} accessibilityLabel="..." />`. `src/shared/assets/icons/*.svg` files are the source of truth for icons — import simple/tintable SVGs (e.g. `home.svg`/`person.svg`) directly and render via `Icon`. The brand logo is rendered by `src/shared/components/app-logo.js` (a `react-native-svg` component mirroring the master `src/shared/assets/icons/icon.svg`, which remains the source for derived PNG assets) for reliable cross-platform rendering of its gradient.
+- Style React Native components with **Nativewind** `className` utilities (Tailwind v3 config in `tailwind.config.js`; `src/shared/stylesheets/global.css` is imported by `src/shared/components/app-providers.js`). **Do not use inline `style` objects for presentation.** Semantic colors come from CSS variables in `global.css` and switch with the `dark` class (driven by the theme store). Shared tokens still live in `src/shared/constants/colors.js` and are mirrored in the Tailwind theme.
+- Responsive breakpoints and per-class layout tokens live in `src/shared/constants/layout.js`; use `src/shared/hooks/use-responsive-layout.js` (`useResponsiveLayout`) for the four classes: Wearable `<480`, Phone `480–719`, Tablet `720–1079`, Desktop `>=1080`. Content is capped at `1920px`. Prefer Tailwind screen variants (`phone:`, `tablet:`, `desktop:`); when a computed value is unavoidable (e.g. SVG `size`), use layout tokens, not ad-hoc numbers. On web, pass `{enabled: mounted}` so static rendering starts on the wearable class. See `DESIGN.md`.
+- Global client state uses **Zustand** stores in `src/shared/store/`. Persist with `zustand/middleware` + AsyncStorage and `skipHydration: true`, then call `store.persist.rehydrate()` in `src/shared/components/app-providers.js` so static web rendering never touches `localStorage`.
 - The Android bottom navigation is a **React Native** tab bar (`src/android/components/app-tab-bar.js`) rendered by Expo Router `Tabs`. The `Pressable` tab item is the only touch target; icons and the selection indicator use `pointerEvents="none"` so taps are never intercepted or propagated. Do **not** reintroduce `@expo/ui`/Jetpack Compose navigation or VectorDrawable XML assets.
-- App icons: `app.json` points at `src/assets/images/icon.png` (top-level and `android.icon`), which is exported from the master `src/assets/icons/icon.svg` at 1024×1024 (Expo only accepts PNG launcher icons). The web favicon is configured via `app.json` `web.favicon` (`./src/assets/images/icon.png`).
-- The web landing is statically rendered. `useWindowDimensions()` is 0 during SSG, so gate responsive branches behind a `mounted` flag (`src/web/features/landing/landing-screen.js`); otherwise hydration mismatches leave the mobile layout on desktop.
+- App icons: `app.json` points at `src/shared/assets/images/icon.png` (top-level and `android.icon`), which is exported from the master `src/shared/assets/icons/icon.svg` at 1024×1024 (Expo only accepts PNG launcher icons). The web favicon is configured via `app.json` `web.favicon` (`./src/shared/assets/images/icon.png`).
+- The web landing is statically rendered. `useWindowDimensions()` is 0 during SSG, so gate responsive branches behind a `mounted` flag (`src/web/screens/landing/landing-screen.js`); otherwise hydration mismatches leave the mobile layout on desktop.
 
 ## Build & test
 
