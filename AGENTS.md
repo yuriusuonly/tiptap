@@ -27,9 +27,10 @@ npx expo install --fix                # fix incompatible package versions
 Useful npm scripts from `package.json`:
 
 ```bash
-npm run expo:start                    # expo start --clear
-npm run expo:export                   # static web export -> build/web
-npm run expo:serve                    # serve build/web
+npm run expo:start                    # expo start
+npm run expo:web:export               # static web export -> build/web
+npm run expo:web:serve                # serve build/web
+npm run expo:android:run              # native dev build on device/emulator
 npm run eas:build:development         # local Android APK -> build/android/app.apk
 npm run eas:build:production          # cloud Android AAB
 npm run adb:install                   # adb install -r -d the built APK

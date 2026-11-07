@@ -35,8 +35,9 @@ Then press **`w`** to open the web app or **`a`** to launch on an Android device
 | --- | --- |
 | `npm run expo:start` | Start the dev server (`expo start --clear`) |
 | `npm run expo:install` | Install an SDK-compatible package (`expo install`) |
-| `npm run expo:export` | Export static web build to `build/web` |
-| `npm run expo:serve` | Serve the exported web build |
+| `npm run expo:web:export` | Export static web build to `build/web` |
+| `npm run expo:web:serve` | Serve the exported web build |
+| `npm run expo:android:run` | Build and run the native app on a device/emulator |
 | `npm run eas:build:development` | Build a local Android APK (`build/android/app.apk`) |
 | `npm run eas:build:production` | Build a production Android App Bundle via EAS |
 | `npm run adb:install` | Install the built APK on a connected device |
