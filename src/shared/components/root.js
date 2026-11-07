@@ -9,6 +9,8 @@ import {StatusBar} from "expo-status-bar";
 import {colorScheme} from "nativewind";
 import {useEffect} from "react";
 import {Platform} from "react-native";
+import {APP_NAME} from "../constants/configuration";
+import {useOnboardingStore} from "../store/onboarding-store";
 import {useResolvedTheme, useThemeStore} from "../store/theme-store";
 import "../stylesheets/global.css";
 
@@ -19,6 +21,7 @@ export function Root({children}) {
     // Persisted state is rehydrated after mount so static web rendering never
     // touches localStorage during the server pass.
     useThemeStore.persist.rehydrate();
+    useOnboardingStore.persist.rehydrate();
   }, []);
 
   useEffect(() => {
@@ -33,7 +36,7 @@ export function Root({children}) {
   return (
     <>
       <Head>
-        <title>TipTap</title>
+        <title>{APP_NAME}</title>
       </Head>
       <StatusBar style={isLight ? "dark" : "light"} />
       {children}

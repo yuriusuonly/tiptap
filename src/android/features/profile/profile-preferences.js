@@ -1,10 +1,12 @@
 /**
- * Android theme preference: a plain expandable selector (no animations) that
- * persists the chosen mode through the shared theme store.
+ * Android preferences: a plain expandable theme selector (no animations) that
+ * persists the chosen mode through the shared theme store, plus a row to open
+ * the web landing page in the external browser.
  * @module src/android/features/profile/profile-preferences
  */
 import {useState} from "react";
-import {Pressable, Text, View} from "react-native";
+import {Linking, Pressable, Text, View} from "react-native";
+import {APP_NAME, LANDING_PAGE_URL} from "../../../shared/constants/configuration";
 import {THEME_MODES, useResolvedTheme, useThemeStore} from "../../../shared/store/theme-store";
 
 export function ProfilePreferences() {
@@ -70,6 +72,27 @@ export function ProfilePreferences() {
           </View>
         ) : null}
       </View>
+
+      <Text className="mb-1 mt-4 text-[11px] font-bold uppercase tracking-[1.2px] text-muted mobile:mb-2 mobile:mt-5 mobile:text-[12px] tablet:mt-6 tablet:text-[12px] desktop:mb-3 desktop:mt-8 desktop:text-[13px]">
+        More
+      </Text>
+
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`About ${APP_NAME}. Open the landing page.`}
+        onPress={() => Linking.openURL(LANDING_PAGE_URL)}
+        className="rounded-[20px] border border-line bg-surface p-2 tablet:p-3 desktop:p-4"
+      >
+        <View className="flex-row items-center justify-between gap-3 py-1">
+          <View className="flex-1">
+            <Text className="text-[16px] text-ink">About {APP_NAME}</Text>
+            <Text className="mt-0.5 text-[13px] leading-[18px] text-muted">
+              Open the landing page
+            </Text>
+          </View>
+          <Text className="text-[14px] text-accent">↦</Text>
+        </View>
+      </Pressable>
     </View>
   );
 }
