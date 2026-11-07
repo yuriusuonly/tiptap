@@ -14,7 +14,6 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
-import {ToastOverlay} from "../../shared/components/toast-host";
 
 const EXPANDED_FRACTION = 0.88;
 const COLLAPSED_FRACTION = 0.46;
@@ -128,7 +127,6 @@ export function BottomSheet({visible, onClose, children}) {
             {children}
           </ScrollView>
         </Animated.View>
-        <ToastOverlay />
       </View>
     </Modal>
   );

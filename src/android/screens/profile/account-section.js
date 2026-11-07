@@ -3,11 +3,11 @@
  * record + preference sync. Each action shows its own circular progress.
  * Every failed response (sign-in/sign-out/account deletion/sync) surfaces
  * via the root-owned toast; there are no inlined errors. Delete account uses
- * a confirmation dialog (not inline). Identity shows name/email (+photo).
+ * the built-in Alert confirmation dialog. Identity shows name/email (+photo).
  * @module src/android/screens/profile/account-section
  */
 import {useEffect, useState} from "react";
-import {Image, Modal, Pressable, Text, View} from "react-native";
+import {Alert, Image, Pressable, Text, View} from "react-native";
 import {deleteAuthUser, signInWithGoogle, signOutGoogle} from "../../../services/firebase/google-auth";
 import {deleteUserData} from "../../../services/firebase/user-profile";
 import GoogleIcon from "../../../shared/assets/icons/google.svg";
@@ -24,11 +24,9 @@ export function AccountSection() {
   const {syncStatus, syncError} = usePreferencesSyncStore();
   const [photoFailed, setPhotoFailed] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   useEffect(() => {
     setPhotoFailed(false);
-    setConfirmingDelete(false);
   }, [user?.uid]);
 
   // Surface background preference-sync failures through the root toast
@@ -77,12 +75,24 @@ export function AccountSection() {
       } catch {
         // Best effort: account is already deleted.
       }
-      setConfirmingDelete(false);
     } catch {
       showToast(ACTION_FAILED_MESSAGE);
     } finally {
       setIsDeleting(false);
     }
+  };
+
+  const confirmDelete = () => {
+    if (isDeleting) return;
+    Alert.alert(
+      "Delete account?",
+      "Delete your account and all synced data? This can't be undone.",
+      [
+        {text: "Cancel", style: "cancel"},
+        {text: "Delete", style: "destructive", onPress: () => void handleDelete()},
+      ],
+      {cancelable: true}
+    );
   };
 
   return (
@@ -160,56 +170,15 @@ export function AccountSection() {
               accessibilityRole="button"
               accessibilityLabel="Delete account"
               disabled={isDeleting}
-              onPress={() => setConfirmingDelete(true)}
-              className={`border-t border-line pt-2 ${isDeleting ? "opacity-50" : ""}`}
+              onPress={confirmDelete}
+              className={`flex-row items-center justify-between border-t border-line pt-2 ${isDeleting ? "opacity-50" : ""}`}
             >
-              <Text className="py-1 text-[14px] text-cyan">Delete account</Text>
+              <Text className="py-1 text-[14px] text-cyan">{isDeleting ? "Deleting…" : "Delete account"}</Text>
+              {isDeleting ? <CircularProgress /> : null}
             </Pressable>
           </View>
         ) : null}
       </View>
-
-      <Modal
-        visible={confirmingDelete}
-        transparent
-        animationType="none"
-        onRequestClose={() => {
-          if (!isDeleting) setConfirmingDelete(false);
-        }}
-      >
-        <View className="flex-1 items-center justify-center bg-ink/40 px-6">
-          <View className="w-full max-w-[320px] rounded-[28px] bg-surface p-6">
-            <Text className="text-[20px] font-semibold leading-[28px] text-ink">
-              Delete account?
-            </Text>
-            <Text className="mt-2 text-[14px] leading-[20px] text-muted">
-              Delete your account and all synced data? This can&apos;t be undone.
-            </Text>
-            <View className="mt-6 flex-row items-center justify-end gap-2">
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Cancel delete account"
-                disabled={isDeleting}
-                onPress={() => setConfirmingDelete(false)}
-              >
-                <Text className="px-3 py-2 text-[14px] font-semibold text-accent">Cancel</Text>
-              </Pressable>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Confirm delete account"
-                disabled={isDeleting}
-                onPress={handleDelete}
-                className="flex-row items-center gap-2"
-              >
-                {isDeleting ? <CircularProgress /> : null}
-                <Text className="px-3 py-2 text-[14px] font-semibold text-cyan">
-                  {isDeleting ? "Deleting…" : "Delete"}
-                </Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }

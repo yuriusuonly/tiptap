@@ -1,15 +1,13 @@
 /**
- * Root-owned toast host. Owns the queue timer (one message at a time, each
- * respecting its timeout) and renders a non-blocking overlay in the root tree.
- * Export `ToastOverlay` for embedding inside other Modals (e.g. bottom sheets)
- * so the toast layers above them; `ToastOverlay` is presentational (no timer)
- * so it is safe to render in multiple layers.
+ * Root-owned toast host. Uses the built-in ToastAndroid API on Android (native
+ * behavior/positioning/fade) and a custom non-blocking overlay on web. Owns the
+ * queue timer so messages display one at a time, each respecting its timeout.
  * @module src/shared/components/toast-host
  */
 import {useEffect} from "react";
-import {View} from "react-native";
+import {Platform, ToastAndroid, View} from "react-native";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
-import {useToastStore} from "../store/toast-store";
+import {TOAST_DURATION_LONG, useToastStore} from "../store/toast-store";
 import {Toast} from "./toast";
 
 function ToastView({current}) {
@@ -28,8 +26,9 @@ function ToastView({current}) {
   );
 }
 
-/** Presentational overlay (no timer). Embed inside Modals to layer above them. */
+/** Web-only presentational overlay (no timer). Kept for API compatibility. */
 export function ToastOverlay() {
+  if (Platform.OS === "android") return null;
   const current = useToastStore((state) => state.current);
   return (
     <View pointerEvents="none" className="absolute inset-0">
@@ -38,18 +37,29 @@ export function ToastOverlay() {
   );
 }
 
-/** Singleton root host: manages queue timing and renders a non-blocking overlay. */
+/** Singleton root host: drives native/custom toasts and advances the queue. */
 export function ToastHost() {
   const current = useToastStore((state) => state.current);
   const dismissToast = useToastStore((state) => state.dismissToast);
 
   useEffect(() => {
     if (!current) return undefined;
+
+    if (Platform.OS === "android" && ToastAndroid) {
+      const duration =
+        current.durationMs >= TOAST_DURATION_LONG
+          ? ToastAndroid.LONG
+          : ToastAndroid.SHORT;
+      ToastAndroid.show(current.message, duration);
+    }
+
     const timer = setTimeout(() => {
       dismissToast();
     }, current.durationMs);
     return () => clearTimeout(timer);
   }, [current, dismissToast]);
+
+  if (Platform.OS === "android") return null;
 
   return (
     <View pointerEvents="none" className="absolute inset-0">
