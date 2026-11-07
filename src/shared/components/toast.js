@@ -1,37 +1,21 @@
 /**
- * Shared toast for transient action-failure feedback, styled per Material
- * Design toast: inverse-surface token (`bg-ink`, inverse-on-surface text),
- * circular (pill) corners, title-sized text, centered at the bottom edge.
- * Renders an overlay when `visible` (positioned by the caller via
- * `className`), auto-dismisses after `durationMs` (simple timed
- * mount/unmount — no UX animations), and can be dismissed by tapping.
- * Nativewind `className`-only; semantic theme tokens.
+ * Presentational toast: plain semi-transparent, inverse-surface, circular
+ * (pill) corners, title-sized text, centered at the bottom edge. Renders when
+ * `visible` (positioned by the caller via `className`/`style`); auto-dismiss
+ * timing is owned by the root toast host. Non-interactive (no pointer events).
+ * Nativewind `className` + semantic tokens.
  * @module src/shared/components/toast
  */
-import {useEffect} from "react";
-import {Pressable, Text, View} from "react-native";
+import {Text, View} from "react-native";
 
-export function Toast({visible, message, onDismiss, durationMs = 4000, className, style}) {
-  useEffect(() => {
-    if (!visible) return undefined;
-    const timer = setTimeout(() => {
-      onDismiss?.();
-    }, durationMs);
-    return () => clearTimeout(timer);
-  }, [visible, message, durationMs, onDismiss]);
-
+export function Toast({visible, message, className, style}) {
   if (!visible || !message) return null;
 
   return (
-    <View className={className} style={style}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Dismiss message"
-        onPress={onDismiss}
-        className="min-h-[56px] flex-row items-center rounded-full bg-ink px-6 py-3"
-      >
+    <View className={className} style={style} pointerEvents="none">
+      <View className="min-h-[56px] flex-row items-center rounded-full bg-ink/80 px-6 py-3">
         <Text className="text-[16px] leading-[24px] text-background">{message}</Text>
-      </Pressable>
+      </View>
     </View>
   );
 }
