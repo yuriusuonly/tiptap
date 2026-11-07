@@ -1,31 +1,85 @@
 /**
- * Web / non-Android stub for Google Sign-In (Android-only Firebase auth).
- * The web landing stays static with no Firebase SDK/auth, so these functions
- * are intentional no-ops that fail fast if accidentally called. Metro resolves
- * `google-auth.android.js` on Android instead.
+ * Android Google Sign-In via @react-native-google-signin/google-signin and
+ * React Native Firebase Auth (@react-native-firebase/auth, modular API v27).
+ * Google OAuth only — no email/password, no web auth. All call sites are
+ * Android-guarded (Root bootstrap and the Android Profile UI); web never
+ * renders or calls these functions.
  * @module src/services/firebase/google-auth
  */
+import {getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithCredential} from "@react-native-firebase/auth";
+import {GoogleSignin} from "@react-native-google-signin/google-signin";
+import {requireGoogleWebClientId} from "../../shared/constants/configuration";
 
-function unsupported() {
-  throw new Error("Google Sign-In is only available on Android.");
-}
+let configured = false;
 
+/**
+ * Configure Google Sign-In once. Call at runtime (Root bootstrap) — never at
+ * import time. Uses the type-3 web client ID from configuration.
+ */
 export function configureGoogleSignIn() {
-  // No-op on web.
-}
-
-export async function signInWithGoogle() {
-  return unsupported();
-}
-
-export async function signOutGoogle() {
-  return unsupported();
+  if (configured) return;
+  GoogleSignin.configure({
+    webClientId: requireGoogleWebClientId(),
+    offlineAccess: false,
+  });
+  configured = true;
 }
 
 /**
- * @param {(user: object | null) => void} _callback - Auth state callback.
+ * @returns {Promise<{uid: string, displayName: string | null, email: string | null, photoURL: string | null}>}
+ */
+export async function signInWithGoogle() {
+  await configureGoogleSignIn();
+  await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
+  const response = await GoogleSignin.signIn();
+  if (response.type !== "success") {
+    const error = new Error("Google Sign-In was cancelled.");
+    error.code = "cancelled";
+    throw error;
+  }
+  const idToken = response.data.idToken;
+  if (!idToken) {
+    throw new Error("Google Sign-In returned no ID token.");
+  }
+  const credential = GoogleAuthProvider.credential(idToken);
+  const userCredential = await signInWithCredential(getAuth(), credential);
+  return toAuthUser(userCredential.user);
+}
+
+export async function signOutGoogle() {
+  try {
+    await getAuth().signOut();
+  } catch {
+    // Ignore — still attempt Google Sign-In sign-out below.
+  }
+  try {
+    await GoogleSignin.signOut();
+  } catch {
+    // Ignore — Firebase sign-out above is the source of truth.
+  }
+}
+
+/**
+ * Subscribe to Firebase auth state (Android).
+ * @param {(user: object | null) => void} callback - Receives a plain
+ *   {uid, displayName, email, photoURL} object or null.
  * @returns {() => void} Unsubscribe function.
  */
-export function subscribeAuthState(_callback) {
-  return () => {};
+export function subscribeAuthState(callback) {
+  return onAuthStateChanged(getAuth(), (firebaseUser) => {
+    callback(firebaseUser ? toAuthUser(firebaseUser) : null);
+  });
+}
+
+/**
+ * @param {{uid: string, displayName?: string | null, email?: string | null, photoURL?: string | null}} user
+ * @returns {{uid: string, displayName: string | null, email: string | null, photoURL: string | null}}
+ */
+function toAuthUser(user) {
+  return {
+    uid: user.uid,
+    displayName: user.displayName ?? null,
+    email: user.email ?? null,
+    photoURL: user.photoURL ?? null,
+  };
 }

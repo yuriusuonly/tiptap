@@ -29,8 +29,8 @@ export function Root({children}) {
 
   useEffect(() => {
     // Android only: bootstrap Google Sign-In + Firebase auth state and route
-    // preference sync through the stores. Web stays static (auth service
-    // resolves to a no-op stub there) and this effect returns early.
+    // preference sync through the stores. Web never calls the Firebase
+    // services (this effect returns early), keeping the landing static.
     if (Platform.OS !== "android") return;
     configureGoogleSignIn();
     const stopSyncWatching = startPreferenceSync();
