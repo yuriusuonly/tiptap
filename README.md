@@ -151,8 +151,8 @@ Adding a library with native code requires a development build (`npx expo run:an
 ### Local config
 - Place `google-services.json` at the workspace root (`./google-services.json`). It is referenced by `app.config.js` (`android.googleServicesFile`) via CNG — **never hand-edit generated `android/`/`ios/` dirs**.
 - Ensure `google-services.json` is listed in `.gitignore`.
-- `.env` is the single source of truth (no fallbacks; missing keys fail fast). Planned Firebase keys (read via `src/shared/constants/configuration.js`):
-  - `EXPO_PUBLIC_FIREBASE_API_KEY`, `EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN`, `EXPO_PUBLIC_FIREBASE_PROJECT_ID`, `EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET`, `EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`, `EXPO_PUBLIC_FIREBASE_APP_ID`, `EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID`
+- `.env` is the single source of truth (no fallbacks; missing keys fail fast via lazy runtime validation in `src/shared/constants/configuration.js`, never at import time). Firebase keys:
+  - `EXPO_PUBLIC_FIREBASE_API_KEY`, `EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN`, `EXPO_PUBLIC_FIREBASE_PROJECT_ID`, `EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET`, `EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`, `EXPO_PUBLIC_FIREBASE_APP_ID`
   - `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` — Google OAuth web client ID (type 3, from `google-services.json`) for Android Google Sign-In
 
 > Note: Android uses RN Firebase + `google-services.json`; the web landing does not use the Firebase JS SDK.
@@ -175,8 +175,8 @@ After adding Firebase native deps/plugins or `google-services.json`, rebuild the
 - [x] Design system: gray palette (cyan primary, red secondary), Nativewind, SVG icons
 - [x] `.env`-driven configuration (`EXPO_PUBLIC_*` via `configuration.js`, `app.config.js`, Metro port)
 - [x] EAS `production` profile (AAB + auto-increment) and submit config
-- [ ] Firebase project wiring (project `yuriusu-tiptap`, Android `dev.yuriusu.tiptap`, `google-services.json` gitignored)
-- [ ] SSR-safe env/config foundation (no import-time throw) for Firebase keys in `.env` / `configuration.js`
+- [x] Firebase project wiring (project `yuriusu-tiptap`, Android `dev.yuriusu.tiptap`, `google-services.json` gitignored)
+- [x] SSR-safe env/config foundation (no import-time throw) for Firebase keys in `.env` / `configuration.js`
 - [ ] Android Authentication — Google OAuth only (RN Firebase Auth + Google Sign-In; no email/password, no web auth)
 - [ ] Firestore — centralized AI-generated `content` feed (read/paginated) + per-user data (`users/{uid}`)
 - [ ] Preferences sync — stored locally (AsyncStorage) and in Firestore per user when signed in
@@ -195,6 +195,6 @@ After adding Firebase native deps/plugins or `google-services.json`, rebuild the
 - [x] Onboarding black screen (hydrated mutation never notified React) — fixed via `setState`
 - [x] Platform-only `*.android.js` fallback error — fixed by using internal tabs instead of file-based Tabs
 - [x] Feature files exposed as routes — fixed by moving `src/web/` and `src/android/` outside `src/app/`
-- [ ] `configuration.js` throws at import time in SSR contexts (e.g. router-server render) — open; fix planned with Firebase config foundation
+- [x] `configuration.js` threw at import time in SSR contexts (e.g. router-server render) — fixed with lazy runtime validation (`requireFirebaseConfig`) instead of an import-time throw
 - [ ] About row opens `localhost` landing URL — needs an emulator-friendly host during development
 - [ ] `react-native` is `0.86.0` while the SDK expects `0.86.3` — run `npx expo install --fix`

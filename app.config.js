@@ -35,6 +35,7 @@ export default {
   android: {
     package: "dev.yuriusu.tiptap",
     icon: "./src/shared/assets/images/icon.png",
+    googleServicesFile: "./google-services.json",
   },
   ios: {
     bundleIdentifier: "dev.yuriusu.tiptap",
@@ -60,6 +61,10 @@ export default {
       },
     ],
     "expo-status-bar",
+    "@react-native-firebase/app",
+    "@react-native-firebase/auth",
+    "@react-native-firebase/messaging",
+    "@react-native-google-signin/google-signin",
   ],
   extra: {
     eas: {
