@@ -49,6 +49,10 @@ google-services.json
 credentials.json
 credentials/
 
+# Local EAS build artifacts (generated; e.g. build/android-dev.apk)
+# Anchored to the root.
+/build/
+
 # typescript
 *.tsbuildinfo
 

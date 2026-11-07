@@ -5,7 +5,7 @@
   "scripts": {
     "start": "expo start",
     "web": "expo start --web",
-    "android": "expo run:android",
+    "android": "eas build --platform android --profile development --local --non-interactive --output ./build/android-dev.apk && adb install -r ./build/android-dev.apk",
     "android:release": "eas build --platform android --profile production --auto-submit",
     "web:build": "expo export --platform web --output-dir web && mv web/+not-found.html web/404.html",
     "firebase:initialize": "firebase init"
