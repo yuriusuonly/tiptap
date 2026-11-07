@@ -3,14 +3,10 @@
   "type": "module",
   "main": "expo-router/entry",
   "scripts": {
-    "expo:start": "expo start",
-    "expo:install": "expo install",
-    "expo:web:export": "expo export --platform web --output-dir build/web",
-    "expo:web:serve": "expo serve build/web",
-    "expo:android:run": "expo run:android",
-    "eas:build:development": "eas build --local --platform android --profile development --output build/android/app.apk",
-    "eas:build:production": "eas build --platform android --profile production",
-    "adb:install": "adb install -r -d build/android/app.apk"
+    "start": "expo start",
+    "web": "expo start --web",
+    "android": "expo run:android",
+    "android:release": "eas build --platform android --profile production --auto-submit"
   },
   "dependencies": {
     "@expo/ui": "~57.0.26",

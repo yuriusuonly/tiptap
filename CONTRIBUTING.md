@@ -112,7 +112,7 @@ Not allowed:
 
 - Check the versioned Expo docs for SDK 57 (`https://docs.expo.dev/versions/v57.0.0/`) before using an Expo/EAS/RN API — APIs change between SDK releases.
 - `ios/` and `android/` are generated (Continuous Native Generation). **Never create or edit them by hand** — configure native behavior in `app.json` and config plugins.
-- Adding a library with native code requires a development build (`npx expo run:android` or `eas build --profile development`); Expo Go will not include it.
+- Adding a library with native code requires a local development build (`npx expo run:android`); Expo Go will not include it.
 
 ### Firebase
 

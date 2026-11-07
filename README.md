@@ -34,14 +34,10 @@ Then press **`w`** to open the web app or **`a`** to launch on an Android device
 
 | Script | Description |
 | --- | --- |
-| `npm run expo:start` | Start the dev server (`expo start --clear`) |
-| `npm run expo:install` | Install an SDK-compatible package (`expo install`) |
-| `npm run expo:web:export` | Export static web build to `build/web` |
-| `npm run expo:web:serve` | Serve the exported web build |
-| `npm run expo:android:run` | Build and run the native app on a device/emulator |
-| `npm run eas:build:development` | Build a local Android APK (`build/android/app.apk`) |
-| `npm run eas:build:production` | Build a production Android App Bundle via EAS |
-| `npm run adb:install` | Install the built APK on a connected device |
+| `npm run start` | Start the Expo dev server |
+| `npm run web` | Start the web app |
+| `npm run android` | Build and run the native Android app locally (Expo) |
+| `npm run android:release` | Build the production Android App Bundle remotely and submit it via EAS |
 
 ### Common Expo commands
 
@@ -108,20 +104,19 @@ Expo Router's static web renderer requires a platform-less fallback next to a pl
 ## Configuration
 
 - **`app.json`** — app name/slug, Android package `dev.yuriusu.tiptap`, web `output: "static"`, and plugins (`expo-build-properties` for the Android `x86_64` build arch, `expo-router`, `expo-status-bar`). Configure native behavior here and via config plugins — do not edit generated `ios/`/`android/` directories.
-- **`eas.json`** — EAS build profiles: `development` (APK, internal distribution) and `production` (AAB, auto-increment).
+- **`eas.json`** — EAS `production` build profile (AAB, auto-increment) plus `submit.production`, used by `npm run android:release`.
 
 ## Building for Android
 
 ```bash
-# Local development APK
-npm run eas:build:development
-npm run adb:install
+# Local native development build (Expo)
+npm run android
 
-# Cloud production build
-npm run eas:build:production
+# Remote production build + submit (EAS)
+npm run android:release
 ```
 
-Adding a library with native code requires a development build (`npx expo run:android` or `eas build --profile development`); it will not work in Expo Go.
+Adding a library with native code requires a development build (`npx expo run:android`); it will not work in Expo Go.
 
 ## Documentation
 

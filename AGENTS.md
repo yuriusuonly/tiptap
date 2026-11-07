@@ -27,13 +27,10 @@ npx expo install --fix                # fix incompatible package versions
 Useful npm scripts from `package.json`:
 
 ```bash
-npm run expo:start                    # expo start
-npm run expo:web:export               # static web export -> build/web
-npm run expo:web:serve                # serve build/web
-npm run expo:android:run              # native dev build on device/emulator
-npm run eas:build:development         # local Android APK -> build/android/app.apk
-npm run eas:build:production          # cloud Android AAB
-npm run adb:install                   # adb install -r -d the built APK
+npm run start                         # expo start
+npm run web                           # expo start --web
+npm run android                       # native dev build on device/emulator
+npm run android:release               # remote production AAB + submit (EAS)
 ```
 
 ## Routing (Expo Router)
@@ -73,8 +70,8 @@ Verify that changes work before completing the task. When feasible, run the rele
 
 ## Native directories
 
-`ios/` and `android/` are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins. After adding a library with native code, the app needs a development build (`npx expo run:android` or `eas build --profile development`), not Expo Go.
+`ios/` and `android/` are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins. After adding a library with native code, the app needs a development build (`npx expo run:android`), not Expo Go.
 
 ## EAS
 
-Build config is in `eas.json`: `development` → APK + internal distribution; `production` → AAB + auto-increment. Run EAS as `npx eas-cli@latest <command>`. Docs: `https://docs.expo.dev/eas/index.md`.
+Build config is in `eas.json`: `production` → AAB + auto-increment, with `submit.production` used by `npm run android:release`. Run EAS as `npx eas-cli@latest <command>`. Docs: `https://docs.expo.dev/eas/index.md`.
