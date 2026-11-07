@@ -36,10 +36,11 @@ src/
     logo.js               # shared logo component
   store/
     theme-store.js        # Zustand theme store (persisted with AsyncStorage)
+  styles/
+    global.css            # Tailwind entry imported by src/app/_layout.js
   theme/
     colors.js             # shared design tokens (dark + light palettes)
 tailwind.config.js        # Nativewind/Tailwind theme (mirrors design tokens)
-global.css               # Tailwind entry imported by src/app/_layout.js
 ```
 
 Keep non-route code (components, hooks, utilities, theme) **outside** `src/app/`.
@@ -67,7 +68,7 @@ Keep non-route code (components, hooks, utilities, theme) **outside** `src/app/`
 ### Language & styling
 
 - **Vanilla JavaScript only** — JSX in `.js` files. No TypeScript, no `.ts`/`.tsx`, no `tsconfig.json`.
-- Style React Native components with **Nativewind** `className` utilities (Tailwind v3). Config lives in `tailwind.config.js`; `global.css` is imported in `src/app/_layout.js`.
+- Style React Native components with **Nativewind** `className` utilities (Tailwind v3). Config lives in `tailwind.config.js`; `src/styles/global.css` is imported in `src/app/_layout.js`.
 - `@expo/ui/jetpack-compose` components are Compose-native and do not accept `className` — style them with `src/theme/colors.js` tokens, `StyleSheet`, and Compose modifiers.
 - The Android shell uses `@expo/ui/jetpack-compose`; the web shell uses React Native Web. Keep vocabulary, colors, and layout rules shared.
 - Global state lives in **Zustand** stores under `src/store/`. Persist with AsyncStorage (`skipHydration: true` + `rehydrate()` in an effect) so static web rendering stays `window`-free.

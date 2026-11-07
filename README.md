@@ -70,10 +70,11 @@ src/
     logo.js             # shared logo component (react-native-svg)
   store/
     theme-store.js      # Zustand theme store (persisted with AsyncStorage)
+  styles/
+    global.css          # Tailwind entry imported by src/app/_layout.js
   theme/
     colors.js           # shared design tokens (dark + light palettes)
 tailwind.config.js      # Nativewind/Tailwind theme (mirrors design tokens)
-global.css             # Tailwind entry imported by src/app/_layout.js
 ```
 
 Non-route code (components, hooks, utilities, theme) lives **outside** `src/app/`. All filenames use lower-case kebab-case; Expo Router's reserved route names (`index`, `_layout`, `+html`, `+not-found`) are the exception.

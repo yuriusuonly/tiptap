@@ -1,4 +1,4 @@
-import "../../global.css";
+import "../styles/global.css";
 import Head from "expo-router/head";
 import {useEffect} from "react";
 import {Stack} from "expo-router";
