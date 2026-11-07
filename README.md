@@ -173,7 +173,7 @@ After adding Firebase native deps/plugins or `google-services.json`, rebuild the
 ## Milestones
 
 - [x] Web landing page (`/`) + 404 page (`+not-found`), statically rendered
-- [x] Web legal pages: Policy (`/policy`) and Terms (`/terms`) linked from the landing and Android Profile (plain placeholder content)
+- [x] Web legal pages: Policy (`/policy`) and Terms (`/terms`) linked from the landing and Android Profile
 - [x] Android shell: Home/Profile tabs, first-install onboarding, theme preference
 - [x] Theme system: Auto/Light/Dark, persisted to AsyncStorage, pre-paint anti-flicker script
 - [x] Design system: gray palette (cyan primary, red secondary), Nativewind, SVG icons
