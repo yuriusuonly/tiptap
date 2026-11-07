@@ -32,10 +32,11 @@ yarn-error.*
 # local env files
 .env*.local
 
+# Firebase (Android) — local/native config, do not commit
+google-services.json
+
 # typescript
 *.tsbuildinfo
-
-build/
 
 # CNG-generated native projects
 /android

@@ -138,9 +138,36 @@ Adding a library with native code requires a development build (`npx expo run:an
 - Expo APIs change between SDK releases. Always check the versioned docs for SDK 57: <https://docs.expo.dev/versions/v57.0.0/>.
 - This project uses npm (there is no `bun.lock`).
 
-## Milestones
+## Firebase setup (planned)
 
-### Implemented
+**Scope:** Firebase is used **only on Android** for Google Authentication (no email/password), Firestore (centralized AI-generated content + per-user data), and FCM push notifications. The **web landing stays as-is** (no web Firebase SDK/auth) and is deployed via **Firebase Hosting** only. Expo is used only for automated EAS build and publishing releases.
+
+### Project
+- Firebase project: `yuriusu-tiptap`
+- Android package: `dev.yuriusu.tiptap` (matches `app.config.js`)
+- Enable in Firebase Console: **Authentication → Google**, **Cloud Firestore**, **Cloud Messaging (FCM)**, **Hosting**
+- Android Google Sign-In requires SHA-1 fingerprints (debug + Play App Signing) registered for the Android app
+
+### Local config
+- Place `google-services.json` at the workspace root (`./google-services.json`). It is referenced by `app.config.js` (`android.googleServicesFile`) via CNG — **never hand-edit generated `android/`/`ios/` dirs**.
+- Ensure `google-services.json` is listed in `.gitignore`.
+- `.env` is the single source of truth (no fallbacks; missing keys fail fast). Planned Firebase keys (read via `src/shared/constants/configuration.js`):
+  - `EXPO_PUBLIC_FIREBASE_API_KEY`, `EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN`, `EXPO_PUBLIC_FIREBASE_PROJECT_ID`, `EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET`, `EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`, `EXPO_PUBLIC_FIREBASE_APP_ID`, `EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID`
+  - `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` — Google OAuth web client ID (type 3, from `google-services.json`) for Android Google Sign-In
+
+> Note: Android uses RN Firebase + `google-services.json`; the web landing does not use the Firebase JS SDK.
+
+### Initialize & deploy (planned)
+```bash
+npm install                     # installs dev deps incl. firebase-tools
+npm run firebase:initialize     # initialize Firebase in this project (Hosting/Firestore rules as needed)
+npx expo export --platform web  # build static landing
+npx firebase deploy --only hosting
+```
+
+After adding Firebase native deps/plugins or `google-services.json`, rebuild the Android dev client (`npm run android`) or create a new EAS build.
+
+## Milestones
 
 - [x] Web landing page (`/`) + 404 page (`+not-found`), statically rendered
 - [x] Android shell: Home/Profile tabs, first-install onboarding, theme preference
@@ -148,13 +175,17 @@ Adding a library with native code requires a development build (`npx expo run:an
 - [x] Design system: gray palette (cyan primary, red secondary), Nativewind, SVG icons
 - [x] `.env`-driven configuration (`EXPO_PUBLIC_*` via `configuration.js`, `app.config.js`, Metro port)
 - [x] EAS `production` profile (AAB + auto-increment) and submit config
-
-### Not implemented
-
-- [ ] Firebase (Authentication + Firestore) — not integrated; content is static/mock
+- [ ] Firebase project wiring (project `yuriusu-tiptap`, Android `dev.yuriusu.tiptap`, `google-services.json` gitignored)
+- [ ] SSR-safe env/config foundation (no import-time throw) for Firebase keys in `.env` / `configuration.js`
+- [ ] Android Authentication — Google OAuth only (RN Firebase Auth + Google Sign-In; no email/password, no web auth)
+- [ ] Firestore — centralized AI-generated `content` feed (read/paginated) + per-user data (`users/{uid}`)
+- [ ] Preferences sync — stored locally (AsyncStorage) and in Firestore per user when signed in
+- [ ] Push notifications (FCM) — new-content heads-up on Android; FCM token registered per user/device
+- [ ] Firebase Hosting — deploy the static web landing export (web stays as-is, no Firebase SDK/auth in app)
+- [ ] Cloud Function / admin sender — trigger FCM on new `content` (planned; separate from client wiring)
 - [ ] ESLint — not configured (`npx expo lint` is currently a no-op)
 - [ ] Real content feed — Home is a static placeholder; no data layer yet
-- [ ] OTA updates and iOS production profile `eas.json` — not configured
+- [ ] iOS production profile in `eas.json` — not configured
 - [ ] Tests — none exist yet
 
 ### Known issues & fixes
@@ -163,5 +194,6 @@ Adding a library with native code requires a development build (`npx expo run:an
 - [x] Onboarding black screen (hydrated mutation never notified React) — fixed via `setState`
 - [x] Platform-only `*.android.js` fallback error — fixed by using internal tabs instead of file-based Tabs
 - [x] Feature files exposed as routes — fixed by moving `src/web/` and `src/android/` outside `src/app/`
+- [ ] `configuration.js` throws at import time in SSR contexts (e.g. router-server render) — open; fix planned with Firebase config foundation
 - [ ] About row opens `localhost` landing URL — needs an emulator-friendly host during development
 - [ ] `react-native` is `0.86.0` while the SDK expects `0.86.3` — run `npx expo install --fix`
