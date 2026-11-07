@@ -63,7 +63,7 @@ npm run adb:install                   # adb install -r -d the built APK
 - Global client state uses **Zustand** stores in `src/store/`. Persist with `zustand/middleware` + AsyncStorage and `skipHydration: true`, then call `store.persist.rehydrate()` in an effect so static web rendering never touches `localStorage`.
 - The logo is `src/assets/icons/icon.svg`, rendered through `src/components/logo.js` with `react-native-svg` (works on both platforms).
 - Icons are SVG files in `src/assets/icons/`, rendered with `react-native-svg` on both platforms. The Android shell uses `@expo/ui/jetpack-compose` (`Host` + `NavigationBar`); because Compose `Icon` only parses Android VectorDrawable XML, SVG icons are hosted inside nav slots through `RNHostView`. Pass `colorScheme` (resolved `light`/`dark`) to `Host` so the Compose `MaterialTheme` matches the app's selected theme.
-- App icons: `app.json` points at `src/assets/images/icon.png`, which is exported from the master `src/assets/icons/icon.svg` at 1024×1024 (Expo only accepts PNG launcher icons). The web favicon is `public/favicon.svg` (a copy of `icon.svg`) linked from `src/app/+html.js`.
+- App icons: `app.json` points at `src/assets/images/icon.png` (top-level and `android.icon`), which is exported from the master `src/assets/icons/icon.svg` at 1024×1024 (Expo only accepts PNG launcher icons). The web favicon is configured via `app.json` `web.favicon` (`./src/assets/images/icon.png`).
 - The web landing is statically rendered. `useWindowDimensions()` is 0 during SSG, so gate responsive branches behind a `mounted` flag (`src/app/index.web.js`); otherwise hydration mismatches leave the mobile layout on desktop.
 
 ## Build & test

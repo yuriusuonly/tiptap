@@ -32,7 +32,7 @@ src/
     icons/icon.svg        # project logo (master source)
     icons/home.svg        # Home tab icon
     icons/person.svg      # Profile tab icon
-    images/icon.png       # Android launcher icon (exported from icons/icon.svg)
+    images/icon.png       # Android launcher icon + web favicon source (exported from icons/icon.svg)
   components/
     logo.js               # shared logo component
   store/
@@ -41,8 +41,6 @@ src/
     global.css            # Tailwind entry imported by src/app/_layout.js
   theme/
     colors.js             # shared design tokens (dark + light palettes)
-public/
-  favicon.svg             # web favicon (copy of src/assets/icons/icon.svg)
 tailwind.config.js        # Nativewind/Tailwind theme (mirrors design tokens)
 ```
 
