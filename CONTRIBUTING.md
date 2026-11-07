@@ -66,7 +66,7 @@ Layers point in one direction: `src/app` routes → `src/app/web` / `src/app/and
 - Split platform-specific routes with file extensions:
   - `*.android.js` — Android only
   - `*.js` — web and any platform without a specific route
-- `_layout.js` (web) and `_layout.android.js` (Android) define the root navigators. Android uses file-based `Tabs`; tabs are `index` (Home) and `android/features/profile/profile-screen` (Profile).
+- `_layout.js` (web) and `_layout.android.js` (Android) define the root navigators. Android uses file-based `Tabs`; only `index` (Home) and `android/features/profile/profile-screen` (Profile) are visible tabs — every other file-based route is hidden with `href: null` in the Android layout and filtered out in `app-tab-bar.js` so the bar always shows two tabs.
 - Shared routes keep a plain `.js` fallback: `index.js` + `index.android.js`, `_layout.js` + `_layout.android.js`. A platform-only file without a fallback sibling throws — never create a bare `*.android.js` route. The root holds only `index.js`, `index.android.js`, `_layout.js`, `_layout.android.js`, `+html.js`, and `+not-found.js`; unmatched web URLs such as `/profile` render `+not-found.js` with a 404 status.
 - Route files at `src/app/` root are thin: they re-export a feature from `src/app/web` or `src/app/android`, or define a navigator/redirect. Feature files under `src/app/web/features/` and `src/app/android/features/` are file-based routes and are also reachable at their path URLs.
 - Import navigation APIs (`Link`, `router`, `useLocalSearchParams`, `Redirect`) from `expo-router`.

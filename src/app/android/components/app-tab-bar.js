@@ -16,6 +16,10 @@ const ICONS = {
   "android/features/profile/profile-screen": PersonIcon,
 };
 
+// Only Home and Profile are tab items. Other file-based routes under src/app/
+// (feature screens, components, web screens) have no entry and are skipped.
+const VISIBLE_ROUTES = new Set(Object.keys(ICONS));
+
 export function AppTabBar({state, descriptors, navigation}) {
   const {palette} = useResolvedTheme();
 
@@ -25,6 +29,8 @@ export function AppTabBar({state, descriptors, navigation}) {
       className="w-full flex-row border-t border-line bg-surface"
     >
       {state.routes.map((route, index) => {
+        if (!VISIBLE_ROUTES.has(route.name)) return null;
+
         const {options} = descriptors[route.key];
         const label = options.title ?? route.name;
         const isFocused = state.index === index;

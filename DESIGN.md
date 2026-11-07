@@ -92,7 +92,7 @@ Implemented in `src/app/web/features/landing/landing-screen.js` (route: `src/app
 
 ### Android app
 
-Implemented with file-based routes: `src/app/_layout.android.js` renders Expo Router `Tabs` with `index` (Home) and `android/features/profile/profile-screen` (Profile). UI lives in `src/app/android/features`. There is no root `profile.android.js` (a bare platform file throws), so web `/profile` is unmatched and falls through to `+not-found.js`.
+Implemented with file-based routes: `src/app/_layout.android.js` renders Expo Router `Tabs` with `index` (Home) and `android/features/profile/profile-screen` (Profile). UI lives in `src/app/android/features`. There is no root `profile.android.js` (a bare platform file throws), so web `/profile` is unmatched and falls through to `+not-found.js`. All other `src/app/` files are also routes, so they are hidden with `href: null` and filtered out in `app-tab-bar.js` — only Home and Profile appear in the tab bar.
 
 - Bottom navigation is a React Native tab bar (`src/app/android/components/app-tab-bar.js`) with **Home** and **Profile** tabs (label + SVG icon each). No `@expo/ui`/Jetpack Compose, no XML/VectorDrawable icons.
 - `Pressable` tab items are the only touch targets; the icon wrapper and selection indicator use `pointerEvents="none"` so taps are never intercepted or propagated.
