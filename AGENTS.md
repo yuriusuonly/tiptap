@@ -35,7 +35,7 @@ npm run android:release               # remote production AAB + submit (EAS)
 
 ## Architecture (layered, platform-separated)
 
-- `src/app/` — **file-based routing + platform features**. Thin route bridges at the root (`index`, `profile.android`, `_layout`, `+html`, `+not-found`) re-export screens from `src/app/web/features` or `src/app/android/features`; those folders live under `src/app/` so their file paths are also routes (file-based/path-based URLs such as `/web/features/...`).
+- `src/app/` — **file-based routing + platform features**. The root holds only `index.js`, `index.android.js`, `_layout.js`, `_layout.android.js`, `+html.js`, and `+not-found.js`; thin bridges (`index`, `_layout`, `+html`, `+not-found`) re-export screens from `src/app/web/features` or `src/app/android/features`; those folders live under `src/app/` so their file paths are also routes (file-based/path-based URLs such as `/web/features/...`).
 - `src/app/web/` — **web-only** screens (`src/app/web/features/landing`).
 - `src/app/android/` — **Android-only** screens and components (`src/app/android/features`, `src/app/android/components`).
 - `src/shared/` — cross-platform code only (`components`, `hooks`, `store`, `constants`, `stylesheets`, `assets`).
@@ -46,12 +46,12 @@ npm run android:release               # remote production AAB + submit (EAS)
 ## Routing (Expo Router)
 
 - Routes live in **`src/app/`**. Expo Router auto-detects `src/app/` before a root `app/` directory — do not create a root `app/`.
-- Platform routes use extensions: `*.android.js` (Android only) with a plain `*.js` fallback, except Android-only routes like Profile which intentionally have no web fallback.
+- Platform routes use extensions: `*.android.js` (Android only) with a plain `*.js` fallback. A platform-only file in `src/app/` without a fallback sibling throws (`does not have a fallback sibling`), so never create a bare `*.android.js` route.
 - `src/app/_layout.js` is the web root (headerless `Stack`); `src/app/_layout.android.js` is the Android root (`Tabs` with a custom React Native tab bar).
 - `src/app/index.js` renders the web landing; `src/app/index.android.js` renders the Android Home tab.
-- `src/app/profile.android.js` renders the Android Profile tab. There is no `src/app/profile.js`: Profile is Android-only, so web `/profile` has no match and renders `+not-found.js` with a 404 status.
+- There is no root `profile.android.js`: the Android Profile tab is the feature route `src/app/android/features/profile/profile-screen.js` (referenced as `android/features/profile/profile-screen` in the Android `Tabs`). Web `/profile` has no match and renders `+not-found.js` with a 404 status.
 - Every file in `src/app/` is a screen; `_layout.js` / `_layout.<platform>.js` define navigators. Platform features live under `src/app/web/features/` and `src/app/android/features/` — as file-based routing, each feature file is also reachable at its path URL (e.g. `/web/features/landing/landing-screen`). Keep shared code (components, hooks, store, constants, stylesheets, assets) in `src/shared/` outside `src/app/`.
-- Web wrappers: `src/app/+html.js` (document shell) and `src/app/+not-found.js` (404 for all unmatched web routes, including Android-only URLs like `/profile`).
+- Web wrappers: `src/app/+html.js` (document shell) and `src/app/+not-found.js` (thin bridge to `src/app/web/features/not-found/not-found-screen.js`, the 404 feature for all unmatched web routes, including Android-only URLs like `/profile`).
 - Import navigation APIs (`Link`, `router`, `useLocalSearchParams`, `Redirect`) from `expo-router`.
 
 ## File naming

@@ -92,7 +92,7 @@ Implemented in `src/app/web/features/landing/landing-screen.js` (route: `src/app
 
 ### Android app
 
-Implemented with file-based routes: `src/app/_layout.android.js` renders Expo Router `Tabs`, `src/app/index.android.js` is Home, and `src/app/profile.android.js` is Profile. UI lives in `src/app/android/features`. Profile is Android-only (no `src/app/profile.js`), so web `/profile` falls through to `+not-found.js`.
+Implemented with file-based routes: `src/app/_layout.android.js` renders Expo Router `Tabs` with `index` (Home) and `android/features/profile/profile-screen` (Profile). UI lives in `src/app/android/features`. There is no root `profile.android.js` (a bare platform file throws), so web `/profile` is unmatched and falls through to `+not-found.js`.
 
 - Bottom navigation is a React Native tab bar (`src/app/android/components/app-tab-bar.js`) with **Home** and **Profile** tabs (label + SVG icon each). No `@expo/ui`/Jetpack Compose, no XML/VectorDrawable icons.
 - `Pressable` tab items are the only touch targets; the icon wrapper and selection indicator use `pointerEvents="none"` so taps are never intercepted or propagated.
@@ -112,7 +112,7 @@ Implemented with file-based routes: `src/app/_layout.android.js` renders Expo Ro
 
 ### Not found
 
-- Web 404 route (`src/app/+not-found.js`): centered message, accent `404`, and a “Back to TipTap” link. All unmatched web routes render it, including Android-only URLs like `/profile`.
+- Web 404 route (`src/app/+not-found.js`, implemented in `src/app/web/features/not-found/not-found-screen.js`): centered message, accent `404`, and a “Back to TipTap” link. All unmatched web routes render it, including Android-only URLs like `/profile`.
 
 ## Consistency checklist
 

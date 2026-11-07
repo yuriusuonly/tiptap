@@ -57,10 +57,10 @@ src/
     _layout.android.js        # Android root: shared providers + file-based Tabs
     index.js                  # web landing route
     index.android.js          # Android Home tab route
-    profile.android.js        # Android Profile tab route (Android-only; no web route)
     +html.js                  # web document shell
-    +not-found.js             # 404 route (unmatched web routes, incl. /profile)
+    +not-found.js             # 404 route (thin bridge to web/features/not-found)
     web/features/landing/     # web-only landing screen (also at /web/features/landing/landing-screen)
+    web/features/not-found/   # web-only 404 screen (also at /web/features/not-found/not-found-screen)
     android/
       components/             # Android-only UI (React Native bottom tab bar)
       features/home/          # Android Home tab content (also at /android/features/home/home-screen)
@@ -103,7 +103,7 @@ Expo Router resolves routes by platform using file extensions:
 
 Routes live in **`src/app/`** — Expo Router auto-detects `src/app/` before a root `app/`, so do not create a root `app/` directory.
 
-Shared routes use a plain `.js` sibling (`index.js` + `index.android.js`, `_layout.js` + `_layout.android.js`). Profile is Android-only (`profile.android.js` with no `profile.js`), so web `/profile` is unmatched and renders `+not-found.js` with a 404 status. Android tab navigation is file-based: `_layout.android.js` renders Expo Router `Tabs`, and each tab is its own route file.
+Shared routes use a plain `.js` sibling (`index.js` + `index.android.js`, `_layout.js` + `_layout.android.js`). There is no root `profile.android.js` (a platform-only file without a fallback sibling throws); the Android Profile tab is the feature route `android/features/profile/profile-screen`, and web `/profile` is unmatched so it renders `+not-found.js` with a 404 status. Android tab navigation is file-based: `_layout.android.js` renders Expo Router `Tabs` with `index` (Home) and `android/features/profile/profile-screen` (Profile).
 
 ## Configuration
 

@@ -13,7 +13,7 @@ import {useResolvedTheme} from "../../../shared/store/theme-store";
 
 const ICONS = {
   index: HomeIcon,
-  profile: PersonIcon,
+  "android/features/profile/profile-screen": PersonIcon,
 };
 
 export function AppTabBar({state, descriptors, navigation}) {
