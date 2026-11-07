@@ -90,24 +90,9 @@ export function ProfilePreferences({onActionFailed}) {
       <View className="rounded-[20px] border border-line bg-surface p-2 tablet:p-3 desktop:p-4">
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={`About ${APP_NAME}. Open the landing page.`}
-          onPress={() => openUrl(LANDING_PAGE_URL)}
-          className="flex-row items-center justify-between gap-3 py-1"
-        >
-          <View className="flex-1">
-            <Text className="text-[16px] text-ink">About {APP_NAME}</Text>
-            <Text className="mt-0.5 text-[13px] leading-[18px] text-muted">
-              Open the landing page
-            </Text>
-          </View>
-          <Text className="text-[14px] text-accent">↦</Text>
-        </Pressable>
-
-        <Pressable
-          accessibilityRole="button"
           accessibilityLabel="Contact Support"
           onPress={() => openUrl("mailto:yuriusu.dev@gmail.com")}
-          className="mt-2 flex-row items-center justify-between gap-3 border-t border-line pt-2 py-1"
+          className="flex-row items-center justify-between gap-3 py-1"
         >
           <View className="flex-1">
             <Text className="text-[16px] text-ink">Contact Support</Text>
@@ -143,6 +128,21 @@ export function ProfilePreferences({onActionFailed}) {
             <Text className="text-[16px] text-ink">Terms</Text>
             <Text className="mt-0.5 text-[13px] leading-[18px] text-muted">
               Terms of Service
+            </Text>
+          </View>
+          <Text className="text-[14px] text-accent">↦</Text>
+        </Pressable>
+
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`About ${APP_NAME}. Open the landing page.`}
+          onPress={() => openUrl(LANDING_PAGE_URL)}
+          className="mt-2 flex-row items-center justify-between gap-3 border-t border-line pt-2 py-1"
+        >
+          <View className="flex-1">
+            <Text className="text-[16px] text-ink">About {APP_NAME}</Text>
+            <Text className="mt-0.5 text-[13px] leading-[18px] text-muted">
+              Open the landing page
             </Text>
           </View>
           <Text className="text-[14px] text-accent">↦</Text>
