@@ -7,7 +7,12 @@
  */
 import {create} from "zustand";
 
-const DEFAULT_DURATION_MS = 4000;
+/** Android Toast.LENGTH_SHORT equivalent. */
+export const TOAST_DURATION_SHORT = 2000;
+/** Android Toast.LENGTH_LONG equivalent. */
+export const TOAST_DURATION_LONG = 3500;
+
+const DEFAULT_DURATION_MS = TOAST_DURATION_SHORT;
 let nextId = 0;
 
 export const useToastStore = create((set, get) => ({
