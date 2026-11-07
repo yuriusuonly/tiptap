@@ -42,10 +42,6 @@ firebase.json
 firestore.rules
 firestore.indexes.json
 
-# Agent/skill files (do not commit)
-.agents/
-skills-lock.json
-
 # Firebase (Android) — local/native config, do not commit
 google-services.json
 
