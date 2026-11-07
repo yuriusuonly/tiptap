@@ -85,7 +85,7 @@ flowchart TB
     ONB -->|complete| SEENFLAG["setState: hasSeenOnboarding = true<br/>(persisted AsyncStorage)"]
     SEENFLAG --> TABS
     SEEN -- yes --> TABS["Internal tabs (state)<br/>home via Slot / profile via import"]
-    TABS -->|More → About TipTap| LANDING["Linking.openURL<br/>(LANDING_PAGE_URL from .env)"]
+    TABS -->|More → About / Contact Support| LANDING["Linking.openURL<br/>(LANDING_PAGE_URL / mailto)"]
 ```
 
 ### Routing and platform resolution

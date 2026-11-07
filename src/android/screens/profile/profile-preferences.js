@@ -1,7 +1,7 @@
 /**
  * Android preferences: a plain expandable theme selector (no animations) that
- * persists the chosen mode through the shared theme store, plus a row to open
- * the web landing page in the external browser.
+ * persists the chosen mode through the shared theme store, plus rows to open
+ * the web landing page and contact support.
  * @module src/android/screens/profile/profile-preferences
  */
 import {useState} from "react";
@@ -77,13 +77,13 @@ export function ProfilePreferences() {
         More
       </Text>
 
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`About ${APP_NAME}. Open the landing page.`}
-        onPress={() => Linking.openURL(LANDING_PAGE_URL)}
-        className="rounded-[20px] border border-line bg-surface p-2 tablet:p-3 desktop:p-4"
-      >
-        <View className="flex-row items-center justify-between gap-3 py-1">
+      <View className="rounded-[20px] border border-line bg-surface p-2 tablet:p-3 desktop:p-4">
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`About ${APP_NAME}. Open the landing page.`}
+          onPress={() => Linking.openURL(LANDING_PAGE_URL)}
+          className="flex-row items-center justify-between gap-3 py-1"
+        >
           <View className="flex-1">
             <Text className="text-[16px] text-ink">About {APP_NAME}</Text>
             <Text className="mt-0.5 text-[13px] leading-[18px] text-muted">
@@ -91,8 +91,23 @@ export function ProfilePreferences() {
             </Text>
           </View>
           <Text className="text-[14px] text-accent">↦</Text>
-        </View>
-      </Pressable>
+        </Pressable>
+
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Contact Support"
+          onPress={() => Linking.openURL("mailto:yuriusu.dev@gmail.com")}
+          className="mt-2 flex-row items-center justify-between gap-3 border-t border-line pt-2 py-1"
+        >
+          <View className="flex-1">
+            <Text className="text-[16px] text-ink">Contact Support</Text>
+            <Text className="mt-0.5 text-[13px] leading-[18px] text-muted">
+              Email support
+            </Text>
+          </View>
+          <Text className="text-[14px] text-accent">↦</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
