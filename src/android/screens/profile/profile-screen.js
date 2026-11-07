@@ -25,7 +25,7 @@ export function ProfileScreen() {
         visible={!!snackbar}
         message={snackbar}
         onDismiss={() => setSnackbar(null)}
-        className="absolute inset-x-4 bottom-4"
+        className="absolute inset-x-4 bottom-4 tablet:right-auto tablet:left-4 tablet:max-w-[568px] tablet:min-w-[288px]"
       />
     </View>
   );
