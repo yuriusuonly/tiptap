@@ -12,7 +12,7 @@ export function HomeScreen() {
           Home
         </Text>
         <Text className="text-center text-[14px] leading-5 text-muted mobile:text-[16px] mobile:leading-6 tablet:text-[18px] tablet:leading-[26px] desktop:text-[20px] desktop:leading-[30px]">
-          Your AI-powered feed is warming up.
+          Your AI-powered reading feed is warming up.
         </Text>
       </View>
     </View>

@@ -36,7 +36,6 @@ export default {
         faint: "rgb(var(--color-faint) / <alpha-value>)",
         accent: "rgb(var(--color-accent) / <alpha-value>)",
         cyan: "rgb(var(--color-cyan) / <alpha-value>)",
-        purple: "rgb(var(--color-purple) / <alpha-value>)",
       },
     },
   },

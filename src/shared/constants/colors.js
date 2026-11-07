@@ -1,27 +1,27 @@
 /**
  * Shared color, spacing, radius, and typography tokens for web and Android.
- * See DESIGN.md for the full system.
+ * Color scheme: neutral gray base (dark/light), cyan primary accent,
+ * red secondary accent. See DESIGN.md for the full system.
  * @module src/shared/constants/colors
  */
 
 export const colors = {
-  // Backgrounds
-  background: "#0B0B0F",
-  surface: "#15151B",
-  surfaceRaised: "#1D1D25",
+  // Backgrounds (gray)
+  background: "#0A0A0A",
+  surface: "#171717",
+  surfaceRaised: "#262626",
 
-  // Borders / dividers
-  border: "#26262F",
+  // Borders / dividers (gray)
+  border: "#383838",
 
-  // Text
+  // Text (gray)
   textPrimary: "#FFFFFF",
-  textSecondary: "#A1A1AA",
-  textMuted: "#6B6B76",
+  textSecondary: "#A3A3A3",
+  textMuted: "#737373",
 
-  // Brand accents
-  accent: "#FE2C55",
-  accentCyan: "#25F4EE",
-  accentPurple: "#7C4DFF",
+  // Brand accents (flipped: cyan is primary, red is secondary)
+  accent: "#25F4EE",
+  accentCyan: "#FE2C55",
 
   // Status
   success: "#22C55E",
@@ -32,23 +32,22 @@ export const colors = {
 // Light-mode counterpart to `colors`. Keep the same keys so screens can swap
 // palettes without branching on individual tokens.
 export const lightColors = {
-  // Backgrounds
-  background: "#F7F7FA",
+  // Backgrounds (gray)
+  background: "#FAFAFA",
   surface: "#FFFFFF",
-  surfaceRaised: "#F0F0F4",
+  surfaceRaised: "#F5F5F5",
 
-  // Borders / dividers
-  border: "#E4E4EA",
+  // Borders / dividers (gray)
+  border: "#E5E5E5",
 
-  // Text
-  textPrimary: "#0B0B0F",
-  textSecondary: "#52525B",
-  textMuted: "#8A8A94",
+  // Text (gray)
+  textPrimary: "#0A0A0A",
+  textSecondary: "#525252",
+  textMuted: "#A3A3A3",
 
-  // Brand accents
-  accent: "#FE2C55",
-  accentCyan: "#0FB5B0",
-  accentPurple: "#7C4DFF",
+  // Brand accents (flipped: cyan is primary, red is secondary)
+  accent: "#0FB5B0",
+  accentCyan: "#FE2C55",
 
   // Status
   success: "#16A34A",
@@ -62,8 +61,9 @@ export const themes = {
 };
 
 export const gradients = {
-  // Matches the gradient in src/shared/assets/icons/icon.svg
-  brand: ["#25F4EE", "#7C4DFF", "#FE2C55"],
+  // UI brand accent gradient (cyan -> red). The logo SVG asset
+  // (src/shared/assets/icons/icon.svg) retains its own internal gradient.
+  brand: ["#25F4EE", "#FE2C55"],
 };
 
 export const spacing = {
