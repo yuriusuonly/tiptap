@@ -7,7 +7,7 @@
     "web": "expo start --web",
     "android": "expo run:android",
     "android:release": "eas build --platform android --profile production --auto-submit",
-    "web:build": "expo export --platform web --output-dir build/web",
+    "web:build": "expo export --platform web --output-dir web",
     "firebase:initialize": "firebase init"
   },
   "dependencies": {

@@ -9,8 +9,9 @@ dist/
 web-build/
 expo-env.d.ts
 
-# Expo static web export (generated)
-build/
+# Expo static web export (generated, Firebase Hosting public dir)
+# Anchored to the root so src/web/ (feature code) is never ignored.
+/web/
 
 # Native
 *.orig.*
