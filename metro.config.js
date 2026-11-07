@@ -1,3 +1,7 @@
+/**
+ * Metro configuration with Nativewind and SVG-to-component support.
+ * @module metro.config
+ */
 import {createRequire} from "node:module";
 
 // These packages expose CommonJS subpaths without an `exports` map, which

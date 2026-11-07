@@ -82,6 +82,32 @@ Keep non-route code (components, hooks, utilities, theme) **outside** `src/app/`
 - Use the shared design tokens in `src/theme/colors.js` instead of hard-coded values. See `DESIGN.md`.
 - Responsive breakpoints and per-class layout tokens live in `src/theme/layout.js`; use `src/hooks/use-responsive-layout.js` (`useResponsiveLayout`) for the four classes: Wearable `<480`, Phone `480–719`, Tablet `720–1079`, Desktop `>=1080`. Content is capped at `1920px`. On web, pass `{enabled: mounted}` so static rendering starts on the wearable class.
 
+### JSDoc
+
+- **Every JavaScript module** starts with a JSDoc block containing an `@module` intro tag that names the module and summarizes its responsibility.
+- Use the repo-relative path without the `.js` extension, e.g. `@module src/theme/layout`.
+- Keep the intro short and useful: what the module exports, when to use it, and any important constraint (SSR safety, platform-only behavior, etc.).
+- **Never use `@example` tags** in JSDoc blocks. Inline code comments and documentation code blocks are fine; the JSDoc example tag is not.
+
+Allowed:
+
+```js
+/**
+ * Shared responsive layout tokens and breakpoint helpers.
+ * @module src/theme/layout
+ */
+```
+
+Not allowed:
+
+```js
+/**
+ * @module src/theme/layout
+ * @example
+ * getLayoutClass(720);
+ */
+```
+
 ### Expo & native code
 
 - Check the versioned Expo docs for SDK 57 (`https://docs.expo.dev/versions/v57.0.0/`) before using an Expo/EAS/RN API — APIs change between SDK releases.

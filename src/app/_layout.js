@@ -1,3 +1,7 @@
+/**
+ * Root Expo Router layout: global styles, theme hydration, and the Stack navigator.
+ * @module src/app/_layout
+ */
 import "../styles/global.css";
 import Head from "expo-router/head";
 import {useEffect} from "react";

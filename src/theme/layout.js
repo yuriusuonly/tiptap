@@ -1,15 +1,18 @@
-// Shared responsive layout tokens for web and Android. See DESIGN.md.
-//
-// Four supported layout classes, selected by viewport width (dp on Android,
-// CSS px on web):
-//
-//   wearable  < 480   (320 x 480 reference)
-//   phone     >= 480  (480 x 720 reference)
-//   tablet    >= 720  (720 x 1280 reference)
-//   desktop   >= 1080 (1080 x 1920 reference)
-//
-// Content is centered and never grows wider than `contentMaxWidth` (1920) on
-// either platform.
+/**
+ * Shared responsive layout tokens for web and Android. See DESIGN.md.
+ *
+ * Four supported layout classes, selected by viewport width (dp on Android,
+ * CSS px on web):
+ *
+ *   wearable  < 480   (320 x 480 reference)
+ *   phone     >= 480  (480 x 720 reference)
+ *   tablet    >= 720  (720 x 1280 reference)
+ *   desktop   >= 1080 (1080 x 1920 reference)
+ *
+ * Content is centered and never grows wider than `contentMaxWidth` (1920) on
+ * either platform.
+ * @module src/theme/layout
+ */
 
 export const breakpoints = {
   phone: 480,

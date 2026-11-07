@@ -1,4 +1,8 @@
-// Shared design tokens for web and Android. See DESIGN.md for the full system.
+/**
+ * Shared color, spacing, radius, and typography tokens for web and Android.
+ * See DESIGN.md for the full system.
+ * @module src/theme/colors
+ */
 
 export const colors = {
   // Backgrounds

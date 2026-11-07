@@ -1,3 +1,7 @@
+/**
+ * Web document shell for Expo Router static rendering.
+ * @module src/app/+html
+ */
 import {ScrollViewStyleReset} from "expo-router/html";
 
 export default ({children}) => {

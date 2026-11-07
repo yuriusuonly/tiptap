@@ -1,3 +1,7 @@
+/**
+ * Nativewind/Tailwind configuration derived from the shared design tokens.
+ * @module tailwind.config
+ */
 import {createRequire} from "node:module";
 import {breakpoints, contentMaxWidth} from "./src/theme/layout.js";
 

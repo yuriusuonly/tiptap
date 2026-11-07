@@ -1,3 +1,7 @@
+/**
+ * Android bottom-tab shell with responsive Home and Profile screens.
+ * @module src/app/index.android
+ */
 import {useState} from "react";
 import {StyleSheet} from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";

@@ -1,3 +1,7 @@
+/**
+ * Web 404 route.
+ * @module src/app/+not-found
+ */
 import Head from "expo-router/head";
 import {Link} from "expo-router";
 import {Pressable, Text, View} from "react-native";

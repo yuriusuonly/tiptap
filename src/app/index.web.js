@@ -1,3 +1,7 @@
+/**
+ * Web landing page with a responsive hero layout.
+ * @module src/app/index.web
+ */
 import Head from "expo-router/head";
 import {useEffect, useState} from "react";
 import {ScrollView, Text, View} from "react-native";
