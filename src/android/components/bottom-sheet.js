@@ -18,7 +18,7 @@ import {
 const EXPANDED_FRACTION = 0.88;
 const COLLAPSED_FRACTION = 0.46;
 
-export function BottomSheet({visible, onClose, children, overlay}) {
+export function BottomSheet({visible, onClose, children}) {
   const {height: windowHeight} = useWindowDimensions();
   const expandedHeight = Math.max(240, Math.round(windowHeight * EXPANDED_FRACTION));
   const collapsedHeight = Math.max(180, Math.round(windowHeight * COLLAPSED_FRACTION));
@@ -127,7 +127,6 @@ export function BottomSheet({visible, onClose, children, overlay}) {
             {children}
           </ScrollView>
         </Animated.View>
-        {overlay}
       </View>
     </Modal>
   );

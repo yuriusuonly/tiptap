@@ -2,7 +2,7 @@
  * Android Profile tab: default view shows the app name header and a centered
  * avatar (app logo by default, user photo when signed in) with a Settings
  * badge that reveals the account/preferences content in a draggable bottom
- * sheet (instant reveal, no entrance transition). Owns overlay toast state.
+ * sheet (instant reveal, no entrance transition). Toasts are root-owned.
  * @module src/android/screens/profile/profile-screen
  */
 import {useEffect, useState} from "react";
@@ -11,7 +11,6 @@ import LogoIcon from "../../../shared/assets/icons/icon.svg";
 import SettingsIcon from "../../../shared/assets/icons/settings.svg";
 import {BottomSheet} from "../../components/bottom-sheet";
 import {Icon} from "../../../shared/components/icon";
-import {Toast} from "../../../shared/components/toast";
 import {APP_NAME} from "../../../shared/constants/configuration";
 import {useAuthStore} from "../../../shared/store/auth-store";
 import {useResolvedTheme} from "../../../shared/store/theme-store";
@@ -19,7 +18,6 @@ import {AccountSection} from "./account-section";
 import {ProfilePreferences} from "./profile-preferences";
 
 export function ProfileScreen() {
-  const [toast, setToast] = useState(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [photoFailed, setPhotoFailed] = useState(false);
   const {status, user} = useAuthStore();
@@ -32,17 +30,8 @@ export function ProfileScreen() {
   const showUserPhoto = status === "signedIn" && !!user?.photoURL && !photoFailed;
   const avatarInitial = (user?.displayName ?? user?.email ?? "?").charAt(0).toUpperCase();
 
-  const toastNode = (
-    <Toast
-      visible={!!toast}
-      message={toast}
-      onDismiss={() => setToast(null)}
-      className="absolute bottom-4 left-1/2 w-[calc(100%-32px)] max-w-[568px] -translate-x-1/2"
-    />
-  );
-
   return (
-    <View className="relative flex-1 bg-background px-4 pt-6 mobile:px-5 mobile:pt-8 tablet:px-8 tablet:pt-10 desktop:px-12 desktop:pt-12">
+    <View className="flex-1 bg-background px-4 pt-6 mobile:px-5 mobile:pt-8 tablet:px-8 tablet:pt-10 desktop:px-12 desktop:pt-12">
       <View className="w-full items-center">
         <Text
           accessibilityRole="header"
@@ -88,16 +77,10 @@ export function ProfileScreen() {
         </View>
       </View>
 
-      {!settingsOpen ? toastNode : null}
-
-      <BottomSheet
-        visible={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        overlay={settingsOpen ? toastNode : null}
-      >
-        <AccountSection onActionFailed={setToast} />
+      <BottomSheet visible={settingsOpen} onClose={() => setSettingsOpen(false)}>
+        <AccountSection />
         <View className="mt-4 mobile:mt-5 tablet:mt-6 desktop:mt-8">
-          <ProfilePreferences onActionFailed={setToast} />
+          <ProfilePreferences />
         </View>
       </BottomSheet>
     </View>

@@ -2,8 +2,8 @@
  * Android Account section: Google Sign-In (OAuth only) with Firestore user
  * record + preference sync. Each action shows its own circular progress.
  * Every failed response (sign-in/sign-out/account deletion/sync) surfaces
- * via the same toast; there are no inlined errors. Delete account uses a
- * confirmation dialog (not inline). Identity shows name/email (+photo).
+ * via the root-owned toast; there are no inlined errors. Delete account uses
+ * a confirmation dialog (not inline). Identity shows name/email (+photo).
  * @module src/android/screens/profile/account-section
  */
 import {useEffect, useState} from "react";
@@ -15,10 +15,11 @@ import {CircularProgress} from "../../../shared/components/circular-progress";
 import {Icon} from "../../../shared/components/icon";
 import {useAuthStore} from "../../../shared/store/auth-store";
 import {usePreferencesSyncStore} from "../../../shared/store/preferences-sync-store";
+import {showToast} from "../../../shared/store/toast-store";
 
 export const ACTION_FAILED_MESSAGE = "Something went wrong";
 
-export function AccountSection({onActionFailed}) {
+export function AccountSection() {
   const {status, user, isSigningIn, setSigningIn, clearError} = useAuthStore();
   const {syncStatus, syncError} = usePreferencesSyncStore();
   const [photoFailed, setPhotoFailed] = useState(false);
@@ -30,13 +31,13 @@ export function AccountSection({onActionFailed}) {
     setConfirmingDelete(false);
   }, [user?.uid]);
 
-  // Surface background preference-sync failures through the shared toast
+  // Surface background preference-sync failures through the root toast
   // (fired only when a new error value arrives).
   useEffect(() => {
     if (syncError) {
-      onActionFailed?.(ACTION_FAILED_MESSAGE);
+      showToast(ACTION_FAILED_MESSAGE);
     }
-  }, [syncError, onActionFailed]);
+  }, [syncError]);
 
   const handleSignIn = async () => {
     clearError();
@@ -45,7 +46,7 @@ export function AccountSection({onActionFailed}) {
       await signInWithGoogle();
     } catch (signInError) {
       if (signInError?.code !== "cancelled") {
-        onActionFailed?.(ACTION_FAILED_MESSAGE);
+        showToast(ACTION_FAILED_MESSAGE);
       }
     } finally {
       setSigningIn(false);
@@ -58,7 +59,7 @@ export function AccountSection({onActionFailed}) {
     try {
       await signOutGoogle();
     } catch {
-      onActionFailed?.(ACTION_FAILED_MESSAGE);
+      showToast(ACTION_FAILED_MESSAGE);
     } finally {
       setSigningIn(false);
     }
@@ -78,7 +79,7 @@ export function AccountSection({onActionFailed}) {
       }
       setConfirmingDelete(false);
     } catch {
-      onActionFailed?.(ACTION_FAILED_MESSAGE);
+      showToast(ACTION_FAILED_MESSAGE);
     } finally {
       setIsDeleting(false);
     }

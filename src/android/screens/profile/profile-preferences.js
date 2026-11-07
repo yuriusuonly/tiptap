@@ -2,16 +2,17 @@
  * Android preferences: a plain expandable theme selector (no animations) that
  * persists the chosen mode through the shared theme store, plus rows to open
  * the web landing page, contact support, and legal pages. Failed URL opens
- * surface via the same toast (no inlined errors).
+ * surface via the root-owned toast (no inlined errors).
  * @module src/android/screens/profile/profile-preferences
  */
 import {useState} from "react";
 import {Linking, Pressable, Text, View} from "react-native";
 import {APP_NAME, LANDING_PAGE_URL} from "../../../shared/constants/configuration";
 import {THEME_MODES, useResolvedTheme, useThemeStore} from "../../../shared/store/theme-store";
+import {showToast} from "../../../shared/store/toast-store";
 import {ACTION_FAILED_MESSAGE} from "./account-section";
 
-export function ProfilePreferences({onActionFailed}) {
+export function ProfilePreferences() {
   const [expanded, setExpanded] = useState(false);
   const {themeMode} = useResolvedTheme();
   const setThemeMode = useThemeStore((state) => state.setThemeMode);
@@ -26,7 +27,7 @@ export function ProfilePreferences({onActionFailed}) {
     try {
       await Linking.openURL(url);
     } catch {
-      onActionFailed?.(ACTION_FAILED_MESSAGE);
+      showToast(ACTION_FAILED_MESSAGE);
     }
   };
 

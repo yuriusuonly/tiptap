@@ -15,6 +15,7 @@ import {useAuthStore} from "../store/auth-store";
 import {useOnboardingStore} from "../store/onboarding-store";
 import {startPreferenceSync, syncOnSignIn, usePreferencesSyncStore} from "../store/preferences-sync-store";
 import {useResolvedTheme, useThemeStore} from "../store/theme-store";
+import {ToastHost} from "./toast-host";
 import "../stylesheets/global.css";
 
 export function Root({children}) {
@@ -64,6 +65,7 @@ export function Root({children}) {
       </Head>
       <StatusBar style={isLight ? "dark" : "light"} />
       {children}
+      <ToastHost />
     </>
   );
 }
