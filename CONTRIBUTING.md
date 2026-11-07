@@ -26,10 +26,9 @@ src/
     _layout.android.js        # Android root: providers + file-based Tabs
     index.js                  # web landing route
     index.android.js          # Android Home tab route
-    profile.js                # web fallback for the Android-only Profile route
-    profile.android.js        # Android Profile tab route
+    profile.android.js        # Android Profile tab route (Android-only; no web route)
     +html.js                  # web document shell
-    +not-found.js             # 404 route
+    +not-found.js             # 404 route (unmatched web routes, incl. /profile)
   web/screens/landing/        # web-only landing screen
   android/
     components/               # Android-only UI (React Native tab bar)
@@ -68,7 +67,7 @@ Layers point in one direction: `src/app` → `src/web` / `src/android` → `src/
   - `*.android.js` — Android only
   - `*.js` — web and any platform without a specific route
 - `_layout.js` (web) and `_layout.android.js` (Android) define the root navigators. Android uses file-based `Tabs`; each tab is a route (`index.android.js`, `profile.android.js`).
-- Expo Router requires a plain `.js` fallback next to every platform route: `index.js` + `index.android.js`, `profile.js` + `profile.android.js`, `_layout.js` + `_layout.android.js`. Keep every fallback.
+- Shared routes keep a plain `.js` fallback: `index.js` + `index.android.js`, `_layout.js` + `_layout.android.js`. Android-only routes (e.g. `profile.android.js`) intentionally have no `.js` fallback; unmatched web URLs such as `/profile` render `+not-found.js` with a 404 status.
 - Route files are thin: they re-export a screen from `src/web` or `src/android`, or define a redirect. Do not put screen UI in `src/app`.
 - Import navigation APIs (`Link`, `router`, `useLocalSearchParams`, `Redirect`) from `expo-router`.
 

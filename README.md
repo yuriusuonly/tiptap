@@ -57,10 +57,9 @@ src/
     _layout.android.js        # Android root: shared providers + file-based Tabs
     index.js                  # web landing route
     index.android.js          # Android Home tab route
-    profile.js                # web fallback for the Android-only Profile route (redirects home)
-    profile.android.js        # Android Profile tab route
+    profile.android.js        # Android Profile tab route (Android-only; no web route)
     +html.js                  # web document shell
-    +not-found.js             # 404 route
+    +not-found.js             # 404 route (unmatched web routes, incl. /profile)
   web/
     screens/landing/          # web-only landing screen
   android/
@@ -105,7 +104,7 @@ Expo Router resolves routes by platform using file extensions:
 
 Routes live in **`src/app/`** — Expo Router auto-detects `src/app/` before a root `app/`, so do not create a root `app/` directory.
 
-Platform routes need a plain `.js` sibling for static web rendering. The app uses `index.js` (web landing) + `index.android.js` (Android Home), `profile.js` (web redirect) + `profile.android.js` (Android Profile), and `_layout.js` (web stack) + `_layout.android.js` (Android tabs). Android tab navigation is file-based: `_layout.android.js` renders Expo Router `Tabs`, and each tab is its own route file.
+Shared routes use a plain `.js` sibling (`index.js` + `index.android.js`, `_layout.js` + `_layout.android.js`). Profile is Android-only (`profile.android.js` with no `profile.js`), so web `/profile` is unmatched and renders `+not-found.js` with a 404 status. Android tab navigation is file-based: `_layout.android.js` renders Expo Router `Tabs`, and each tab is its own route file.
 
 ## Configuration
 

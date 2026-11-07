@@ -46,12 +46,12 @@ npm run android:release               # remote production AAB + submit (EAS)
 ## Routing (Expo Router)
 
 - Routes live in **`src/app/`**. Expo Router auto-detects `src/app/` before a root `app/` directory — do not create a root `app/`.
-- Platform routes use extensions: `*.android.js` (Android only) with a plain `*.js` fallback. Expo Router requires the fallback for static web rendering, so every platform route has a sibling.
+- Platform routes use extensions: `*.android.js` (Android only) with a plain `*.js` fallback, except Android-only routes like Profile which intentionally have no web fallback.
 - `src/app/_layout.js` is the web root (headerless `Stack`); `src/app/_layout.android.js` is the Android root (`Tabs` with a custom React Native tab bar).
 - `src/app/index.js` renders the web landing; `src/app/index.android.js` renders the Android Home tab.
-- `src/app/profile.js` is the web fallback for the Android-only Profile route and redirects home; `src/app/profile.android.js` renders the Android Profile tab.
+- `src/app/profile.android.js` renders the Android Profile tab. There is no `src/app/profile.js`: Profile is Android-only, so web `/profile` has no match and renders `+not-found.js` with a 404 status.
 - Every file in `src/app/` is a screen; `_layout.js` / `_layout.<platform>.js` define navigators. Keep non-route code **outside** `src/app/`.
-- Web wrappers: `src/app/+html.js` (document shell) and `src/app/+not-found.js` (404).
+- Web wrappers: `src/app/+html.js` (document shell) and `src/app/+not-found.js` (404 for all unmatched web routes, including Android-only URLs like `/profile`).
 - Import navigation APIs (`Link`, `router`, `useLocalSearchParams`, `Redirect`) from `expo-router`.
 
 ## File naming
