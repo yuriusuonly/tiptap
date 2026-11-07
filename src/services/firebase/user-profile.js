@@ -3,15 +3,22 @@
  * Uses the React Native Firebase Firestore modular API (v27).
  * Data shape: `users/{uid}` (owner-only). Preferences live in
  * `user-preferences` (separate service).
+ *
+ * The Firestore module is loaded lazily with `require` inside each function —
+ * never at module scope — so importing this module during Expo Router route
+ * discovery or web static rendering (Node, no native modules) is safe.
  * Call sites are Android-guarded; web never calls these functions.
  * @module src/services/firebase/user-profile
  */
-import {doc, FieldValue, getDoc, getFirestore, setDoc} from "@react-native-firebase/firestore";
 
-// Lazily resolved at call time (Android runtime) — never at module scope, so
-// importing this module during web static rendering is safe.
+// eslint-disable-next-line no-undef
+function firestoreSdk() {
+  return require("@react-native-firebase/firestore");
+}
+
+// Lazily resolved at call time (Android runtime) — never at module scope.
 function db() {
-  return getFirestore();
+  return firestoreSdk().getFirestore();
 }
 
 /**
@@ -20,6 +27,7 @@ function db() {
  * @param {{uid: string, displayName?: string | null, email?: string | null, photoURL?: string | null}} user
  */
 export async function upsertUserProfile(user) {
+  const {doc, FieldValue, getDoc, setDoc} = firestoreSdk();
   const ref = doc(db(), "users", user.uid);
   const existing = await getDoc(ref);
   const common = {

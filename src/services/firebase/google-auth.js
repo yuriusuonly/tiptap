@@ -1,16 +1,28 @@
 /**
  * Android Google Sign-In via @react-native-google-signin/google-signin and
  * React Native Firebase Auth (@react-native-firebase/auth, modular API v27).
- * Google OAuth only — no email/password, no web auth. All call sites are
- * Android-guarded (Root bootstrap and the Android Profile UI); web never
- * renders or calls these functions.
+ * Google OAuth only — no email/password, no web auth.
+ *
+ * Native modules are loaded lazily with `require` inside each function —
+ * never at module scope — so importing this module during Expo Router route
+ * discovery or web static rendering (Node, no native modules) is safe.
+ * All call sites are Android-guarded (Root bootstrap and the Android Profile
+ * UI); web never renders or calls these functions.
  * @module src/services/firebase/google-auth
  */
-import {getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithCredential} from "@react-native-firebase/auth";
-import {GoogleSignin} from "@react-native-google-signin/google-signin";
 import {requireGoogleWebClientId} from "../../shared/constants/configuration";
 
 let configured = false;
+
+// eslint-disable-next-line no-undef
+function authSdk() {
+  return require("@react-native-firebase/auth");
+}
+
+// eslint-disable-next-line no-undef
+function googleSigninSdk() {
+  return require("@react-native-google-signin/google-signin");
+}
 
 /**
  * Configure Google Sign-In once. Call at runtime (Root bootstrap) — never at
@@ -18,6 +30,7 @@ let configured = false;
  */
 export function configureGoogleSignIn() {
   if (configured) return;
+  const {GoogleSignin} = googleSigninSdk();
   GoogleSignin.configure({
     webClientId: requireGoogleWebClientId(),
     offlineAccess: false,
@@ -29,6 +42,8 @@ export function configureGoogleSignIn() {
  * @returns {Promise<{uid: string, displayName: string | null, email: string | null, photoURL: string | null}>}
  */
 export async function signInWithGoogle() {
+  const {getAuth, GoogleAuthProvider, signInWithCredential} = authSdk();
+  const {GoogleSignin} = googleSigninSdk();
   await configureGoogleSignIn();
   await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
   const response = await GoogleSignin.signIn();
@@ -47,6 +62,8 @@ export async function signInWithGoogle() {
 }
 
 export async function signOutGoogle() {
+  const {getAuth} = authSdk();
+  const {GoogleSignin} = googleSigninSdk();
   try {
     await getAuth().signOut();
   } catch {
@@ -66,6 +83,7 @@ export async function signOutGoogle() {
  * @returns {() => void} Unsubscribe function.
  */
 export function subscribeAuthState(callback) {
+  const {getAuth, onAuthStateChanged} = authSdk();
   return onAuthStateChanged(getAuth(), (firebaseUser) => {
     callback(firebaseUser ? toAuthUser(firebaseUser) : null);
   });

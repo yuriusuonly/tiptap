@@ -4,15 +4,22 @@
  * API (v27). Profile documents live in `user-profile` (separate service).
  * Data shape: `users/{uid}/preferences/app`
  *   -> `{ themeMode, updatedAt (ms), updatedBy }`
+ *
+ * The Firestore module is loaded lazily with `require` inside each function —
+ * never at module scope — so importing this module during Expo Router route
+ * discovery or web static rendering (Node, no native modules) is safe.
  * Call sites are Android-guarded; web never calls these functions.
  * @module src/services/firebase/user-preferences
  */
-import {doc, getDoc, getFirestore, setDoc} from "@react-native-firebase/firestore";
 
-// Lazily resolved at call time (Android runtime) — never at module scope, so
-// importing this module during web static rendering is safe.
+// eslint-disable-next-line no-undef
+function firestoreSdk() {
+  return require("@react-native-firebase/firestore");
+}
+
+// Lazily resolved at call time (Android runtime) — never at module scope.
 function db() {
-  return getFirestore();
+  return firestoreSdk().getFirestore();
 }
 
 /**
@@ -21,6 +28,7 @@ function db() {
  * @returns {Promise<{themeMode: string, updatedAt: number} | null>}
  */
 export async function getUserPreferences(uid) {
+  const {doc, getDoc} = firestoreSdk();
   const ref = doc(db(), "users", uid, "preferences", "app");
   const snapshot = await getDoc(ref);
   if (!snapshot.exists()) return null;
@@ -36,6 +44,7 @@ export async function getUserPreferences(uid) {
  * @param {{themeMode: string, updatedAt: number}} prefs
  */
 export async function setUserPreferences(uid, prefs) {
+  const {doc, setDoc} = firestoreSdk();
   const ref = doc(db(), "users", uid, "preferences", "app");
   await setDoc(
     ref,
