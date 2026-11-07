@@ -64,9 +64,10 @@ src/
     +html.js            # web document shell
     +not-found.js       # 404 route
   assets/
-    svg/icon.svg        # project logo
-    android/home.xml    # Android vector icon (Home tab)
-    android/person.xml  # Android vector icon (Profile tab)
+    svg/icon.svg        # project logo (master source)
+    svg/home.svg        # Home tab icon
+    svg/person.svg      # Profile tab icon
+    images/icon.png     # Android launcher icon (exported from svg/icon.svg)
   components/
     logo.js             # shared logo component (react-native-svg)
   store/
@@ -75,10 +76,19 @@ src/
     global.css          # Tailwind entry imported by src/app/_layout.js
   theme/
     colors.js           # shared design tokens (dark + light palettes)
+public/
+  favicon.svg           # web favicon (copy of src/assets/svg/icon.svg)
 tailwind.config.js      # Nativewind/Tailwind theme (mirrors design tokens)
 ```
 
 Non-route code (components, hooks, utilities, theme) lives **outside** `src/app/`. All filenames use lower-case kebab-case; Expo Router's reserved route names (`index`, `_layout`, `+html`, `+not-found`) are the exception.
+
+SVG assets are the source of truth. Regenerate the launcher PNG and web favicon from `src/assets/svg/icon.svg` after editing the logo:
+
+```bash
+rsvg-convert -w 1024 -h 1024 -o src/assets/images/icon.png src/assets/svg/icon.svg
+cp src/assets/svg/icon.svg public/favicon.svg
+```
 
 ## Platform-specific routes
 

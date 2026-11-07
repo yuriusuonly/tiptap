@@ -49,7 +49,7 @@ npm run adb:install                   # adb install -r -d the built APK
 
 ## File naming
 
-- Use **lower-case kebab-case** for every file and directory (`logo.js`, `home.xml`, `index.web.js`).
+- Use **lower-case kebab-case** for every file and directory (`logo.js`, `home.svg`, `index.web.js`).
 - Expo Router reserved route names are the only exception: `index`, `_layout`, `+html`, `+not-found`.
 - Keep JavaScript identifiers/components PascalCase (`Logo`); only filenames are kebab-case.
 
@@ -57,12 +57,18 @@ npm run adb:install                   # adb install -r -d the built APK
 
 - **Vanilla JavaScript only.** JSX in `.js` files. Do not introduce TypeScript, `.ts`/`.tsx`, or a `tsconfig.json`.
 - The package is **ESM** (`"type": "module"`). Config files (`babel.config.js`, `metro.config.js`, `tailwind.config.js`) use `import`/`export default`. CommonJS-only package subpaths are bridged with `createRequire(import.meta.url)`.
+- SVG files under `src/assets/svg/` are imported as React components via `react-native-svg-transformer` (configured in `metro.config.js`) and rendered with `react-native-svg`. Pass a `color` prop to tint a `fill="currentColor"` icon.
 - Style React Native components with **Nativewind** `className` utilities (Tailwind v3 config in `tailwind.config.js`; `src/styles/global.css` is imported in `src/app/_layout.js`). Shared tokens still live in `src/theme/colors.js` and are mirrored in the Tailwind theme.
 - `@expo/ui/jetpack-compose` components are Compose-native and **do not accept `className`** — keep styling those with `src/theme/colors.js` tokens, `StyleSheet`, and Compose modifiers.
 - Global client state uses **Zustand** stores in `src/store/`. Persist with `zustand/middleware` + AsyncStorage and `skipHydration: true`, then call `store.persist.rehydrate()` in an effect so static web rendering never touches `localStorage`.
 - The logo is `src/assets/svg/icon.svg`, rendered through `src/components/logo.js` with `react-native-svg` (works on both platforms).
-- The Android shell uses `@expo/ui/jetpack-compose` (`Host` + `NavigationBar`). Compose `Icon` needs XML vector drawables (`src/assets/android/*.xml`); React Native `Image` cannot render them.
+- Icons are SVG files in `src/assets/svg/`, rendered with `react-native-svg` on both platforms. The Android shell uses `@expo/ui/jetpack-compose` (`Host` + `NavigationBar`); because Compose `Icon` only parses Android VectorDrawable XML, SVG icons are hosted inside nav slots through `RNHostView`.
+- App icons: `app.json` points at `src/assets/images/icon.png`, which is exported from the master `src/assets/svg/icon.svg` at 1024×1024 (Expo only accepts PNG launcher icons). The web favicon is `public/favicon.svg` (a copy of `icon.svg`) linked from `src/app/+html.js`.
 - The web landing is statically rendered. `useWindowDimensions()` is 0 during SSG, so gate responsive branches behind a `mounted` flag (`src/app/index.web.js`); otherwise hydration mismatches leave the mobile layout on desktop.
+
+## Build & test
+
+Do **not** run build, export, serve, lint, doctor, or any app-testing commands (e.g. `npx expo start`, `npx expo export`, `npx expo run:android`, `npx eas build`, `npx expo-doctor`) unless the user explicitly asks for them in the prompt. Only edit files; let the user dictate when to build or test.
 
 ## Native directories
 

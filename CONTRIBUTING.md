@@ -29,9 +29,10 @@ src/
     +html.js              # web document shell
     +not-found.js         # 404 route
   assets/
-    svg/icon.svg          # project logo
-    android/home.xml      # Android vector icon (Home tab)
-    android/person.xml    # Android vector icon (Profile tab)
+    svg/icon.svg          # project logo (master source)
+    svg/home.svg          # Home tab icon
+    svg/person.svg        # Profile tab icon
+    images/icon.png       # Android launcher icon (exported from svg/icon.svg)
   components/
     logo.js               # shared logo component
   store/
@@ -40,6 +41,8 @@ src/
     global.css            # Tailwind entry imported by src/app/_layout.js
   theme/
     colors.js             # shared design tokens (dark + light palettes)
+public/
+  favicon.svg             # web favicon (copy of src/assets/svg/icon.svg)
 tailwind.config.js        # Nativewind/Tailwind theme (mirrors design tokens)
 ```
 
@@ -49,7 +52,7 @@ Keep non-route code (components, hooks, utilities, theme) **outside** `src/app/`
 
 ### File naming
 
-- All files and directories use **lower-case kebab-case**: `logo.js`, `home.xml`, `index.web.js`.
+- All files and directories use **lower-case kebab-case**: `logo.js`, `home.svg`, `index.web.js`.
 - Expo Router reserves a few route file names — use them as-is: `index`, `_layout`, `+html`, `+not-found`, `+middleware`.
 - Platform suffixes stay lower-case and come last: `index.web.js`, `index.android.js`.
 - JavaScript identifiers (components, exports) stay PascalCase — e.g. `export default function Logo()` in `logo.js`. Only the **filename** is kebab-case.
@@ -100,7 +103,7 @@ Until lint is configured, verify both bundles compile:
 
 ```bash
 npx expo export --platform web       # static web build + route rendering
-npx expo export --platform android   # Android JS bundle + XML assets
+npx expo export --platform android   # Android JS bundle + SVG assets
 ```
 
 ## Commit & PR conventions

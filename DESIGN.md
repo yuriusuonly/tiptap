@@ -75,7 +75,7 @@ Implemented in `src/app/index.web.js`.
 Implemented in `src/app/index.android.js` using `@expo/ui/jetpack-compose`.
 
 - Bottom navigation with **Home** and **Profile** tabs (label + icon each).
-- Icons are XML vector drawables in `src/assets/android/`.
+- Icons are SVG files in `src/assets/svg/`, rendered with `react-native-svg` on every platform.
 - Selected tab uses the `accent` color with a translucent accent indicator.
 - **Profile → Preferences:** a `PREFERENCES` subheader sits above the card; the rounded `Card` wraps a `LazyColumn` that contains only the menu items (a **Theme** row). The row opens an exposed dropdown (Material 3) with **Auto**, **Light**, and **Dark** options.
 - `Auto` follows the system color scheme; the selected mode swaps between the dark `colors` and light `lightColors` palettes from `src/theme/colors.js`.
