@@ -177,9 +177,9 @@ After adding Firebase native deps/plugins or `google-services.json`, rebuild the
 - [x] EAS `production` profile (AAB + auto-increment) and submit config
 - [x] Firebase project wiring (project `yuriusu-tiptap`, Android `dev.yuriusu.tiptap`, `google-services.json` gitignored)
 - [x] SSR-safe env/config foundation (no import-time throw) for Firebase keys in `.env` / `configuration.js`
-- [ ] Android Authentication — Google OAuth only (RN Firebase Auth + Google Sign-In; no email/password, no web auth)
-- [ ] Firestore — centralized AI-generated `content` feed (read/paginated) + per-user data (`users/{uid}`)
-- [ ] Preferences sync — stored locally (AsyncStorage) and in Firestore per user when signed in
+- [x] Android Authentication — Google OAuth only (RN Firebase Auth + Google Sign-In; no email/password, no web auth)
+- [ ] Firestore — centralized AI-generated `content` feed (read/paginated) pending; per-user `users/{uid}` data synced
+- [x] Preferences sync — stored locally (AsyncStorage) and in Firestore per user when signed in
 - [ ] Push notifications (FCM) — new-content heads-up on Android; FCM token registered per user/device
 - [ ] Firebase Hosting — deploy the static web landing export (web stays as-is, no Firebase SDK/auth in app)
 - [ ] Cloud Function / admin sender — trigger FCM on new `content` (planned; separate from client wiring)

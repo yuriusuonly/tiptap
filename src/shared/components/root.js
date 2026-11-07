@@ -9,8 +9,11 @@ import {StatusBar} from "expo-status-bar";
 import {colorScheme} from "nativewind";
 import {useEffect} from "react";
 import {Platform} from "react-native";
+import {configureGoogleSignIn, subscribeAuthState} from "../../services/firebase/google-auth";
 import {APP_NAME} from "../constants/configuration";
+import {useAuthStore} from "../store/auth-store";
 import {useOnboardingStore} from "../store/onboarding-store";
+import {startPreferenceSync, syncOnSignIn, usePreferencesSyncStore} from "../store/preferences-sync-store";
 import {useResolvedTheme, useThemeStore} from "../store/theme-store";
 import "../stylesheets/global.css";
 
@@ -22,6 +25,27 @@ export function Root({children}) {
     // touches localStorage during the server pass.
     useThemeStore.persist.rehydrate();
     useOnboardingStore.persist.rehydrate();
+  }, []);
+
+  useEffect(() => {
+    // Android only: bootstrap Google Sign-In + Firebase auth state and route
+    // preference sync through the stores. Web stays static (auth service
+    // resolves to a no-op stub there) and this effect returns early.
+    if (Platform.OS !== "android") return;
+    configureGoogleSignIn();
+    const stopSyncWatching = startPreferenceSync();
+    const unsubscribe = subscribeAuthState((user) => {
+      useAuthStore.getState().setAuthUser(user);
+      if (user) {
+        void syncOnSignIn(user);
+      } else {
+        usePreferencesSyncStore.getState().setSyncStatus("signedOut");
+      }
+    });
+    return () => {
+      stopSyncWatching();
+      unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
