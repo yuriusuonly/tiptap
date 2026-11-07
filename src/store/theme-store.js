@@ -1,12 +1,12 @@
 /**
  * Zustand theme store with AsyncStorage persistence and resolved palette helpers.
- * @module src/shared/store/theme-store
+ * @module src/store/theme-store
  */
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {useColorScheme} from "react-native";
 import {create} from "zustand";
 import {createJSONStorage, persist} from "zustand/middleware";
-import {themes} from "../../theme/colors";
+import {themes} from "../theme/colors";
 
 export const THEME_MODES = [
   {value: "auto", label: "Auto"},
@@ -25,7 +25,7 @@ export const useThemeStore = create(
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({themeMode: state.themeMode}),
       // Static rendering has no window/localStorage. Rehydrate in an effect
-      // after the app mounts (see src/shared/providers/app-providers.js).
+      // after the app mounts (see src/providers/app-providers.js).
       skipHydration: true,
     }
   )

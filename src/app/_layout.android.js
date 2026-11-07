@@ -1,11 +1,11 @@
 /**
- * Android root layout: file-based bottom tabs with the shared React Native tab
+ * Android root layout: file-based bottom tabs with the React Native tab
  * bar. Web resolves `_layout.js` instead.
  * @module src/app/_layout.android
  */
 import {Tabs} from "expo-router";
-import {AppTabBar} from "../android/components/app-tab-bar";
-import {AppProviders} from "../shared/providers/app-providers";
+import {AppTabBar} from "../components/app-tab-bar";
+import {AppProviders} from "../providers/app-providers";
 
 export default function RootLayout() {
   return (

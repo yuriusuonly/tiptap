@@ -5,7 +5,7 @@ Tokens and layout rules that keep the web and Android UI consistent. Color, spac
 ## Brand
 
 - **Name:** Tiptap
-- **Logo:** `src/assets/icons/icon.svg` — master SVG (gradient music note on a dark rounded square). Render via `src/shared/components/app-logo.js` (a `react-native-svg` component mirroring the master SVG) for reliable cross-platform rendering, optionally through `src/shared/components/icon.js`: `<Icon as={AppLogo} size={...} accessibilityLabel="Tiptap logo" />`. Derive `src/assets/images/icon.png` from `icon.svg` for launcher/favicon use.
+- **Logo:** `src/assets/icons/icon.svg` — master SVG (gradient music note on a dark rounded square). Render via `src/components/app-logo.js` (a `react-native-svg` component mirroring the master SVG) for reliable cross-platform rendering, optionally through `src/components/icon.js`: `<Icon as={AppLogo} size={...} accessibilityLabel="Tiptap logo" />`. Derive `src/assets/images/icon.png` from `icon.svg` for launcher/favicon use.
 - **Brand gradient:** cyan → purple → red (`#25F4EE → #7C4DFF → #FE2C55`), matching the SVG.
 
 ## Colors
@@ -73,14 +73,14 @@ Four responsive layout classes are shared by Web and Android. Breakpoints are mi
 | Desktop (FHD) | 1080 × 1920 | `>= 1080` |
 
 - **Max content width:** `1920px` / `1920dp` (`contentMaxWidth: 1920`). Content is centered and never exceeds this cap on either platform.
-- **Source of truth:** `src/theme/layout.js` exports `breakpoints`, `contentMaxWidth`, `getLayoutClass(width)`, and the per-class `responsiveLayout` tokens (gutters, vertical padding, title/description type, logo sizes, home copy, profile card width). `src/shared/hooks/use-responsive-layout.js` exposes the active `layoutClass`, `tokens`, and class flags using `useWindowDimensions`.
+- **Source of truth:** `src/theme/layout.js` exports `breakpoints`, `contentMaxWidth`, `getLayoutClass(width)`, and the per-class `responsiveLayout` tokens (gutters, vertical padding, title/description type, logo sizes, home copy, profile card width). `src/hooks/use-responsive-layout.js` exposes the active `layoutClass`, `tokens`, and class flags using `useWindowDimensions`.
 - **Static rendering:** the web export has no viewport. Call `useResponsiveLayout({enabled: mounted})` so the server HTML and the first client render use the `wearable` class; an effect flips `mounted` after hydration.
 - **Consistency:** breakpoints, the 1920px cap, and the per-class spacing/type scale are shared. The rendering layer is native React Native + Nativewind on both Web and Android.
 - **Wearable scope:** “Wearable” means the app stays usable on 320×480-sized viewports. A dedicated Wear OS target (round UI, separate app) is out of scope unless explicitly added.
 
 ### Web landing page
 
-Implemented in `src/web/features/landing/landing-screen.js` (route: `src/app/index.js`).
+Implemented in `src/screens/landing/index.js` (route: `src/app/index.js`).
 
 - Single centered page capped at `1920px` (`contentMaxWidth`).
 - Gutter: `16` wearable, `20` phone, `32` tablet, `48` desktop; vertical padding `24 / 32 / 48 / 64`.
@@ -92,23 +92,23 @@ Implemented in `src/web/features/landing/landing-screen.js` (route: `src/app/ind
 
 ### Android app
 
-Implemented with file-based routes: `src/app/_layout.android.js` renders Expo Router `Tabs`, `src/app/index.android.js` is Home, and `src/app/profile.android.js` is Profile. UI lives in `src/android/features`.
+Implemented with file-based routes: `src/app/_layout.android.js` renders Expo Router `Tabs`, `src/app/index.android.js` is Home, and `src/app/profile.android.js` is Profile. UI lives in `src/screens/`.
 
-- Bottom navigation is a React Native tab bar (`src/android/components/app-tab-bar.js`) with **Home** and **Profile** tabs (label + SVG icon each). No `@expo/ui`/Jetpack Compose, no XML/VectorDrawable icons.
+- Bottom navigation is a React Native tab bar (`src/components/app-tab-bar.js`) with **Home** and **Profile** tabs (label + SVG icon each). No `@expo/ui`/Jetpack Compose, no XML/VectorDrawable icons.
 - `Pressable` tab items are the only touch targets; the icon wrapper and selection indicator use `pointerEvents="none"` so taps are never intercepted or propagated.
-- Icons are SVG files in `src/assets/icons/`, rendered with `react-native-svg`. Use `src/shared/components/icon.js` (`as`, `size`, `accessibilityLabel`; `color` for `currentColor`). The complex gradient logo uses `src/shared/components/app-logo.js`.
+- Icons are SVG files in `src/assets/icons/`, rendered with `react-native-svg`. Use `src/components/icon.js` (`as`, `size`, `accessibilityLabel`; `color` for `currentColor`). The complex gradient logo uses `src/components/app-logo.js`.
 - Selected tab uses the `accent` color with a translucent accent indicator. State changes are plain color/layout changes — no animations or transitions.
 - Home and Profile content is centered and capped at `1920dp`, using the same per-class gutters as Web (`16 / 20 / 32 / 48`).
 - **Home** scales with the class: title `24 / 30` → `30 / 36` → `36 / 42` → `44 / 52`; subtitle `14 / 20` → `16 / 24` → `18 / 26` → `20 / 30`; copy width caps at `480 / 560 / 640 / 880`.
 - **Profile → Preferences:** a `PREFERENCES` subheader sits above a rounded surface card. The card is centered with a per-class max width (`560 / 560 / 640 / 720`) and compact padding on wearable/phone. The **Theme** row expands inline (no dropdown animation) with **Auto**, **Light**, and **Dark** options.
 - `Auto` follows the system color scheme; the selected mode switches the CSS variables between light and dark values (matching `src/theme/colors.js`).
-- The choice is stored in the Zustand theme store (`src/shared/store/theme-store.js`) and persisted to AsyncStorage, so it survives app restarts.
+- The choice is stored in the Zustand theme store (`src/store/theme-store.js`) and persisted to AsyncStorage, so it survives app restarts.
 
 ### Styling and state
 
 - All screens use **Nativewind** utility classes. Semantic colors resolve through CSS variables declared for `:root` (light) and `.dark:root` (dark) in `src/styles/global.css`; `tailwind.config.js` maps them to utilities such as `bg-background`, `bg-surface`, `text-ink`, `text-muted`, `border-line`, and `text-accent`. The responsive `phone` / `tablet` / `desktop` screens plus `max-w-content` map to `src/theme/layout.js`.
 - Do not use inline `style` objects for presentation. The theme store syncs the resolved scheme to Nativewind's `dark` class through `AppProviders`.
-- Global state lives in `src/shared/store/` (Zustand). Persisted stores skip hydration during static rendering and rehydrate in `src/shared/providers/app-providers.js`.
+- Global state lives in `src/store/` (Zustand). Persisted stores skip hydration during static rendering and rehydrate in `src/providers/app-providers.js`.
 
 ### Not found
 

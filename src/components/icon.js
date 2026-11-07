@@ -1,8 +1,8 @@
 /**
- * Generic, cross-platform SVG icon wrapper.
+ * Generic SVG icon wrapper.
  * Renders SVGs imported via react-native-svg-transformer from src/assets/icons/*.svg.
  * Reusable for all icons (tintable `fill="currentColor"` icons and full-color assets).
- * @module src/shared/components/icon
+ * @module src/components/icon
  */
 
 export function Icon({

@@ -1,20 +1,20 @@
 /**
- * Web landing page with a responsive hero layout. Styling is entirely
+ * Web landing screen with a responsive hero layout. Styling is entirely
  * Nativewind/Tailwind; only the responsive logo size comes from layout tokens.
- * @module src/web/features/landing/landing-screen
+ * @module src/screens/landing
  */
 import Head from "expo-router/head";
 import {useEffect, useState} from "react";
 import {ScrollView, Text, View} from "react-native";
-import AppLogo from "../../../shared/components/app-logo";
-import Icon from "../../../shared/components/icon";
-import {useResponsiveLayout} from "../../../shared/hooks/use-responsive-layout";
+import AppLogo from "../../components/app-logo";
+import Icon from "../../components/icon";
+import {useResponsiveLayout} from "../../hooks/use-responsive-layout";
 
 const TITLE = "Create.\nShare.\nRepeat.";
 const DESCRIPTION =
   "Tiptap is a TikTok-style feed powered by AI. Generate short videos, remix ideas, and discover what everyone is watching next.";
 
-export default function LandingScreen() {
+export function LandingScreen() {
   // Static export renders without a viewport, so start on the smallest layout
   // (matching the server HTML) and switch after hydration.
   const [mounted, setMounted] = useState(false);
@@ -87,3 +87,5 @@ export default function LandingScreen() {
     </View>
   );
 }
+
+export default LandingScreen;
