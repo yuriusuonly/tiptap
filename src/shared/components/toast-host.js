@@ -1,10 +1,12 @@
 /**
  * Root-owned toast host. Renders queued toast messages one at a time in its
- * own transparent Modal so it stays fixed and layers above stacked layouts and
- * other Modals (e.g. bottom sheets). No entrance/exit animations.
+ * own transparent Modal so it stays fixed above the bottom safe area and
+ * layers above stacked layouts and other Modals (e.g. bottom sheets). No
+ * entrance/exit animations.
  * @module src/shared/components/toast-host
  */
 import {Modal, View} from "react-native";
+import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {useToastStore} from "../store/toast-store";
 import {Toast} from "./toast";
 
@@ -12,13 +14,14 @@ export function ToastHost() {
   const current = useToastStore((state) => state.current);
   const dismissToast = useToastStore((state) => state.dismissToast);
   const hideToast = useToastStore((state) => state.hideToast);
+  const insets = useSafeAreaInsets();
   const visible = !!current;
 
   if (!visible) return null;
 
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={hideToast}>
-      <View pointerEvents="box-none" className="flex-1">
+      <View pointerEvents="box-none" className="flex-1" style={{paddingBottom: insets.bottom}}>
         <Toast
           key={current.id}
           visible
