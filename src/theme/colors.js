@@ -89,9 +89,5 @@ export const typography = {
   caption: { fontSize: 13, lineHeight: 18, fontWeight: "400" },
 };
 
-export const layout = {
-  maxWidth: 1080,
-  desktopBreakpoint: 900,
-  gutter: 24,
-  gutterMobile: 16,
-};
+// Responsive breakpoints, content width, and per-class layout tokens live in
+// `src/theme/layout.js` so they can be shared by Web and Android.

@@ -1,24 +1,25 @@
 import Head from "expo-router/head";
 import {useEffect, useState} from "react";
-import {ScrollView, Text, View, useWindowDimensions} from "react-native";
+import {ScrollView, Text, View} from "react-native";
 import AppLogo from "../components/app-logo";
 import Icon from "../components/icon";
-import {layout, spacing} from "../theme/colors";
+import {useResponsiveLayout} from "../hooks/use-responsive-layout";
+import {colors} from "../theme/colors";
+import {contentMaxWidth} from "../theme/layout";
 
 const TITLE = "Create.\nShare.\nRepeat.";
 const DESCRIPTION =
   "Tiptap is a TikTok-style feed powered by AI. Generate short videos, remix ideas, and discover what everyone is watching next.";
 
 export default function IndexWeb() {
-  const {width} = useWindowDimensions();
-  // Static export renders without a viewport, so start stacked (matching the
-  // server HTML) and switch to the desktop layout after hydration.
+  // Static export renders without a viewport, so start on the smallest layout
+  // (matching the server HTML) and switch after hydration.
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const isDesktop = mounted && width >= layout.desktopBreakpoint;
-  const gutter = isDesktop ? layout.gutter : layout.gutterMobile;
-  const logoSize = isDesktop ? 260 : 180;
+  const {tokens, isDesktop} = useResponsiveLayout({enabled: mounted});
+  const {eyebrow, title, description, logoCard, blobs, gap} = tokens;
+  const centered = !isDesktop;
 
   return (
     <View className="flex-1 overflow-hidden bg-canvas">
@@ -28,19 +29,29 @@ export default function IndexWeb() {
 
       <View
         pointerEvents="none"
-        className={`absolute rounded-full bg-cyan opacity-[0.16] ${
-          isDesktop
-            ? "-left-[160px] -top-[240px] h-[520px] w-[520px]"
-            : "-left-[120px] -top-[140px] h-[320px] w-[320px]"
-        }`}
+        style={{
+          position: "absolute",
+          width: blobs.primary.size,
+          height: blobs.primary.size,
+          borderRadius: blobs.primary.size / 2,
+          top: blobs.primary.top,
+          left: blobs.primary.left,
+          backgroundColor: colors.accentCyan,
+          opacity: blobs.primary.opacity,
+        }}
       />
       <View
         pointerEvents="none"
-        className={`absolute rounded-full bg-accent opacity-[0.16] ${
-          isDesktop
-            ? "-bottom-[280px] -right-[200px] h-[560px] w-[560px]"
-            : "-bottom-[180px] -right-[140px] h-[360px] w-[360px]"
-        }`}
+        style={{
+          position: "absolute",
+          width: blobs.secondary.size,
+          height: blobs.secondary.size,
+          borderRadius: blobs.secondary.size / 2,
+          bottom: blobs.secondary.bottom,
+          right: blobs.secondary.right,
+          backgroundColor: colors.accent,
+          opacity: blobs.secondary.opacity,
+        }}
       />
 
       <ScrollView
@@ -49,43 +60,54 @@ export default function IndexWeb() {
           flexGrow: 1,
           justifyContent: "center",
           alignItems: "center",
-          paddingHorizontal: gutter,
-          paddingVertical: isDesktop ? spacing.xxxxl : spacing.xxxl,
+          paddingHorizontal: tokens.gutter,
+          paddingVertical: tokens.pagePaddingVertical,
         }}
         showsVerticalScrollIndicator={false}
       >
-        <View className="w-full" style={{maxWidth: layout.maxWidth}}>
+        <View className="w-full" style={{maxWidth: contentMaxWidth}}>
           <View
-            className={
-              isDesktop
-                ? "w-full flex-row items-center justify-between gap-16"
-                : "w-full flex-col items-center gap-10"
-            }
+            className={`w-full ${
+              isDesktop ? "flex-row items-center justify-between" : "flex-col items-center"
+            }`}
+            style={{gap}}
           >
             <View
-              className={
-                isDesktop ? "w-full max-w-[560px] flex-1 items-start" : "w-full items-center"
-              }
+              className={isDesktop ? "flex-1 items-start" : "w-full items-center"}
+              style={isDesktop ? {maxWidth: 560} : undefined}
             >
               <View className="mb-6 flex-row items-center gap-2 rounded-full border border-line bg-surface px-3 py-1">
                 <View className="h-1.5 w-1.5 rounded-full bg-accent" />
-                <Text className="text-[13px] font-semibold leading-[18px] tracking-[1.2px] text-muted">
+                <Text
+                  className="font-semibold text-muted"
+                  style={{
+                    fontSize: eyebrow.fontSize,
+                    lineHeight: eyebrow.lineHeight,
+                    letterSpacing: eyebrow.letterSpacing,
+                  }}
+                >
                   AI VIDEO, REIMAGINED
                 </Text>
               </View>
 
               <Text
-                className={`font-extrabold tracking-[-1.5px] text-ink ${
-                  isDesktop ? "text-[64px] leading-[66px]" : "text-center text-[40px] leading-[42px]"
-                }`}
+                className={`font-extrabold text-ink ${centered ? "text-center" : ""}`}
+                style={{
+                  fontSize: title.fontSize,
+                  lineHeight: title.lineHeight,
+                  letterSpacing: title.letterSpacing,
+                }}
               >
                 {TITLE}
               </Text>
 
               <Text
-                className={`mt-6 max-w-[460px] text-base leading-6 text-muted ${
-                  isDesktop ? "text-[18px] leading-[28px]" : "text-center"
-                }`}
+                className={`mt-6 text-muted ${centered ? "text-center" : ""}`}
+                style={{
+                  fontSize: description.fontSize,
+                  lineHeight: description.lineHeight,
+                  maxWidth: description.maxWidth,
+                }}
               >
                 {DESCRIPTION}
               </Text>
@@ -102,18 +124,28 @@ export default function IndexWeb() {
             </View>
 
             <View
-              className={`items-center justify-center overflow-hidden border border-line bg-surface ${
-                isDesktop
-                  ? "h-[380px] w-[380px] gap-6 rounded-[32px] p-8"
-                  : "aspect-square w-full max-w-[320px] gap-4 rounded-[32px] p-6"
-              }`}
-              style={{boxShadow: "0 30px 80px rgba(0, 0, 0, 0.45)"}}
+              className="items-center justify-center overflow-hidden border border-line bg-surface"
+              style={{
+                width: logoCard.size,
+                height: logoCard.size,
+                borderRadius: logoCard.radius,
+                padding: logoCard.padding,
+                gap: logoCard.gap,
+                boxShadow: "0 30px 80px rgba(0, 0, 0, 0.45)",
+              }}
             >
               <View
                 pointerEvents="none"
-                className="absolute h-[220px] w-[220px] rounded-full bg-purple opacity-[0.22]"
+                style={{
+                  position: "absolute",
+                  width: tokens.haloSize,
+                  height: tokens.haloSize,
+                  borderRadius: tokens.haloSize / 2,
+                  backgroundColor: colors.accentPurple,
+                  opacity: 0.22,
+                }}
               />
-              <Icon as={AppLogo} size={logoSize} accessibilityLabel="Tiptap logo" />
+              <Icon as={AppLogo} size={tokens.logoSize} accessibilityLabel="Tiptap logo" />
               <Text className="text-center text-[13px] font-semibold uppercase leading-[18px] tracking-[1.4px] text-faint">
                 Short video. Infinite ideas.
               </Text>

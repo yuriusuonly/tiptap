@@ -36,12 +36,15 @@ src/
   components/
     app-logo.js           # TipTap logo (react-native-svg, mirrors src/assets/icons/icon.svg)
     icon.js               # shared cross-platform SVG icon wrapper
+  hooks/
+    use-responsive-layout.js  # active layout class + tokens (SSR-safe)
   store/
     theme-store.js        # Zustand theme store (persisted with AsyncStorage)
   styles/
     global.css            # Tailwind entry imported by src/app/_layout.js
   theme/
     colors.js             # shared design tokens (dark + light palettes)
+    layout.js             # responsive breakpoints, 1920px cap, per-class layout tokens
 tailwind.config.js        # Nativewind/Tailwind theme (mirrors design tokens)
 ```
 
@@ -77,6 +80,7 @@ Keep non-route code (components, hooks, utilities, theme) **outside** `src/app/`
 - Global state lives in **Zustand** stores under `src/store/`. Persist with AsyncStorage (`skipHydration: true` + `rehydrate()` in an effect) so static web rendering stays `window`-free.
 - SVG icons in `src/assets/icons/` are the source of truth. Render simple/tintable SVGs with the shared cross-platform `src/components/icon.js` wrapper: `<Icon as={Svg} size={24} accessibilityLabel="..." />` (pass `color` for `fill="currentColor"`). The complex gradient logo uses `src/components/app-logo.js` (mirrors `src/assets/icons/icon.svg`); `src/assets/icons/icon.svg` remains the master for derived PNG assets.
 - Use the shared design tokens in `src/theme/colors.js` instead of hard-coded values. See `DESIGN.md`.
+- Responsive breakpoints and per-class layout tokens live in `src/theme/layout.js`; use `src/hooks/use-responsive-layout.js` (`useResponsiveLayout`) for the four classes: Wearable `<480`, Phone `480–719`, Tablet `720–1079`, Desktop `>=1080`. Content is capped at `1920px`. On web, pass `{enabled: mounted}` so static rendering starts on the wearable class.
 
 ### Expo & native code
 

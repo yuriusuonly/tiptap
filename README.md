@@ -71,12 +71,15 @@ src/
   components/
     app-logo.js         # TipTap logo (react-native-svg, mirrors src/assets/icons/icon.svg)
     icon.js             # shared cross-platform SVG icon wrapper (react-native-svg)
+  hooks/
+    use-responsive-layout.js  # active layout class + tokens (SSR-safe)
   store/
     theme-store.js      # Zustand theme store (persisted with AsyncStorage)
   styles/
     global.css          # Tailwind entry imported by src/app/_layout.js
   theme/
     colors.js           # shared design tokens (dark + light palettes)
+    layout.js           # responsive breakpoints, 1920px cap, per-class layout tokens
 tailwind.config.js      # Nativewind/Tailwind theme (mirrors design tokens)
 ```
 

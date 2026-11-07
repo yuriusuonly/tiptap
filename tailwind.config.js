@@ -1,4 +1,5 @@
 import {createRequire} from "node:module";
+import {breakpoints, contentMaxWidth} from "./src/theme/layout.js";
 
 // `nativewind/preset` is a CommonJS subpath without an `exports` map.
 const require = createRequire(import.meta.url);
@@ -10,6 +11,14 @@ export default {
   presets: [nativewindPreset],
   theme: {
     extend: {
+      screens: {
+        phone: `${breakpoints.phone}px`,
+        tablet: `${breakpoints.tablet}px`,
+        desktop: `${breakpoints.desktop}px`,
+      },
+      maxWidth: {
+        content: `${contentMaxWidth}px`,
+      },
       colors: {
         canvas: "#0B0B0F",
         surface: "#15151B",

@@ -23,8 +23,11 @@ import {
   menuAnchor,
   paddingAll,
   Shapes,
+  width,
 } from "@expo/ui/jetpack-compose/modifiers";
-import {radius, spacing} from "../theme/colors";
+import {useResponsiveLayout} from "../hooks/use-responsive-layout";
+import {radius} from "../theme/colors";
+import {contentMaxWidth} from "../theme/layout";
 import {THEME_MODES, useResolvedTheme, useThemeStore} from "../store/theme-store";
 
 const TABS = {
@@ -47,7 +50,14 @@ export default function IndexAndroid() {
   const [themeMenuOpen, setThemeMenuOpen] = useState(false);
   const {themeMode, palette, scheme} = useResolvedTheme();
   const setThemeMode = useThemeStore((state) => state.setThemeMode);
+  const {width: viewportWidth, tokens} = useResponsiveLayout();
   const activeTab = TABS[selectedTab];
+
+  // Content is centered and capped at 1920dp, with per-class gutters.
+  const contentWidth = Math.max(
+    0,
+    Math.min(viewportWidth, contentMaxWidth) - tokens.gutter * 2
+  );
 
   const tabColors = {
     selectedIconColor: palette.accent,
@@ -71,19 +81,35 @@ export default function IndexAndroid() {
               setThemeMode(mode);
               setThemeMenuOpen(false);
             }}
+            tokens={tokens}
+            contentWidth={contentWidth}
           />
         ) : (
           <Box modifiers={[fillMaxSize()]} contentAlignment="center">
-            <Column horizontalAlignment="center" verticalArrangement={{spacedBy: 8}}>
+            <Column
+              modifiers={[width(Math.min(contentWidth, tokens.home.maxWidth))]}
+              horizontalAlignment="center"
+              verticalArrangement={{spacedBy: tokens.home.gap}}
+            >
               <Text
                 color={palette.textPrimary}
-                style={{fontSize: 30, fontWeight: "800", letterSpacing: -0.5}}
+                style={{
+                  fontSize: tokens.home.titleSize,
+                  lineHeight: tokens.home.titleLineHeight,
+                  fontWeight: "800",
+                  letterSpacing: -0.5,
+                  textAlign: "center",
+                }}
               >
                 {activeTab.title}
               </Text>
               <Text
                 color={palette.textSecondary}
-                style={{fontSize: 16, lineHeight: 24, textAlign: "center"}}
+                style={{
+                  fontSize: tokens.home.subtitleSize,
+                  lineHeight: tokens.home.subtitleLineHeight,
+                  textAlign: "center",
+                }}
               >
                 {activeTab.subtitle}
               </Text>
@@ -131,22 +157,26 @@ function ProfilePreferences({
   expanded,
   onExpandedChange,
   onSelectTheme,
+  tokens,
+  contentWidth,
 }) {
+  const {profile} = tokens;
   const currentMode =
     THEME_MODES.find((mode) => mode.value === themeMode) ?? THEME_MODES[0];
+  const profileWidth = Math.min(contentWidth, profile.maxWidth);
 
   return (
     <Box
-      modifiers={[fillMaxSize(), paddingAll(spacing.lg)]}
+      modifiers={[fillMaxSize(), paddingAll(tokens.gutter)]}
       contentAlignment="topCenter"
     >
       <Column
-        modifiers={[fillMaxWidth()]}
-        verticalArrangement={{spacedBy: spacing.sm}}
+        modifiers={[width(profileWidth)]}
+        verticalArrangement={{spacedBy: profile.gap}}
       >
         <Text
           color={palette.textMuted}
-          style={{fontSize: 12, fontWeight: "700", letterSpacing: 1.2}}
+          style={{fontSize: profile.headerSize, fontWeight: "700", letterSpacing: 1.2}}
         >
           PREFERENCES
         </Text>
@@ -159,10 +189,10 @@ function ProfilePreferences({
         >
           <LazyColumn
             contentPadding={{
-              start: spacing.sm,
-              top: spacing.sm,
-              end: spacing.sm,
-              bottom: spacing.sm,
+              start: profile.cardPadding,
+              top: profile.cardPadding,
+              end: profile.cardPadding,
+              bottom: profile.cardPadding,
             }}
           >
             <ExposedDropdownMenuBox
