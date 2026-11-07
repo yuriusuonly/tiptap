@@ -120,14 +120,14 @@ export function ProfilePreferences({onActionFailed}) {
 
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Privacy Policy"
+          accessibilityLabel="Policy"
           onPress={() => openUrl(`${LANDING_PAGE_URL}/policy`)}
           className="mt-2 flex-row items-center justify-between gap-3 border-t border-line pt-2 py-1"
         >
           <View className="flex-1">
-            <Text className="text-[16px] text-ink">Privacy</Text>
+            <Text className="text-[16px] text-ink">Policy</Text>
             <Text className="mt-0.5 text-[13px] leading-[18px] text-muted">
-              Privacy Policy
+              View policy
             </Text>
           </View>
           <Text className="text-[14px] text-accent">↦</Text>

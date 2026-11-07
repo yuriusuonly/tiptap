@@ -97,11 +97,6 @@ export function LandingScreen() {
               </View>
 
               <View className="mt-10 flex-row items-center justify-center gap-5 mobile:mt-12 mobile:gap-6">
-                <Link href="/policy" asChild>
-                  <Pressable accessibilityRole="link" accessibilityLabel="Privacy Policy">
-                    <Text className="text-[13px] font-medium leading-[18px] text-faint">Privacy</Text>
-                  </Pressable>
-                </Link>
                 <View className="items-center justify-center">
                   <Pressable
                     accessibilityRole="button"
@@ -115,6 +110,11 @@ export function LandingScreen() {
                     {currentMode.label}
                   </Text>
                 </View>
+                <Link href="/policy" asChild>
+                  <Pressable accessibilityRole="link" accessibilityLabel="Policy">
+                    <Text className="text-[13px] font-medium leading-[18px] text-faint">Policy</Text>
+                  </Pressable>
+                </Link>
                 <Link href="/terms" asChild>
                   <Pressable accessibilityRole="link" accessibilityLabel="Terms of Service">
                     <Text className="text-[13px] font-medium leading-[18px] text-faint">Terms</Text>
