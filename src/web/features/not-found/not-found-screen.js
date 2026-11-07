@@ -5,12 +5,13 @@
 import Head from "expo-router/head";
 import {Link} from "expo-router";
 import {Pressable, Text, View} from "react-native";
+import {APP_NAME} from "../../../shared/constants/configuration";
 
 export function NotFoundScreen() {
   return (
     <>
       <Head>
-        <title>404 — TipTap</title>
+        <title>404 — {APP_NAME}</title>
       </Head>
       <View className="flex-1 items-center justify-center bg-background p-6">
         <Text className="mb-2 text-[13px] font-bold leading-[18px] tracking-[2px] text-accent">
@@ -24,7 +25,7 @@ export function NotFoundScreen() {
         </Text>
         <Link href="/" asChild>
           <Pressable className="mt-6 rounded-full border border-line bg-raised px-6 py-3">
-            <Text className="text-base font-semibold leading-6 text-ink">Back to TipTap</Text>
+            <Text className="text-base font-semibold leading-6 text-ink">Back to {APP_NAME}</Text>
           </Pressable>
         </Link>
       </View>
