@@ -45,6 +45,10 @@ firestore.indexes.json
 # Firebase (Android) — local/native config, do not commit
 google-services.json
 
+# EAS credentials (downloaded; do not commit)
+credentials.json
+credentials/
+
 # typescript
 *.tsbuildinfo
 
