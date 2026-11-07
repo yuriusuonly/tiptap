@@ -1,14 +1,15 @@
 /**
  * Shared snackbar for transient action-failure feedback.
- * Renders an in-flow notice when `visible`, auto-dismisses after `durationMs`
- * (simple timed mount/unmount — no UX animations), and can be dismissed
- * manually. Nativewind `className`-only; semantic theme tokens.
+ * Renders an overlay bar when `visible` (positioned by the caller via
+ * `className`, e.g. `absolute inset-x-4 bottom-4`), auto-dismisses after
+ * `durationMs` (simple timed mount/unmount — no UX animations), and can be
+ * dismissed manually. Nativewind `className`-only; semantic theme tokens.
  * @module src/shared/components/snackbar
  */
 import {useEffect} from "react";
 import {Pressable, Text, View} from "react-native";
 
-export function Snackbar({visible, message, onDismiss, durationMs = 4000}) {
+export function Snackbar({visible, message, onDismiss, durationMs = 4000, className}) {
   useEffect(() => {
     if (!visible) return undefined;
     const timer = setTimeout(() => {
@@ -20,7 +21,7 @@ export function Snackbar({visible, message, onDismiss, durationMs = 4000}) {
   if (!visible || !message) return null;
 
   return (
-    <View className="mt-2">
+    <View className={className}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Dismiss message"

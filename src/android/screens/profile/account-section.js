@@ -10,24 +10,20 @@ import {Image, Pressable, Text, View} from "react-native";
 import {deleteAuthUser, signInWithGoogle, signOutGoogle} from "../../../services/firebase/google-auth";
 import {deleteUserData} from "../../../services/firebase/user-profile";
 import {CircularProgress} from "../../../shared/components/circular-progress";
-import {Snackbar} from "../../../shared/components/snackbar";
 import {useAuthStore} from "../../../shared/store/auth-store";
 import {syncOnSignIn, usePreferencesSyncStore} from "../../../shared/store/preferences-sync-store";
 
-export function AccountSection() {
+export function AccountSection({onActionFailed}) {
   const {status, user, isSigningIn, setSigningIn, clearError} = useAuthStore();
   const {syncStatus, syncError, setSyncStatus} = usePreferencesSyncStore();
   const [photoFailed, setPhotoFailed] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
-  const [snackbar, setSnackbar] = useState(null);
 
   useEffect(() => {
     setPhotoFailed(false);
     setConfirmingDelete(false);
   }, [user?.uid]);
-
-  const showSnackbar = (message) => setSnackbar(message);
 
   const handleSignIn = async () => {
     clearError();
@@ -36,7 +32,7 @@ export function AccountSection() {
       await signInWithGoogle();
     } catch (signInError) {
       if (signInError?.code !== "cancelled") {
-        showSnackbar("Sign-in failed");
+        onActionFailed?.("Sign-in failed");
       }
     } finally {
       setSigningIn(false);
@@ -49,7 +45,7 @@ export function AccountSection() {
     try {
       await signOutGoogle();
     } catch {
-      showSnackbar("Sign-out failed");
+      onActionFailed?.("Sign-out failed");
     } finally {
       setSigningIn(false);
     }
@@ -69,7 +65,7 @@ export function AccountSection() {
       }
       setConfirmingDelete(false);
     } catch {
-      showSnackbar("Account deletion failed");
+      onActionFailed?.("Account deletion failed");
     } finally {
       setIsDeleting(false);
     }
@@ -101,12 +97,15 @@ export function AccountSection() {
             className={`flex-row items-center justify-between gap-3 py-1 ${isSigningIn ? "opacity-50" : ""}`}
           >
             <View className="flex-1">
-              <Text className="text-[16px] text-ink">Sign in with Google</Text>
+              <Text className="text-[16px] text-ink">{isSigningIn ? "Signing in…" : "Sign in with Google"}</Text>
               <Text className="mt-0.5 text-[13px] leading-[18px] text-muted">
                 Sync your preferences across devices
               </Text>
             </View>
-            {isSigningIn ? <CircularProgress /> : <Text className="text-[14px] text-accent">↦</Text>}
+            <View className="flex-row items-center gap-2">
+              {isSigningIn ? <CircularProgress /> : null}
+              <Text className="text-[14px] text-accent">↦</Text>
+            </View>
           </Pressable>
         ) : status === "signedIn" && user ? (
           <View>
@@ -209,8 +208,6 @@ export function AccountSection() {
           </View>
         ) : null}
       </View>
-
-      <Snackbar visible={!!snackbar} message={snackbar} onDismiss={() => setSnackbar(null)} />
     </View>
   );
 }
