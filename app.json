@@ -1,9 +1,11 @@
 {
   "name": "TipTap",
   "slug": "tiptap",
+  "icon": "./src/assets/images/icon.png",
   "userInterfaceStyle": "automatic",
   "android": {
-    "package": "dev.yuriusu.tiptap"
+    "package": "dev.yuriusu.tiptap",
+    "icon": "./src/assets/images/icon.png"
   },
   "ios": {
     "bundleIdentifier": "dev.yuriusu.tiptap"

@@ -12,6 +12,7 @@ export default ({children}) => {
           content="TipTap is an AI-powered, TikTok-style feed for short videos. Create, remix, and share what everyone is watching next."
         />
         <meta name="theme-color" content="#0B0B0F"/>
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <ScrollViewStyleReset />
       </head>
       <body>

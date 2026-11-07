@@ -9,11 +9,11 @@ import {
   ExposedDropdownMenu,
   ExposedDropdownMenuBox,
   Host,
-  Icon,
   LazyColumn,
   ListItem,
   NavigationBar,
   NavigationBarItem,
+  RNHostView,
   Text,
 } from "@expo/ui/jetpack-compose";
 import {
@@ -24,6 +24,8 @@ import {
   paddingAll,
   Shapes,
 } from "@expo/ui/jetpack-compose/modifiers";
+import HomeIcon from "../assets/svg/home.svg";
+import PersonIcon from "../assets/svg/person.svg";
 import {radius, spacing} from "../theme/colors";
 import {THEME_MODES, useResolvedTheme, useThemeStore} from "../store/theme-store";
 
@@ -32,13 +34,13 @@ const TABS = {
     label: "Home",
     title: "Home",
     subtitle: "Your AI-powered feed is warming up.",
-    icon: require("../assets/android/home.xml"),
+    Icon: HomeIcon,
   },
   profile: {
     label: "Profile",
     title: "Profile",
     subtitle: "Your creations and drafts will live here.",
-    icon: require("../assets/android/person.xml"),
+    Icon: PersonIcon,
   },
 };
 
@@ -105,7 +107,15 @@ export default function IndexAndroid() {
               colors={tabColors}
             >
               <NavigationBarItem.Icon>
-                <Icon source={tab.icon} contentDescription={tab.label} />
+                <RNHostView matchContents>
+                  <tab.Icon
+                    width={24}
+                    height={24}
+                    color={
+                      selectedTab === key ? palette.accent : palette.textMuted
+                    }
+                  />
+                </RNHostView>
               </NavigationBarItem.Icon>
               <NavigationBarItem.Label>
                 <Text>{tab.label}</Text>
