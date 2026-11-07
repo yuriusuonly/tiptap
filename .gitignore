@@ -36,3 +36,6 @@ yarn-error.*
 *.tsbuildinfo
 
 build/
+
+# CNG-generated native projects
+/android
