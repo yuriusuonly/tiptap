@@ -29,10 +29,10 @@ src/
     +html.js              # web document shell
     +not-found.js         # 404 route
   assets/
-    svg/icon.svg          # project logo (master source)
-    svg/home.svg          # Home tab icon
-    svg/person.svg        # Profile tab icon
-    images/icon.png       # Android launcher icon (exported from svg/icon.svg)
+    icons/icon.svg        # project logo (master source)
+    icons/home.svg        # Home tab icon
+    icons/person.svg      # Profile tab icon
+    images/icon.png       # Android launcher icon (exported from icons/icon.svg)
   components/
     logo.js               # shared logo component
   store/
@@ -42,7 +42,7 @@ src/
   theme/
     colors.js             # shared design tokens (dark + light palettes)
 public/
-  favicon.svg             # web favicon (copy of src/assets/svg/icon.svg)
+  favicon.svg             # web favicon (copy of src/assets/icons/icon.svg)
 tailwind.config.js        # Nativewind/Tailwind theme (mirrors design tokens)
 ```
 

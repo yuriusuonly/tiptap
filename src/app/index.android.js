@@ -24,8 +24,8 @@ import {
   paddingAll,
   Shapes,
 } from "@expo/ui/jetpack-compose/modifiers";
-import HomeIcon from "../assets/svg/home.svg";
-import PersonIcon from "../assets/svg/person.svg";
+import HomeIcon from "../assets/icons/home.svg";
+import PersonIcon from "../assets/icons/person.svg";
 import {radius, spacing} from "../theme/colors";
 import {THEME_MODES, useResolvedTheme, useThemeStore} from "../store/theme-store";
 
@@ -47,7 +47,7 @@ const TABS = {
 export default function IndexAndroid() {
   const [selectedTab, setSelectedTab] = useState("home");
   const [themeMenuOpen, setThemeMenuOpen] = useState(false);
-  const {themeMode, palette} = useResolvedTheme();
+  const {themeMode, palette, scheme} = useResolvedTheme();
   const setThemeMode = useThemeStore((state) => state.setThemeMode);
   const activeTab = TABS[selectedTab];
 
@@ -61,11 +61,12 @@ export default function IndexAndroid() {
 
   return (
     <SafeAreaView style={[styles.root, {backgroundColor: palette.background}]} edges={["top"]}>
-      <Host style={styles.contentHost}>
+      <Host style={styles.contentHost} colorScheme={scheme}>
         {selectedTab === "profile" ? (
           <ProfilePreferences
             palette={palette}
             themeMode={themeMode}
+            scheme={scheme}
             expanded={themeMenuOpen}
             onExpandedChange={setThemeMenuOpen}
             onSelectTheme={(mode) => {
@@ -93,7 +94,7 @@ export default function IndexAndroid() {
         )}
       </Host>
 
-      <Host style={styles.navHost} matchContents={{vertical: true}}>
+      <Host style={styles.navHost} matchContents={{vertical: true}} colorScheme={scheme}>
         <NavigationBar
           containerColor={palette.surface}
           contentColor={palette.textMuted}
@@ -131,6 +132,7 @@ export default function IndexAndroid() {
 function ProfilePreferences({
   palette,
   themeMode,
+  scheme,
   expanded,
   onExpandedChange,
   onSelectTheme,
@@ -192,6 +194,7 @@ function ProfilePreferences({
               </ListItem>
 
               <ExposedDropdownMenu
+                key={`theme-menu-${scheme}`}
                 expanded={expanded}
                 onDismissRequest={() => onExpandedChange(false)}
                 containerColor={palette.surfaceRaised}

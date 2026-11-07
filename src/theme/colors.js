@@ -58,7 +58,7 @@ export const themes = {
 };
 
 export const gradients = {
-  // Matches the gradient in src/assets/svg/icon.svg
+  // Matches the gradient in src/assets/icons/icon.svg
   brand: ["#25F4EE", "#7C4DFF", "#FE2C55"],
 };
 

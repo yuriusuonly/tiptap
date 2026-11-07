@@ -1,7 +1,7 @@
 import Svg, {Defs, Ellipse, G, LinearGradient, Path, Rect, Stop} from "react-native-svg";
 
 // Shared logo used by web and Android. Pass `size` to scale.
-// Paths mirror src/assets/svg/icon.svg so both stay visually identical.
+// Paths mirror src/assets/icons/icon.svg so both stay visually identical.
 export const logoGradientId = "tiptap-gradient";
 
 export const Logo = ({size = 96, style, ...rest}) => {

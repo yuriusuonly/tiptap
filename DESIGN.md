@@ -1,11 +1,11 @@
 # Design System
 
-Tokens and layout rules that keep the web and Android UI consistent. The source of truth for tokens is [`src/theme/colors.js`](src/theme/colors.js); the logo is [`src/assets/svg/icon.svg`](src/assets/svg/icon.svg).
+Tokens and layout rules that keep the web and Android UI consistent. The source of truth for tokens is [`src/theme/colors.js`](src/theme/colors.js); the logo is [`src/assets/icons/icon.svg`](src/assets/icons/icon.svg).
 
 ## Brand
 
 - **Name:** Tiptap
-- **Logo:** `src/assets/svg/icon.svg` — a gradient music note on a dark rounded square. Render via the shared `src/components/logo.js` (pass `size`).
+- **Logo:** `src/assets/icons/icon.svg` — a gradient music note on a dark rounded square. Render via the shared `src/components/logo.js` (pass `size`).
 - **Brand gradient:** cyan → purple → red (`#25F4EE → #7C4DFF → #FE2C55`), matching the SVG.
 
 ## Colors
@@ -75,7 +75,7 @@ Implemented in `src/app/index.web.js`.
 Implemented in `src/app/index.android.js` using `@expo/ui/jetpack-compose`.
 
 - Bottom navigation with **Home** and **Profile** tabs (label + icon each).
-- Icons are SVG files in `src/assets/svg/`, rendered with `react-native-svg` on every platform.
+- Icons are SVG files in `src/assets/icons/`, rendered with `react-native-svg` on every platform.
 - Selected tab uses the `accent` color with a translucent accent indicator.
 - **Profile → Preferences:** a `PREFERENCES` subheader sits above the card; the rounded `Card` wraps a `LazyColumn` that contains only the menu items (a **Theme** row). The row opens an exposed dropdown (Material 3) with **Auto**, **Light**, and **Dark** options.
 - `Auto` follows the system color scheme; the selected mode swaps between the dark `colors` and light `lightColors` palettes from `src/theme/colors.js`.
