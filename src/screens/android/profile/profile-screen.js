@@ -98,12 +98,12 @@ export function ProfileScreen({onClose} = {}) {
                   </>
                 ))
               }
-              className="absolute bottom-0 right-0 h-10 w-10 items-center justify-center rounded-full border-4 border-background bg-raised mobile:h-11 mobile:w-11"
+              className="absolute bottom-0 right-0 h-10 w-10 items-center justify-center rounded-full border-4 border-background bg-accent mobile:h-11 mobile:w-11"
             >
               <Icon
                 as={SettingsIcon}
                 size={20}
-                color={palette.textSecondary}
+                color={palette.background}
                 accessibilityLabel="Settings"
               />
             </Pressable>
