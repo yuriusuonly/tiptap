@@ -66,6 +66,7 @@ export function Root({children}) {
       </Head>
       <StatusBar style={isLight ? "dark" : "light"} />
       {children}
+      {/* Stack (top→bottom): toast (ToastHost/system) > dialog > sheet > page */}
       <ConfirmDialogHost />
       <ToastHost />
     </>
