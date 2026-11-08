@@ -37,7 +37,7 @@ export function ProfileScreen() {
           accessibilityRole="header"
           className="text-center text-[20px] font-bold leading-[28px] text-ink mobile:text-[22px] mobile:leading-[30px] tablet:text-[24px] tablet:leading-[32px]"
         >
-          {APP_NAME}
+          {status === "signedIn" && user?.displayName ? user.displayName : APP_NAME}
         </Text>
 
         <View className="mt-8 items-center mobile:mt-10 tablet:mt-12">
