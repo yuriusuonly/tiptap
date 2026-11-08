@@ -83,12 +83,12 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for dependency, lint, and doctor commands
             └── images/icon.png   # launcher icon + favicon (from icon.svg)
 ```
 
-Layers point in one direction: `src/app` routes → `src/web` / `src/android` screens → `src/shared`. Shared code never imports platform screens or routes. All filenames use lower-case kebab-case; Expo Router's reserved route names (`index`, `_layout`, `+html`, `+not-found`) are the exception.
+Layers point in one direction: `src/app` routes → `src/web` / `src/android` screens → cross-platform modules (`src/components`, `src/constants`, `src/hooks`, `src/store`, `src/stylesheets`, `src/assets`). Cross-platform code never imports platform screens or routes. All filenames use lower-case kebab-case; Expo Router's reserved route names (`index`, `_layout`, `+html`, `+not-found`) are the exception.
 
-SVG assets are the source of truth. Regenerate the launcher/fav icon PNG from `src/shared/assets/icons/icon.svg` after editing the logo:
+SVG assets are the source of truth. Regenerate the launcher/fav icon PNG from `src/assets/icons/icon.svg` after editing the logo:
 
 ```bash
-rsvg-convert -w 1024 -h 1024 -o src/shared/assets/images/icon.png src/shared/assets/icons/icon.svg
+rsvg-convert -w 1024 -h 1024 -o src/assets/images/icon.png src/assets/icons/icon.svg
 ```
 
 ## Routing
@@ -99,7 +99,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md#routing-expo-router) and [DESIGN.md](DESIG
 
 ### Environment variables (`.env`)
 
-`.env` at the workspace root is the single source of truth for app configuration; `app.config.js` and `src/shared/constants/configuration.js` read from it (no fallback values — a missing key fails fast with a clear error). The following keys are required:
+`.env` at the workspace root is the single source of truth for app configuration; `app.config.js` and `src/constants/configuration.js` read from it (no fallback values — a missing key fails fast with a clear error). The following keys are required:
 
 | Key | Purpose |
 | --- | --- |
@@ -152,7 +152,7 @@ Adding a library with native code requires a development build (`npx expo run:an
 ### Local config
 - Place `google-services.json` at the workspace root (`./google-services.json`). It is referenced by `app.config.js` (`android.googleServicesFile`) via CNG — **never hand-edit generated `android/`/`ios/` dirs**.
 - Ensure `google-services.json` is listed in `.gitignore`.
-- `.env` is the single source of truth (no fallbacks; missing keys fail fast via lazy runtime validation in `src/shared/constants/configuration.js`, never at import time). Firebase keys:
+- `.env` is the single source of truth (no fallbacks; missing keys fail fast via lazy runtime validation in `src/constants/configuration.js`, never at import time). Firebase keys:
   - `EXPO_PUBLIC_FIREBASE_API_KEY`, `EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN`, `EXPO_PUBLIC_FIREBASE_PROJECT_ID`, `EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET`, `EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`, `EXPO_PUBLIC_FIREBASE_APP_ID`
   - `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` — Google OAuth web client ID (type 3, from `google-services.json`) for Android Google Sign-In
 

@@ -7,8 +7,8 @@
  */
 import {useRef, useState} from "react";
 import {PanResponder, Pressable, Text, View} from "react-native";
-import {APP_NAME} from "../../../shared/constants/configuration";
-import {useOnboardingStore} from "../../../shared/store/onboarding-store";
+import {APP_NAME} from "../../../constants/configuration";
+import {useOnboardingStore} from "../../../store/onboarding-store";
 
 const PAGES = [
   {

@@ -5,7 +5,7 @@
 import Head from "expo-router/head";
 import {Link} from "expo-router";
 import {Pressable, ScrollView, Text, View} from "react-native";
-import {APP_NAME} from "../../../shared/constants/configuration";
+import {APP_NAME} from "../../../constants/configuration";
 
 const EFFECTIVE_DATE = "November 9, 2026";
 const CONTACT_EMAIL = "yuriusu.dev@gmail.com";

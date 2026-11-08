@@ -8,10 +8,10 @@
  */
 import {Pressable, Text, View} from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";
-import HomeIcon from "../../shared/assets/icons/home.svg";
-import PersonIcon from "../../shared/assets/icons/person.svg";
-import Icon from "../../shared/components/icon";
-import {useResolvedTheme} from "../../shared/store/theme-store";
+import HomeIcon from "../../assets/icons/home.svg";
+import PersonIcon from "../../assets/icons/person.svg";
+import Icon from "../../components/icon";
+import {useResolvedTheme} from "../../store/theme-store";
 
 const TABS = [
   {id: "home", title: "Home", icon: HomeIcon},

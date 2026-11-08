@@ -3,7 +3,7 @@
  * @module src/app/+html
  */
 import {ScrollViewStyleReset} from "expo-router/html";
-import {APP_DESCRIPTION} from "../shared/constants/configuration";
+import {APP_DESCRIPTION} from "../constants/configuration";
 
 // Blocks painting so the persisted theme is applied before first paint.
 // AsyncStorage on web uses localStorage under the same key

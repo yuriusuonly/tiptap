@@ -10,7 +10,7 @@
  * Call sites are Android-guarded; web never calls these functions.
  * @module src/services/firebase/user-profile
  */
-import {isTestMode} from "../../shared/constants/configuration";
+import {isTestMode} from "../../constants/configuration";
 
 // eslint-disable-next-line no-undef
 function mockProfile() {

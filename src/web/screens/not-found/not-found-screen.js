@@ -5,7 +5,7 @@
 import Head from "expo-router/head";
 import {Link} from "expo-router";
 import {Pressable, Text, View} from "react-native";
-import {APP_NAME} from "../../../shared/constants/configuration";
+import {APP_NAME} from "../../../constants/configuration";
 
 export function NotFoundScreen() {
   return (

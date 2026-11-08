@@ -19,7 +19,7 @@ Use `npx expo install <package>` — never `npm install <package>` — when addi
 
 ## Project structure
 
-See [README.md](README.md#project-structure) for the full file tree. Layers point in one direction: `src/app` routes → `src/web` / `src/android` screens → `src/shared`. Shared code must not import routes or platform screens.
+See [README.md](README.md#project-structure) for the full file tree. Layers point in one direction: `src/app` routes → `src/web` / `src/android` screens → cross-platform modules (`src/components`, `src/constants`, `src/hooks`, `src/store`, `src/stylesheets`, `src/assets`). Cross-platform code must not import routes or platform screens.
 
 ### Architecture
 
@@ -48,7 +48,7 @@ flowchart TB
         ANDF["src/android/<br/>home, onboarding, profile,<br/>app-tab-bar"]
     end
 
-    subgraph SHARED["src/shared"]
+    subgraph SHARED["src/* (cross-platform)"]
         CONF["constants/configuration<br/>name, version, description,<br/>landing URL"]
         TOKENS["constants/colors + layout<br/>tokens + breakpoints"]
         ROOT["components/root<br/>rehydrate + colorScheme"]
@@ -143,16 +143,16 @@ flowchart LR
 
 - **Vanilla JavaScript only** — JSX in `.js` files. No TypeScript, no `.ts`/`.tsx`, no `tsconfig.json`.
 - The package is **ESM** (`"type": "module"`): config files use `import`/`export default`, and CommonJS-only package subpaths are bridged with `createRequire(import.meta.url)`.
-- Style React Native components with **Nativewind** `className` utilities; do **not** use inline `style` objects for presentation. Colors resolve through the semantic CSS variables in `src/shared/stylesheets/global.css` and the design tokens in `src/shared/constants/colors.js`. The only accepted computed props are non-style values such as an SVG `size` derived from layout tokens. See DESIGN.md for the color, typography, spacing, and responsive layout rules.
+- Style React Native components with **Nativewind** `className` utilities; do **not** use inline `style` objects for presentation. Colors resolve through the semantic CSS variables in `src/stylesheets/global.css` and the design tokens in `src/constants/colors.js`. The only accepted computed props are non-style values such as an SVG `size` derived from layout tokens. See DESIGN.md for the color, typography, spacing, and responsive layout rules.
 - The Android shell is **React Native** (no `@expo/ui`/Jetpack Compose). The bottom tab bar uses `Pressable` as the only touch target and marks icons/indicators `pointerEvents="none"` so taps are never intercepted. No XML/VectorDrawable icons — SVG only.
 - Avoid UX animations/transitions unless explicitly requested. Use plain state/color/layout changes.
-- Global state lives in **Zustand** stores under `src/shared/store/`. Persist with AsyncStorage (`skipHydration: true` + `rehydrate()` in `src/shared/components/root.js`) so static web rendering stays `window`-free.
-- SVG icons in `src/shared/assets/icons/` are the source of truth. Render SVGs (including the brand logo `icon.svg`) with the shared cross-platform `src/shared/components/icon.js` wrapper: `<Icon as={Svg} size={24} accessibilityLabel="..." />` (pass `color` only for `fill="currentColor"` icons). `src/shared/assets/icons/icon.svg` remains the master for derived PNG assets.
+- Global state lives in **Zustand** stores under `src/store/`. Persist with AsyncStorage (`skipHydration: true` + `rehydrate()` in `src/components/root.js`) so static web rendering stays `window`-free.
+- SVG icons in `src/assets/icons/` are the source of truth. Render SVGs (including the brand logo `icon.svg`) with the shared cross-platform `src/components/icon.js` wrapper: `<Icon as={Svg} size={24} accessibilityLabel="..." />` (pass `color` only for `fill="currentColor"` icons). `src/assets/icons/icon.svg` remains the master for derived PNG assets.
 
 ### JSDoc
 
 - **Every JavaScript module** starts with a JSDoc block containing an `@module` intro tag that names the module and summarizes its responsibility.
-- Use the repo-relative path without the `.js` extension, e.g. `@module src/shared/constants/layout`.
+- Use the repo-relative path without the `.js` extension, e.g. `@module src/constants/layout`.
 - Keep the intro short and useful: what the module exports, when to use it, and any important constraint (SSR safety, platform-only behavior, etc.).
 - **Never use `@example` tags** in JSDoc blocks. Inline code comments and documentation code blocks are fine; the JSDoc example tag is not.
 
@@ -161,7 +161,7 @@ Allowed:
 ```js
 /**
  * Shared responsive layout tokens and breakpoint helpers.
- * @module src/shared/constants/layout
+ * @module src/constants/layout
  */
 ```
 
@@ -169,7 +169,7 @@ Not allowed:
 
 ```js
 /**
- * @module src/shared/constants/layout
+ * @module src/constants/layout
  * @example
  * getLayoutClass(720);
  */

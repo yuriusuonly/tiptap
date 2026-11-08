@@ -10,12 +10,12 @@ import {useEffect, useState} from "react";
 import {Alert, Image, Pressable, Text, View} from "react-native";
 import {deleteAuthUser, signInWithGoogle, signOutGoogle} from "../../../services/firebase/google-auth";
 import {deleteUserData} from "../../../services/firebase/user-profile";
-import GoogleIcon from "../../../shared/assets/icons/google.svg";
-import {CircularProgress} from "../../../shared/components/circular-progress";
-import {Icon} from "../../../shared/components/icon";
-import {useAuthStore} from "../../../shared/store/auth-store";
-import {usePreferencesSyncStore} from "../../../shared/store/preferences-sync-store";
-import {showToast} from "../../../shared/store/toast-store";
+import GoogleIcon from "../../../assets/icons/google.svg";
+import {CircularProgress} from "../../../components/circular-progress";
+import {Icon} from "../../../components/icon";
+import {useAuthStore} from "../../../store/auth-store";
+import {usePreferencesSyncStore} from "../../../store/preferences-sync-store";
+import {showToast} from "../../../store/toast-store";
 
 export const ACTION_FAILED_MESSAGE = "Something went wrong";
 

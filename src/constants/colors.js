@@ -2,7 +2,7 @@
  * Shared color, spacing, radius, and typography tokens for web and Android.
  * Color scheme: neutral gray base (dark/light), cyan primary accent,
  * red secondary accent. See DESIGN.md for the full system.
- * @module src/shared/constants/colors
+ * @module src/constants/colors
  */
 
 export const colors = {
@@ -62,7 +62,7 @@ export const themes = {
 
 export const gradients = {
   // UI brand accent gradient (cyan -> red). The logo SVG asset
-  // (src/shared/assets/icons/icon.svg) retains its own internal gradient.
+  // (src/assets/icons/icon.svg) retains its own internal gradient.
   brand: ["#25F4EE", "#FE2C55"],
 };
 
@@ -94,4 +94,4 @@ export const typography = {
 };
 
 // Responsive breakpoints, content width, and per-class layout tokens live in
-// `src/shared/constants/layout.js` so they can be shared by Web and Android.
+// `src/constants/layout.js` so they can be shared by Web and Android.

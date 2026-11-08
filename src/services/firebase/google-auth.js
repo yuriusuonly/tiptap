@@ -10,7 +10,7 @@
  * UI); web never renders or calls these functions.
  * @module src/services/firebase/google-auth
  */
-import {isTestMode, requireGoogleWebClientId} from "../../shared/constants/configuration";
+import {isTestMode, requireGoogleWebClientId} from "../../constants/configuration";
 
 // eslint-disable-next-line no-undef
 function mockAuth() {

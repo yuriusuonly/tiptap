@@ -30,11 +30,11 @@ export default {
   name: env.EXPO_PUBLIC_APP_NAME,
   slug: "tiptap",
   scheme: "tiptap",
-  icon: "./src/shared/assets/images/icon.png",
+  icon: "./src/assets/images/icon.png",
   userInterfaceStyle: "automatic",
   android: {
     package: "dev.yuriusu.tiptap",
-    icon: "./src/shared/assets/images/icon.png",
+    icon: "./src/assets/images/icon.png",
     googleServicesFile: "./google-services.json",
   },
   ios: {
@@ -43,7 +43,7 @@ export default {
   web: {
     bundler: "metro",
     output: "static",
-    favicon: "./src/shared/assets/images/icon.png",
+    favicon: "./src/assets/images/icon.png",
   },
   plugins: [
     [

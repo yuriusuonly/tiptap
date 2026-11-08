@@ -4,11 +4,11 @@
  * truth for UI) and Firestore `users/{uid}/preferences/app` using
  * last-write-wins on `updatedAt` (ms). Web is a no-op: the Firestore service
  * resolves to the web stub, so `syncOnSignIn` must only run on Android.
- * @module src/shared/store/preferences-sync-store
+ * @module src/store/preferences-sync-store
  */
 import {create} from "zustand";
-import {getUserPreferences, setUserPreferences} from "../../services/firebase/user-preferences";
-import {upsertUserProfile} from "../../services/firebase/user-profile";
+import {getUserPreferences, setUserPreferences} from "../services/firebase/user-preferences";
+import {upsertUserProfile} from "../services/firebase/user-profile";
 import {useAuthStore} from "./auth-store";
 import {useThemeStore} from "./theme-store";
 

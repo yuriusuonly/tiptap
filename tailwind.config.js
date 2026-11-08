@@ -1,11 +1,11 @@
 /**
  * Nativewind/Tailwind configuration derived from the shared design tokens.
  * Semantic colors resolve through CSS variables defined in
- * `src/shared/stylesheets/global.css`, so light/dark themes switch without inline styles.
+ * `src/stylesheets/global.css`, so light/dark themes switch without inline styles.
  * @module tailwind.config
  */
 import {createRequire} from "node:module";
-import {breakpoints, contentMaxWidth} from "./src/shared/constants/layout.js";
+import {breakpoints, contentMaxWidth} from "./src/constants/layout.js";
 
 // `nativewind/preset` is a CommonJS subpath without an `exports` map.
 const require = createRequire(import.meta.url);

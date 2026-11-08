@@ -32,13 +32,13 @@ not a replacement.
   presentation — **no inline `style` objects** and no UX animations unless the
   project explicitly adopts them.
 - Gray base with **cyan primary / red secondary**. Semantic colors come from CSS
-  variables in `src/shared/stylesheets/global.css` and switch with the `dark`
-  class; tokens live in `src/shared/constants/colors.js` and are mirrored in
+  variables in `src/stylesheets/global.css` and switch with the `dark`
+  class; tokens live in `src/constants/colors.js` and are mirrored in
   `tailwind.config.js`. Maintain contrast/readability in Light and Dark.
 
 ## Responsive layout (mobile-first)
 
-- Breakpoints (`src/shared/constants/layout.js`): **wearable `<480`** (default),
+- Breakpoints (`src/constants/layout.js`): **wearable `<480`** (default),
   **mobile `480–719`**, **tablet `720–1279`**, **desktop `>=1280`** (`mobile:`
   variant). Web panes centered/capped.
 - Web is statically rendered; `useWindowDimensions()` can be `0` during SSG.
@@ -48,16 +48,16 @@ not a replacement.
 ## Theme & UX states
 
 - Auto/Light/Dark persisted via Zustand + AsyncStorage
-  (`src/shared/store/theme-store.js`, `skipHydration` + rehydrate in Root). Web
+  (`src/store/theme-store.js`, `skipHydration` + rehydrate in Root). Web
   pre-paint anti-flicker lives in `src/app/+html.js` — preserve it.
 - Provide clear loading, empty, and error states; keep onboarding/copy clear and
   consistent with the app’s tone.
 
 ## Icons, navigation & touch
 
-- **SVG only** (never XML icons). Source icons in `src/shared/assets/icons/`
+- **SVG only** (never XML icons). Source icons in `src/assets/icons/`
   imported via `react-native-svg-transformer`; render with shared
-  `src/shared/components/icon.js`
+  `src/components/icon.js`
   (`<Icon as={Svg} size={...} color={...} accessibilityLabel="..." />`). Pass
   `color` only for tintable `fill="currentColor"` icons.
 - Android Home/Profile use internal state + the RN tab bar
@@ -71,7 +71,7 @@ not a replacement.
 - Meaningful `accessibilityLabel`/roles, adequate touch target sizes, and
   platform-appropriate focus/press behavior.
 - Keep Android/Web parity where intended; isolate platform-only UI under
-  `src/android/` or `src/web/` and cross-platform UI under `src/shared/`.
+  `src/android/` or `src/web/` and cross-platform UI under `src/`.
 
 ## After changes
 

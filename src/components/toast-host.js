@@ -2,7 +2,7 @@
  * Root-owned toast host. Uses the built-in ToastAndroid API on Android (native
  * behavior/positioning/fade) and a custom non-blocking overlay on web. Owns the
  * queue timer so messages display one at a time, each respecting its timeout.
- * @module src/shared/components/toast-host
+ * @module src/components/toast-host
  */
 import {useEffect} from "react";
 import {Platform, ToastAndroid, View} from "react-native";

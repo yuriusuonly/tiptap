@@ -7,13 +7,13 @@
  */
 import {useEffect, useState} from "react";
 import {Image, Pressable, Text, View} from "react-native";
-import LogoIcon from "../../../shared/assets/icons/icon.svg";
-import SettingsIcon from "../../../shared/assets/icons/settings.svg";
+import LogoIcon from "../../../assets/icons/icon.svg";
+import SettingsIcon from "../../../assets/icons/settings.svg";
 import {BottomSheet} from "../../components/bottom-sheet";
-import {Icon} from "../../../shared/components/icon";
-import {APP_NAME} from "../../../shared/constants/configuration";
-import {useAuthStore} from "../../../shared/store/auth-store";
-import {useResolvedTheme} from "../../../shared/store/theme-store";
+import {Icon} from "../../../components/icon";
+import {APP_NAME} from "../../../constants/configuration";
+import {useAuthStore} from "../../../store/auth-store";
+import {useResolvedTheme} from "../../../store/theme-store";
 import {AccountSection} from "./account-section";
 import {ProfilePreferences} from "./profile-preferences";
 

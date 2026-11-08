@@ -8,7 +8,7 @@
  * web rendering (router-server) where EXPO_PUBLIC_ values may be absent.
  * Required values are validated lazily at runtime (see
  * `requireEnvironmentValue` / `requireFirebaseConfig`), not on import.
- * @module src/shared/constants/configuration
+ * @module src/constants/configuration
  */
 
 const appName = process.env.EXPO_PUBLIC_APP_NAME;

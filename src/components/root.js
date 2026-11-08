@@ -2,14 +2,14 @@
  * Root-level component for all platforms: global styles, theme hydration,
  * Nativewind color-scheme sync, document title, and status bar. Used by both
  * platform layouts.
- * @module src/shared/components/root
+ * @module src/components/root
  */
 import Head from "expo-router/head";
 import {StatusBar} from "expo-status-bar";
 import {colorScheme} from "nativewind";
 import {useEffect} from "react";
 import {Platform} from "react-native";
-import {configureGoogleSignIn, subscribeAuthState} from "../../services/firebase/google-auth";
+import {configureGoogleSignIn, subscribeAuthState} from "../services/firebase/google-auth";
 import {APP_NAME} from "../constants/configuration";
 import {useAuthStore} from "../store/auth-store";
 import {useOnboardingStore} from "../store/onboarding-store";

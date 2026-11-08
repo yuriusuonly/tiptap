@@ -3,7 +3,7 @@
  * The source of truth is `subscribeAuthState` (Android) — this store mirrors
  * the latest user for UI rendering and sync coordination. No tokens or
  * credentials are stored here.
- * @module src/shared/store/auth-store
+ * @module src/store/auth-store
  */
 import {create} from "zustand";
 

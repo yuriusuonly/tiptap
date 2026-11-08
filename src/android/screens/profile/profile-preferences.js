@@ -7,9 +7,9 @@
  */
 import {useState} from "react";
 import {Linking, Pressable, Text, View} from "react-native";
-import {APP_NAME, LANDING_PAGE_URL} from "../../../shared/constants/configuration";
-import {THEME_MODES, useResolvedTheme, useThemeStore} from "../../../shared/store/theme-store";
-import {showToast} from "../../../shared/store/toast-store";
+import {APP_NAME, LANDING_PAGE_URL} from "../../../constants/configuration";
+import {THEME_MODES, useResolvedTheme, useThemeStore} from "../../../store/theme-store";
+import {showToast} from "../../../store/toast-store";
 import {ACTION_FAILED_MESSAGE} from "./account-section";
 
 export function ProfilePreferences() {

@@ -2,7 +2,7 @@
  * Zustand theme store with AsyncStorage persistence and resolved palette helpers.
  * Tracks `updatedAt` (ms epoch, 0 = never explicitly set) so Firestore
  * preference sync can apply last-write-wins without an import-time async read.
- * @module src/shared/store/theme-store
+ * @module src/store/theme-store
  */
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {useColorScheme} from "react-native";
@@ -39,7 +39,7 @@ export const useThemeStore = create(
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({themeMode: state.themeMode, updatedAt: state.updatedAt}),
       // Static rendering has no window/localStorage. Rehydrate in an effect
-      // after the app mounts (see src/shared/components/root.js).
+      // after the app mounts (see src/components/root.js).
       skipHydration: true,
     }
   )

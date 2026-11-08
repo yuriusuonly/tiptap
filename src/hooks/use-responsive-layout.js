@@ -1,6 +1,6 @@
 /**
  * SSR-safe hook for the active responsive layout class and its tokens.
- * @module src/shared/hooks/use-responsive-layout
+ * @module src/hooks/use-responsive-layout
  */
 import {useWindowDimensions} from "react-native";
 import {getLayoutClass, responsiveLayout} from "../constants/layout";

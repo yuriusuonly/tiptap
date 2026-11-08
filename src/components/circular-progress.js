@@ -3,7 +3,7 @@
  * Themed via the resolved theme palette accent color; layout is
  * Nativewind `className`-only. Supports inline use (beside action text)
  * and block use (spinner + label).
- * @module src/shared/components/circular-progress
+ * @module src/components/circular-progress
  */
 import {ActivityIndicator, Text, View} from "react-native";
 import {useResolvedTheme} from "../store/theme-store";

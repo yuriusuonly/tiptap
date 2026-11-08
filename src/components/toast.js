@@ -4,7 +4,7 @@
  * `visible` (positioned by the caller via `className`/`style`); auto-dismiss
  * timing is owned by the root toast host. Non-interactive (no pointer events).
  * Nativewind `className` + semantic tokens.
- * @module src/shared/components/toast
+ * @module src/components/toast
  */
 import {Text, View} from "react-native";
 

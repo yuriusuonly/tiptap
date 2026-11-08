@@ -7,14 +7,14 @@ import Head from "expo-router/head";
 import {Link} from "expo-router";
 import {useEffect, useState} from "react";
 import {Pressable, ScrollView, Text, View} from "react-native";
-import LogoIcon from "../../../shared/assets/icons/icon.svg";
-import ThemeAutoIcon from "../../../shared/assets/icons/theme-auto.svg";
-import ThemeDarkIcon from "../../../shared/assets/icons/theme-dark.svg";
-import ThemeLightIcon from "../../../shared/assets/icons/theme-light.svg";
-import Icon from "../../../shared/components/icon";
-import {APP_NAME} from "../../../shared/constants/configuration";
-import {useResponsiveLayout} from "../../../shared/hooks/use-responsive-layout";
-import {THEME_MODES, useResolvedTheme, useThemeStore} from "../../../shared/store/theme-store";
+import LogoIcon from "../../../assets/icons/icon.svg";
+import ThemeAutoIcon from "../../../assets/icons/theme-auto.svg";
+import ThemeDarkIcon from "../../../assets/icons/theme-dark.svg";
+import ThemeLightIcon from "../../../assets/icons/theme-light.svg";
+import Icon from "../../../components/icon";
+import {APP_NAME} from "../../../constants/configuration";
+import {useResponsiveLayout} from "../../../hooks/use-responsive-layout";
+import {THEME_MODES, useResolvedTheme, useThemeStore} from "../../../store/theme-store";
 
 const TITLE = "Create.\nShare.\nRepeat.";
 const DESCRIPTION =

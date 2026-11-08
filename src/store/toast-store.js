@@ -3,7 +3,7 @@
  * are queued and shown one at a time, each respecting its own timeout before
  * the next is displayed. Rendered by the root toast host so it stays fixed
  * above any stacked layout/modal.
- * @module src/shared/store/toast-store
+ * @module src/store/toast-store
  */
 import {create} from "zustand";
 

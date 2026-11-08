@@ -12,7 +12,7 @@
  *
  * Content is centered and never grows wider than `contentMaxWidth` (1920) on
  * either platform.
- * @module src/shared/constants/layout
+ * @module src/constants/layout
  */
 
 export const breakpoints = {

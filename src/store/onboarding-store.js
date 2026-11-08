@@ -3,7 +3,7 @@
  * first-time-install onboarding flow has been completed. The `hydrated` flag
  * is set once rehydration finishes so callers can distinguish "unknown yet"
  * from "not seen".
- * @module src/shared/store/onboarding-store
+ * @module src/store/onboarding-store
  */
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {create} from "zustand";
@@ -21,7 +21,7 @@ export const useOnboardingStore = create(
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({hasSeenOnboarding: state.hasSeenOnboarding}),
       // Static rendering has no window/localStorage. Rehydrate in an effect
-      // after the app mounts (see src/shared/components/root.js).
+      // after the app mounts (see src/components/root.js).
       skipHydration: true,
       onRehydrateStorage: () => () => {
         // Notify subscribers via setState — mutating the hydrated state

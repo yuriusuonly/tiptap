@@ -1,11 +1,11 @@
 # Design System
 
-Tokens and layout rules that keep the web and Android UI consistent. Color, spacing, radius, and typography tokens live in [`src/shared/constants/colors.js`](src/shared/constants/colors.js); responsive breakpoints and per-class layout tokens live in [`src/shared/constants/layout.js`](src/shared/constants/layout.js). SVG icons (including the logo) live in [`src/shared/assets/icons/`](src/shared/assets/icons/).
+Tokens and layout rules that keep the web and Android UI consistent. Color, spacing, radius, and typography tokens live in [`src/constants/colors.js`](src/constants/colors.js); responsive breakpoints and per-class layout tokens live in [`src/constants/layout.js`](src/constants/layout.js). SVG icons (including the logo) live in [`src/assets/icons/`](src/assets/icons/).
 
 ## Brand
 
-- **Name:** TipTap (single source of truth: `EXPO_PUBLIC_APP_NAME` in `.env`, read via `src/shared/constants/configuration.js`)
-- **Logo:** `src/shared/assets/icons/icon.svg` — master SVG (title bar + paragraph lines on a feed card, on a dark gray rounded square). Render via `src/shared/components/icon.js`: `<Icon as={LogoIcon} size={...} accessibilityLabel="TipTap logo" />` where `LogoIcon` is imported directly from `src/shared/assets/icons/icon.svg`. Derive `src/shared/assets/images/icon.png` from `icon.svg` for launcher/favicon use.
+- **Name:** TipTap (single source of truth: `EXPO_PUBLIC_APP_NAME` in `.env`, read via `src/constants/configuration.js`)
+- **Logo:** `src/assets/icons/icon.svg` — master SVG (title bar + paragraph lines on a feed card, on a dark gray rounded square). Render via `src/components/icon.js`: `<Icon as={LogoIcon} size={...} accessibilityLabel="TipTap logo" />` where `LogoIcon` is imported directly from `src/assets/icons/icon.svg`. Derive `src/assets/images/icon.png` from `icon.svg` for launcher/favicon use.
 - **Brand accents:** cyan (`#25F4EE`) primary + red (`#FE2C55`) secondary on a neutral gray base.
 
 ## Colors
@@ -25,7 +25,7 @@ Tokens and layout rules that keep the web and Android UI consistent. Color, spac
 | `warning` | `#F59E0B` | Warning |
 | `danger` | `#EF4444` | Error/destructive |
 
-Always import tokens from `src/shared/constants/colors.js`; do not hard-code hex values in screens.
+Always import tokens from `src/constants/colors.js`; do not hard-code hex values in screens.
 
 ## Typography
 
@@ -72,7 +72,7 @@ Four responsive layout classes are shared by Web and Android. Breakpoints are mi
 | Desktop (FHD) | 1280 × 1920 | `>= 1280` |
 
 - **Max content width:** `1920px` / `1920dp` (`contentMaxWidth: 1920`). Content is centered and never exceeds this cap on either platform.
-- **Source of truth:** `src/shared/constants/layout.js` exports `breakpoints`, `contentMaxWidth`, `getLayoutClass(width)`, and the per-class `responsiveLayout` tokens (gutters, vertical padding, title/description type, logo sizes, home copy, profile card width). `src/shared/hooks/use-responsive-layout.js` exposes the active `layoutClass`, `tokens`, and class flags using `useWindowDimensions`.
+- **Source of truth:** `src/constants/layout.js` exports `breakpoints`, `contentMaxWidth`, `getLayoutClass(width)`, and the per-class `responsiveLayout` tokens (gutters, vertical padding, title/description type, logo sizes, home copy, profile card width). `src/hooks/use-responsive-layout.js` exposes the active `layoutClass`, `tokens`, and class flags using `useWindowDimensions`.
 - **Static rendering:** the web export has no viewport. Call `useResponsiveLayout({enabled: mounted})` so the server HTML and the first client render use the `wearable` class; an effect flips `mounted` after hydration.
 - **Consistency:** breakpoints, the 1920px cap, and the per-class spacing/type scale are shared. The rendering layer is native React Native + Nativewind on both Web and Android.
 - **Wearable scope:** “Wearable” means the app stays usable on 320×480-sized viewports. A dedicated Wear OS target (round UI, separate app) is out of scope unless explicitly added.
@@ -95,20 +95,20 @@ Implemented in `src/web/screens/landing/landing-screen.js` (route: `src/app/inde
 
 - Bottom navigation is a React Native tab bar (`src/android/components/app-tab-bar.js`) with **Home** and **Profile** tabs (label + SVG icon each). No `@expo/ui`/Jetpack Compose, no XML/VectorDrawable icons.
 - `Pressable` tab items are the only touch targets; the icon wrapper and selection indicator use `pointerEvents="none"` so taps are never intercepted or propagated.
-- Icons are SVG files in `src/shared/assets/icons/`, rendered with `react-native-svg`. Use `src/shared/components/icon.js` (`as`, `size`, `accessibilityLabel`; `color` for `currentColor`) for all icons including the brand logo (`icon.svg`).
+- Icons are SVG files in `src/assets/icons/`, rendered with `react-native-svg`. Use `src/components/icon.js` (`as`, `size`, `accessibilityLabel`; `color` for `currentColor`) for all icons including the brand logo (`icon.svg`).
 - Selected tab uses the `accent` color with a translucent accent indicator. State changes are plain color/layout changes — no animations or transitions.
 - Home and Profile content is centered and capped at `1920dp`, using the same per-class gutters as Web (`16 / 20 / 32 / 48`).
 - **Home** scales with the class: title `24 / 30` → `30 / 36` → `36 / 42` → `44 / 52`; subtitle `14 / 20` → `16 / 24` → `18 / 26` → `20 / 30`; copy width caps at `480 / 560 / 640 / 880`.
 - **Profile → Preferences:** a `PREFERENCES` subheader sits above a rounded surface card. The card is centered with a per-class max width (`560 / 560 / 640 / 720`) and compact padding on wearable/mobile. The **Theme** row expands inline (no dropdown animation) with **Auto**, **Light**, and **Dark** options.
-- `Auto` follows the system color scheme; the selected mode switches the CSS variables between light and dark values (matching `src/shared/constants/colors.js`).
-- The choice is stored in the Zustand theme store (`src/shared/store/theme-store.js`) and persisted to AsyncStorage, so it survives app restarts.
-- **Onboarding** (first install only): three intro pages with eyebrow, title, body copy, text-line mock, dot indicators, and Skip/Next (“Get started” on the last page). Horizontal swipe works too (a `PanResponder` in `onboarding-screen.js`: left advances, right goes back, 50dp threshold, no animation), and dots stay in sync. Completion is stored in the Zustand onboarding store (`src/shared/store/onboarding-store.js`) and persisted to AsyncStorage; while rehydration is pending the Android layout shows a blank background, never the onboarding flash. The Profile tab also offers a **More** section with an **About TipTap** row that opens the web landing page in the external browser and a **Contact Support** row (`mailto:yuriusu.dev@gmail.com`). The landing URL is composed from `EXPO_PUBLIC_LANDING_PAGE_SCHEME` / `_HOST` / `_PORT` in `.env` (dev: `http://localhost:8081`) via `src/shared/constants/configuration.js` — the single composer — and Metro serves the web bundle on that same port from the same `.env` (`metro.config.js`), with no fallback values.
+- `Auto` follows the system color scheme; the selected mode switches the CSS variables between light and dark values (matching `src/constants/colors.js`).
+- The choice is stored in the Zustand theme store (`src/store/theme-store.js`) and persisted to AsyncStorage, so it survives app restarts.
+- **Onboarding** (first install only): three intro pages with eyebrow, title, body copy, text-line mock, dot indicators, and Skip/Next (“Get started” on the last page). Horizontal swipe works too (a `PanResponder` in `onboarding-screen.js`: left advances, right goes back, 50dp threshold, no animation), and dots stay in sync. Completion is stored in the Zustand onboarding store (`src/store/onboarding-store.js`) and persisted to AsyncStorage; while rehydration is pending the Android layout shows a blank background, never the onboarding flash. The Profile tab also offers a **More** section with an **About TipTap** row that opens the web landing page in the external browser and a **Contact Support** row (`mailto:yuriusu.dev@gmail.com`). The landing URL is composed from `EXPO_PUBLIC_LANDING_PAGE_SCHEME` / `_HOST` / `_PORT` in `.env` (dev: `http://localhost:8081`) via `src/constants/configuration.js` — the single composer — and Metro serves the web bundle on that same port from the same `.env` (`metro.config.js`), with no fallback values.
 
 ### Styling and state
 
-- All screens use **Nativewind** utility classes. Semantic colors resolve through CSS variables declared for `:root` (light) and `.dark:root` (dark) in `src/shared/stylesheets/global.css`; `tailwind.config.js` maps them to utilities such as `bg-background`, `bg-surface`, `text-ink`, `text-muted`, `border-line`, and `text-accent`. The responsive `mobile` / `tablet` / `desktop` screens plus `max-w-content` map to `src/shared/constants/layout.js`.
+- All screens use **Nativewind** utility classes. Semantic colors resolve through CSS variables declared for `:root` (light) and `.dark:root` (dark) in `src/stylesheets/global.css`; `tailwind.config.js` maps them to utilities such as `bg-background`, `bg-surface`, `text-ink`, `text-muted`, `border-line`, and `text-accent`. The responsive `mobile` / `tablet` / `desktop` screens plus `max-w-content` map to `src/constants/layout.js`.
 - Do not use inline `style` objects for presentation. The theme store syncs the resolved scheme to Nativewind's `dark` class through `Root`.
-- Global state lives in `src/shared/store/` (Zustand). Persisted stores skip hydration during static rendering and rehydrate in `src/shared/components/root.js`.
+- Global state lives in `src/store/` (Zustand). Persisted stores skip hydration during static rendering and rehydrate in `src/components/root.js`.
 
 ### Not found
 
