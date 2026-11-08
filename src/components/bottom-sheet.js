@@ -76,13 +76,15 @@ export function BottomSheet({visible, onClose, children}) {
         onMoveShouldSetPanResponderCapture: (_, gesture) => {
           const isVertical = Math.abs(gesture.dy) > 6 && Math.abs(gesture.dy) > Math.abs(gesture.dx);
           if (!isVertical) return false;
-          const draggingUp = gesture.dy < 0;
           const draggingDown = gesture.dy > 0;
-          const atTop = scrollYRef.current <= 0;
+          // Forgiving top check (scroll throttle/rounding can leave a sub-pixel offset).
+          const atTop = scrollYRef.current <= 2;
           const canExpand = offsetRef.current > 0;
-          // Drag up expands the sheet; drag down from the top scroll position
-          // collapses/dismisses it. Otherwise let content scroll normally.
-          if (draggingUp && canExpand) return true;
+          // When partially open, the sheet owns vertical drags (drag up expands,
+          // drag down collapses/dismisses) so page swipes stay reliable. When fully
+          // expanded, only a downward drag from the top scroll position collapses;
+          // otherwise content scrolls normally.
+          if (canExpand) return true;
           if (draggingDown && atTop) return true;
           return false;
         },
@@ -144,6 +146,12 @@ export function BottomSheet({visible, onClose, children}) {
             bounces={false}
             scrollEventThrottle={16}
             onScroll={(event) => {
+              scrollYRef.current = event.nativeEvent.contentOffset.y;
+            }}
+            onScrollEndDrag={(event) => {
+              scrollYRef.current = event.nativeEvent.contentOffset.y;
+            }}
+            onMomentumScrollEnd={(event) => {
               scrollYRef.current = event.nativeEvent.contentOffset.y;
             }}
           >
