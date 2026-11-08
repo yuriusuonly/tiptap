@@ -33,6 +33,7 @@ export default ({children}) => {
         <meta name="description" content={APP_DESCRIPTION} />
         <meta name="theme-color" content="#FAFAFA" media="(prefers-color-scheme: light)"/>
         <meta name="theme-color" content="#0A0A0A" media="(prefers-color-scheme: dark)"/>
+        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
         <script dangerouslySetInnerHTML={{__html: THEME_SCRIPT}} />
         <ScrollViewStyleReset />
       </head>
