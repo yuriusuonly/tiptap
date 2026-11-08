@@ -1,21 +1,27 @@
 /**
  * Android bottom sheet: instant show/hide (no entrance/exit transition) with
- * expandable/collapsible behavior. When collapsed-open, the whole sheet responds
- * to vertical drags (drag up expands, drag down collapses/dismisses). When fully
- * expanded, content scrolls and dragging the handle (or dragging down from the
- * top of content) collapses the sheet. Drag settles to snap points on release.
+ * expandable/collapsible behavior driven by pan gestures (RNGH). When
+ * collapsed-open, the whole sheet responds to vertical drags (up expands, down
+ * collapses/dismisses). When fully expanded, content scrolls; a downward drag
+ * from the top of content (or on the handle) collapses the sheet. Drag settles
+ * to snap points on release. Gesture handling uses react-native-gesture-handler
+ * for reliable, first-swipe responsiveness.
  * @module src/components/bottom-sheet
  */
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {
   Animated,
   Modal,
-  PanResponder,
   Pressable,
-  ScrollView,
   View,
   useWindowDimensions,
 } from "react-native";
+import {
+  GestureHandlerRootView,
+  PanGestureHandler,
+  ScrollView,
+  State,
+} from "react-native-gesture-handler";
 
 const EXPANDED_FRACTION = 0.88;
 const COLLAPSED_FRACTION = 0.46;
@@ -27,52 +33,56 @@ export function BottomSheet({visible, onClose, children}) {
   const collapsedOffset = Math.max(0, expandedHeight - collapsedHeight);
   const dismissOffset = expandedHeight;
 
-  // Snap/scroll state drive render-time gesture decisions (refs alone caused
-  // missed drags and ScrollView conflicts).
+  // Snap/scroll state drive gesture config so the first swipe is always handled.
   const [snap, setSnap] = useState("collapsed"); // "collapsed" | "expanded"
   const [atTop, setAtTop] = useState(true);
 
-  const translateY = useRef(new Animated.Value(collapsedOffset)).current;
-  // Resting offset for snap decisions, plus the live animated value so a drag
-  // started mid-spring resumes from the actual position (no jump).
-  const offsetRef = useRef(collapsedOffset);
-  const currentValueRef = useRef(collapsedOffset);
-  const scrollYRef = useRef(0);
-  const isDraggingRef = useRef(false);
+  // baseY = resting snap offset; dragY = live gesture translation (native).
+  const baseY = useRef(new Animated.Value(collapsedOffset)).current;
+  const dragY = useRef(new Animated.Value(0)).current;
+  const translateY = useMemo(() => Animated.add(baseY, dragY), [baseY, dragY]);
 
-  const setOffset = useCallback(
+  const baseYRef = useRef(collapsedOffset);
+  const liveYRef = useRef(collapsedOffset);
+  const scrollYRef = useRef(0);
+  const panRef = useRef(null);
+  const scrollRef = useRef(null);
+
+  const setResting = useCallback(
     (value) => {
-      offsetRef.current = value;
-      currentValueRef.current = value;
-      translateY.setValue(value);
+      baseYRef.current = value;
+      liveYRef.current = value;
+      baseY.setValue(value);
+      dragY.setValue(0);
     },
-    [translateY]
+    [baseY, dragY]
   );
 
   useEffect(() => {
-    // Track the live animated value (native driver) to resume mid-spring drags.
-    const id = translateY.addListener(({value}) => {
-      currentValueRef.current = value;
+    const id = baseY.addListener(({value}) => {
+      liveYRef.current = value;
     });
-    return () => translateY.removeListener(id);
-  }, [translateY]);
+    return () => baseY.removeListener(id);
+  }, [baseY]);
 
   useEffect(() => {
     if (visible) {
       // Reveal instantly (no entrance transition) in the collapsed-open state.
-      setOffset(collapsedOffset);
+      setResting(collapsedOffset);
       scrollYRef.current = 0;
       setAtTop(true);
       setSnap("collapsed");
-      isDraggingRef.current = false;
     }
-  }, [visible, collapsedOffset, setOffset]);
+  }, [visible, collapsedOffset, setResting]);
 
   const settleTo = useCallback(
     (toValue, {close = false} = {}) => {
       const snapValue = close ? collapsedOffset : toValue;
-      offsetRef.current = snapValue;
-      Animated.spring(translateY, {
+      // Fold any drag offset into the base before animating.
+      dragY.setValue(0);
+      baseY.setValue(baseYRef.current);
+      baseYRef.current = snapValue;
+      Animated.spring(baseY, {
         toValue,
         useNativeDriver: true,
         tension: 120,
@@ -80,8 +90,9 @@ export function BottomSheet({visible, onClose, children}) {
         overshootClamping: true,
       }).start(({finished}) => {
         if (!finished) return;
-        currentValueRef.current = toValue;
-        offsetRef.current = snapValue;
+        baseYRef.current = snapValue;
+        liveYRef.current = toValue;
+        baseY.setValue(toValue);
         if (!close) {
           setSnap(snapValue === 0 ? "expanded" : "collapsed");
         }
@@ -90,7 +101,7 @@ export function BottomSheet({visible, onClose, children}) {
         }
       });
     },
-    [translateY, collapsedOffset, onClose]
+    [baseY, dragY, collapsedOffset, onClose]
   );
 
   const syncAtTop = useCallback((y) => {
@@ -99,114 +110,124 @@ export function BottomSheet({visible, onClose, children}) {
     setAtTop((prev) => (prev === nextAtTop ? prev : nextAtTop));
   }, []);
 
-  const panResponder = useMemo(
+  const onGestureEvent = useMemo(
     () =>
-      PanResponder.create({
-        onStartShouldSetPanResponder: () => false,
-        // Capture so a deliberate sheet drag wins before the ScrollView claims it.
-        onMoveShouldSetPanResponderCapture: (_, gesture) => {
-          const isVertical = Math.abs(gesture.dy) > 6 && Math.abs(gesture.dy) > Math.abs(gesture.dx);
-          if (!isVertical) return false;
-          const draggingDown = gesture.dy > 0;
-          const canExpand = offsetRef.current > 0;
-          // Collapsed-open: the sheet owns vertical drags (reliable expand/dismiss).
-          if (canExpand) return true;
-          // Fully expanded: drag down from the top of content collapses the sheet.
-          if (draggingDown && scrollYRef.current <= 2) return true;
-          return false;
-        },
-        onMoveShouldSetPanResponder: () => false,
-        onPanResponderGrant: () => {
-          // Resume from the actual position (handles interruption of a spring).
-          isDraggingRef.current = true;
-          translateY.stopAnimation((value) => {
-            offsetRef.current = value;
-            currentValueRef.current = value;
-          });
-        },
-        onPanResponderMove: (_, gesture) => {
-          const next = Math.min(dismissOffset, Math.max(0, offsetRef.current + gesture.dy));
-          translateY.setValue(next);
-          currentValueRef.current = next;
-        },
-        onPanResponderRelease: (_, gesture) => {
-          isDraggingRef.current = false;
-          const current = Math.min(dismissOffset, Math.max(0, offsetRef.current + gesture.dy));
-          const draggingDown = gesture.dy > 0 || gesture.vy > 0.5;
-          const dismissThreshold = collapsedOffset + Math.min(120, collapsedHeight * 0.35);
+      Animated.event([{nativeEvent: {translationY: dragY}}], {
+        useNativeDriver: true,
+      }),
+    [dragY]
+  );
 
-          if (draggingDown && (current > dismissThreshold || gesture.vy > 1.1)) {
-            settleTo(dismissOffset, {close: true});
-            return;
-          }
+  const onHandlerStateChange = useCallback(
+    (event) => {
+      const {state, translationY, velocityY} = event.nativeEvent;
 
-          // Snap to collapsed-open or expanded.
+      if (state === State.BEGAN) {
+        // Stop any in-flight spring and resume from the actual position (no jump).
+        baseY.stopAnimation((value) => {
+          const current = typeof value === "number" ? value : liveYRef.current;
+          baseYRef.current = current;
+          liveYRef.current = current;
+          baseY.setValue(current);
+        });
+        dragY.setValue(0);
+      }
+
+      if (state === State.END || state === State.CANCELLED || state === State.FAILED) {
+        const current = Math.min(dismissOffset, Math.max(0, baseYRef.current + translationY));
+        const draggingDown = translationY > 0 || velocityY > 0.5;
+        const dismissThreshold = collapsedOffset + Math.min(120, collapsedHeight * 0.35);
+
+        // Commit the drag position as the new base, then settle.
+        baseYRef.current = current;
+        baseY.setValue(current);
+        dragY.setValue(0);
+
+        if (state === State.END && draggingDown && (current > dismissThreshold || velocityY > 1.1)) {
+          settleTo(dismissOffset, {close: true});
+          return;
+        }
+
+        if (state === State.END) {
           const midpoint = collapsedOffset / 2;
           const target = current > midpoint ? collapsedOffset : 0;
-          offsetRef.current = target;
           settleTo(target);
-        },
-        onPanResponderTerminate: () => {
-          isDraggingRef.current = false;
-          settleTo(offsetRef.current > collapsedOffset / 2 ? collapsedOffset : 0);
-        },
-        onPanResponderTerminationRequest: () => false,
-        onShouldBlockNativeResponder: () => true,
-      }),
-    [translateY, dismissOffset, collapsedOffset, collapsedHeight, settleTo]
+          return;
+        }
+
+        // Cancelled/failed: snap back to the nearest resting state.
+        settleTo(baseYRef.current > collapsedOffset / 2 ? collapsedOffset : 0);
+      }
+    },
+    [baseY, dragY, dismissOffset, collapsedOffset, collapsedHeight, settleTo]
   );
 
   if (!visible) return null;
 
-  // Collapsed-open: disable scroll so the sheet reliably owns page drags.
-  // Fully expanded: keep scroll enabled (upward drags at top scroll content);
-  // capture still claims deliberate downward drags from the top to collapse.
-  const contentScrollEnabled = snap === "expanded";
+  const isCollapsed = snap !== "expanded";
+  // Collapsed-open: pan owns up+down drags, scroll disabled.
+  // Expanded + at top: pan activates only on downward drag (collapse) and fails
+  // on upward drag (so content scrolls). Expanded + scrolled: pan disabled.
+  const panEnabled = isCollapsed || atTop;
+  const activeOffsetY = isCollapsed ? [-8, 8] : [-9999, 8];
+  const failOffsetY = isCollapsed ? undefined : [-8, 9999];
+  const contentScrollEnabled = !isCollapsed;
 
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
-      <View className="flex-1 justify-end">
+      <GestureHandlerRootView className="flex-1 justify-end">
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Close settings"
           onPress={onClose}
           className="absolute inset-0 bg-ink/40"
         />
-        <Animated.View
-          {...panResponder.panHandlers}
-          style={{height: expandedHeight, transform: [{translateY}]}}
-          className="w-full overflow-hidden rounded-t-[28px] border-t border-line bg-surface"
+        <PanGestureHandler
+          ref={panRef}
+          enabled={panEnabled}
+          activeOffsetY={activeOffsetY}
+          failOffsetY={failOffsetY}
+          onGestureEvent={onGestureEvent}
+          onHandlerStateChange={onHandlerStateChange}
+          simultaneousHandlers={scrollRef}
         >
-          <View
-            accessibilityRole="adjustable"
-            accessibilityLabel="Drag to expand or collapse settings"
-            hitSlop={{top: 12, bottom: 12, left: 24, right: 24}}
-            className="items-center pb-3 pt-3"
+          <Animated.View
+            style={{height: expandedHeight, transform: [{translateY}]}}
+            className="w-full overflow-hidden rounded-t-[28px] border-t border-line bg-surface"
           >
-            <View className="h-1.5 w-10 rounded-full bg-line" />
-          </View>
-          <ScrollView
-            className="flex-1"
-            contentContainerClassName="px-4 pb-8 mobile:px-5 tablet:px-8 desktop:px-12"
-            showsVerticalScrollIndicator={false}
-            bounces={false}
-            scrollEnabled={contentScrollEnabled}
-            scrollEventThrottle={16}
-            keyboardShouldPersistTaps="handled"
-            onScroll={(event) => {
-              syncAtTop(event.nativeEvent.contentOffset.y);
-            }}
-            onScrollEndDrag={(event) => {
-              syncAtTop(event.nativeEvent.contentOffset.y);
-            }}
-            onMomentumScrollEnd={(event) => {
-              syncAtTop(event.nativeEvent.contentOffset.y);
-            }}
-          >
-            {children}
-          </ScrollView>
-        </Animated.View>
-      </View>
+            <View
+              accessibilityRole="adjustable"
+              accessibilityLabel="Drag to expand or collapse settings"
+              hitSlop={{top: 12, bottom: 12, left: 24, right: 24}}
+              className="items-center pb-3 pt-3"
+            >
+              <View className="h-1.5 w-10 rounded-full bg-line" />
+            </View>
+            <ScrollView
+              ref={scrollRef}
+              className="flex-1"
+              contentContainerClassName="px-4 pb-8 mobile:px-5 tablet:px-8 desktop:px-12"
+              showsVerticalScrollIndicator={false}
+              bounces={false}
+              scrollEnabled={contentScrollEnabled}
+              scrollEventThrottle={16}
+              keyboardShouldPersistTaps="handled"
+              simultaneousHandlers={panRef}
+              onScroll={(event) => {
+                syncAtTop(event.nativeEvent.contentOffset.y);
+              }}
+              onScrollEndDrag={(event) => {
+                syncAtTop(event.nativeEvent.contentOffset.y);
+              }}
+              onMomentumScrollEnd={(event) => {
+                syncAtTop(event.nativeEvent.contentOffset.y);
+              }}
+            >
+              {children}
+            </ScrollView>
+          </Animated.View>
+        </PanGestureHandler>
+      </GestureHandlerRootView>
     </Modal>
   );
 }
