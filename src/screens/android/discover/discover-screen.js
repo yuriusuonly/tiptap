@@ -1,12 +1,18 @@
 /**
- * Android Discover tab: full-cover background with an app bar/title and
- * AI-generated content (title + paragraphs). The background covers the entire
- * Discover page.
+ * Android Discover page: full-cover background with an app bar/title and
+ * AI-generated content (title + paragraphs). Includes an expandable FAB that
+ * opens stacked overlays (e.g. Profile).
  * @module src/screens/android/discover/discover-screen
  */
-import {ScrollView, Text, View} from "react-native";
-import {SafeAreaView} from "react-native-safe-area-context";
+import {useState} from "react";
+import {Pressable, ScrollView, Text, View} from "react-native";
+import {SafeAreaView, useSafeAreaInsets} from "react-native-safe-area-context";
 import Svg, {Defs, LinearGradient, Rect, Stop} from "react-native-svg";
+import CloseIcon from "../../../assets/icons/close.svg";
+import HorizontalMoreIcon from "../../../assets/icons/horizontal-more.svg";
+import PersonIcon from "../../../assets/icons/person.svg";
+import {Icon} from "../../../components/icon";
+import {openProfile} from "../../../store/android-overlay-store";
 
 /** Full-cover background graphic for the Discover page. */
 function DiscoverBackground() {
@@ -36,7 +42,35 @@ function DiscoverBackground() {
   );
 }
 
+function Fab({icon, label, onPress, secondary = false}) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      onPress={onPress}
+      className={`h-14 w-14 items-center justify-center rounded-full border ${
+        secondary ? "border-white/15 bg-[#121826]" : "border-[#25F4EE]/40 bg-[#25F4EE]"
+      }`}
+    >
+      <Icon
+        as={icon}
+        size={24}
+        color={secondary ? "#FFFFFF" : "#0b1020"}
+        accessibilityLabel={label}
+      />
+    </Pressable>
+  );
+}
+
 export function DiscoverScreen() {
+  const [expanded, setExpanded] = useState(false);
+  const insets = useSafeAreaInsets();
+
+  const handleProfile = () => {
+    setExpanded(false);
+    openProfile();
+  };
+
   return (
     <View className="flex-1 bg-[#0b1020]">
       <DiscoverBackground />
@@ -57,7 +91,7 @@ export function DiscoverScreen() {
         {/* Content text in paragraph(s) */}
         <ScrollView
           className="flex-1"
-          contentContainerClassName="px-4 pb-8 pt-4 mobile:px-5 tablet:px-8 desktop:px-12"
+          contentContainerClassName="px-4 pb-28 pt-4 mobile:px-5 tablet:px-8 desktop:px-12"
           showsVerticalScrollIndicator={false}
         >
           <Text className="text-[15px] leading-7 text-white/85 mobile:text-[16px] mobile:leading-7 tablet:text-[18px] tablet:leading-8">
@@ -76,6 +110,29 @@ export function DiscoverScreen() {
           </Text>
         </ScrollView>
       </SafeAreaView>
+
+      {/* Expandable FAB (bottom-right) */}
+      <View
+        pointerEvents="box-none"
+        style={{bottom: Math.max(insets.bottom, 16) + 16, right: 16}}
+        className="absolute items-end"
+      >
+        {expanded ? (
+          <View className="mb-3 items-end gap-3">
+            <Fab
+              icon={PersonIcon}
+              label="Profile"
+              onPress={handleProfile}
+              secondary
+            />
+          </View>
+        ) : null}
+        <Fab
+          icon={expanded ? CloseIcon : HorizontalMoreIcon}
+          label={expanded ? "Close menu" : "More options"}
+          onPress={() => setExpanded((open) => !open)}
+        />
+      </View>
     </View>
   );
 }

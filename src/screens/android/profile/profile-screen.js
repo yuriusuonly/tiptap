@@ -7,6 +7,8 @@
  */
 import {useEffect, useState} from "react";
 import {Image, Pressable, Text, View} from "react-native";
+import {useSafeAreaInsets} from "react-native-safe-area-context";
+import CloseIcon from "../../../assets/icons/close.svg";
 import LogoIcon from "../../../assets/icons/icon.svg";
 import SettingsIcon from "../../../assets/icons/settings.svg";
 import {openBottomSheet} from "../../../components/bottom-sheet";
@@ -18,8 +20,9 @@ import {AccountSection} from "./account-section";
 import {MoreSection} from "./more-section";
 import {PreferencesSection} from "./preferences-section";
 
-export function ProfileScreen() {
+export function ProfileScreen({onClose} = {}) {
   const [photoFailed, setPhotoFailed] = useState(false);
+  const insets = useSafeAreaInsets();
   const {status, user} = useAuthStore();
   const {palette} = useResolvedTheme();
 
@@ -32,6 +35,18 @@ export function ProfileScreen() {
 
   return (
     <View className="flex-1 bg-background px-4 pt-6 mobile:px-5 mobile:pt-8 tablet:px-8 tablet:pt-10 desktop:px-12 desktop:pt-12">
+      {onClose ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Close profile"
+          onPress={onClose}
+          hitSlop={8}
+          style={{top: insets.top + 8}}
+          className="absolute left-3 z-10 h-10 w-10 items-center justify-center rounded-full mobile:left-4 tablet:left-6"
+        >
+          <Icon as={CloseIcon} size={24} color={palette.text} accessibilityLabel="Close profile" />
+        </Pressable>
+      ) : null}
       <View className="w-full items-center">
         <Text
           accessibilityRole="header"
