@@ -34,16 +34,17 @@ export function BottomSheet({visible, onClose, children}) {
   const dismissOffset = expandedHeight;
 
   // Snap/scroll state drive gesture config so the first swipe is always handled.
-  const [snap, setSnap] = useState("collapsed"); // "collapsed" | "expanded"
+  const [snap, setSnap] = useState("expanded"); // "collapsed" | "expanded"
   const [atTop, setAtTop] = useState(true);
 
   // baseY = resting snap offset; dragY = live gesture translation (native).
-  const baseY = useRef(new Animated.Value(collapsedOffset)).current;
+  // Default opens expanded (full height).
+  const baseY = useRef(new Animated.Value(0)).current;
   const dragY = useRef(new Animated.Value(0)).current;
   const translateY = useMemo(() => Animated.add(baseY, dragY), [baseY, dragY]);
 
-  const baseYRef = useRef(collapsedOffset);
-  const liveYRef = useRef(collapsedOffset);
+  const baseYRef = useRef(0);
+  const liveYRef = useRef(0);
   const scrollYRef = useRef(0);
   const panRef = useRef(null);
   const scrollRef = useRef(null);
@@ -67,13 +68,13 @@ export function BottomSheet({visible, onClose, children}) {
 
   useEffect(() => {
     if (visible) {
-      // Reveal instantly (no entrance transition) in the collapsed-open state.
-      setResting(collapsedOffset);
+      // Reveal instantly (no entrance transition) at full (expanded) height.
+      setResting(0);
       scrollYRef.current = 0;
       setAtTop(true);
-      setSnap("collapsed");
+      setSnap("expanded");
     }
-  }, [visible, collapsedOffset, setResting]);
+  }, [visible, setResting]);
 
   const settleTo = useCallback(
     (toValue, {close = false} = {}) => {
