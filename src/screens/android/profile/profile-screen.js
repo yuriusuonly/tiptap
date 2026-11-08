@@ -66,21 +66,21 @@ export function ProfileScreen({onClose} = {}) {
       <View className="w-full items-center px-4 mobile:px-5 tablet:px-8 desktop:px-12">
         <View className="mt-6 items-center mobile:mt-8 tablet:mt-10">
           <View className="relative">
-            <View className="h-14 w-14 items-center justify-center overflow-hidden rounded-full border border-line bg-surface">
+            <View className="h-20 w-20 items-center justify-center overflow-hidden rounded-full border border-line bg-surface">
               {showUserPhoto ? (
                 <>
-                  <Text className="text-[20px] font-semibold text-accent">
+                  <Text className="text-[28px] font-semibold text-accent">
                     {avatarInitial}
                   </Text>
                   <Image
                     source={{uri: user.photoURL}}
                     onError={() => setPhotoFailed(true)}
                     accessibilityLabel={`${user.displayName ?? "Account"} profile photo`}
-                    className="absolute inset-0 h-14 w-14"
+                    className="absolute inset-0 h-20 w-20"
                   />
                 </>
               ) : (
-                <Icon as={LogoIcon} size={32} accessibilityLabel={`${APP_NAME} logo`} />
+                <Icon as={LogoIcon} size={46} accessibilityLabel={`${APP_NAME} logo`} />
               )}
             </View>
 
