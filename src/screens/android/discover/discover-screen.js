@@ -1,16 +1,15 @@
 /**
  * Android Discover page: full-cover background with an app bar/title and
- * AI-generated content (title + paragraphs). Includes an expandable FAB that
- * opens stacked overlays (e.g. Profile).
+ * AI-generated content (title + paragraphs). Shows icon actions (Profile,
+ * Bookmark, Share) in a bottom-right vertical layout.
  * @module src/screens/android/discover/discover-screen
  */
-import {useState} from "react";
 import {Pressable, ScrollView, Text, View} from "react-native";
 import {SafeAreaView, useSafeAreaInsets} from "react-native-safe-area-context";
 import Svg, {Defs, LinearGradient, Rect, Stop} from "react-native-svg";
-import CloseIcon from "../../../assets/icons/close.svg";
-import HorizontalMoreIcon from "../../../assets/icons/horizontal-more.svg";
+import BookmarkIcon from "../../../assets/icons/bookmark.svg";
 import PersonIcon from "../../../assets/icons/person.svg";
+import ShareIcon from "../../../assets/icons/share.svg";
 import {Icon} from "../../../components/icon";
 import {openProfile} from "../../../store/android-overlay-store";
 
@@ -42,34 +41,21 @@ function DiscoverBackground() {
   );
 }
 
-function Fab({icon, label, onPress, secondary = false}) {
+function ActionButton({icon, label, onPress}) {
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
-      className={`h-14 w-14 items-center justify-center rounded-full border ${
-        secondary ? "border-white/15 bg-[#121826]" : "border-[#25F4EE]/40 bg-[#25F4EE]"
-      }`}
+      className="h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-[#121826]"
     >
-      <Icon
-        as={icon}
-        size={24}
-        color={secondary ? "#FFFFFF" : "#0b1020"}
-        accessibilityLabel={label}
-      />
+      <Icon as={icon} size={24} color="#FFFFFF" accessibilityLabel={label} />
     </Pressable>
   );
 }
 
 export function DiscoverScreen() {
-  const [expanded, setExpanded] = useState(false);
   const insets = useSafeAreaInsets();
-
-  const handleProfile = () => {
-    setExpanded(false);
-    openProfile();
-  };
 
   return (
     <View className="flex-1 bg-[#0b1020]">
@@ -108,27 +94,15 @@ export function DiscoverScreen() {
         </ScrollView>
       </SafeAreaView>
 
-      {/* Expandable FAB (bottom-right) */}
+      {/* Action buttons (bottom-right) */}
       <View
         pointerEvents="box-none"
         style={{bottom: insets.bottom + 16, right: 16}}
-        className="absolute items-end"
+        className="absolute items-end gap-3"
       >
-        {expanded ? (
-          <View className="mb-3 items-end gap-3">
-            <Fab
-              icon={PersonIcon}
-              label="Profile"
-              onPress={handleProfile}
-              secondary
-            />
-          </View>
-        ) : null}
-        <Fab
-          icon={expanded ? CloseIcon : HorizontalMoreIcon}
-          label={expanded ? "Close menu" : "More options"}
-          onPress={() => setExpanded((open) => !open)}
-        />
+        <ActionButton icon={PersonIcon} label="Profile" onPress={openProfile} />
+        <ActionButton icon={BookmarkIcon} label="Bookmark" onPress={() => {}} />
+        <ActionButton icon={ShareIcon} label="Share" onPress={() => {}} />
       </View>
     </View>
   );
