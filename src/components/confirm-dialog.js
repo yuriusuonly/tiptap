@@ -1,7 +1,8 @@
 /**
  * Confirmation dialog module (root-level): presentational `ConfirmDialog` and
- * store-driven `ConfirmDialogHost`. The host is rendered by `Root` beneath
- * toasts so toasts remain visually on top.
+ * store-driven `ConfirmDialogHost`. The host renders a stack of dialogs
+ * (newest on top) and is rendered by `Root` beneath toasts so toasts remain
+ * visually on top.
  * Uses Nativewind semantic tokens (no inline presentation styles).
  * @module src/components/confirm-dialog
  */
@@ -93,23 +94,24 @@ export function ConfirmDialog({
 
 /** Root-level host (rendered by `Root`, beneath `ToastHost`). */
 export function ConfirmDialogHost() {
-  const dialog = useConfirmDialogStore((state) => state.dialog);
+  const dialogs = useConfirmDialogStore((state) => state.dialogs);
   const close = useConfirmDialogStore((state) => state.close);
 
-  if (!dialog) return null;
+  if (dialogs.length === 0) return null;
 
-  return (
+  return dialogs.map((dialog) => (
     <ConfirmDialog
+      key={dialog.id}
       visible
       title={dialog.title}
       message={dialog.message}
       cancelLabel={dialog.cancelLabel}
       confirmLabel={dialog.confirmLabel}
       destructive={dialog.destructive}
-      onCancel={() => close(false)}
-      onConfirm={() => close(true)}
+      onCancel={() => close(dialog.id, false)}
+      onConfirm={() => close(dialog.id, true)}
     />
-  );
+  ));
 }
 
 export {confirm};
