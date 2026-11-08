@@ -98,7 +98,7 @@ export function ProfileScreen({onClose} = {}) {
                   </>
                 ))
               }
-              className="absolute bottom-0 right-0 h-10 w-10 items-center justify-center rounded-full border border-line bg-raised mobile:h-11 mobile:w-11"
+              className="absolute bottom-0 right-0 h-10 w-10 items-center justify-center rounded-full border-2 border-line bg-raised mobile:h-11 mobile:w-11"
             >
               <Icon
                 as={SettingsIcon}
