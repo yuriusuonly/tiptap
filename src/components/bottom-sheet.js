@@ -1,7 +1,9 @@
 /**
- * Android bottom sheet: instant show/hide (no entrance/exit transition) with a
- * draggable handle for expandable/collapsible behavior. Drag settles to snap
- * points on release (interactive behavior). Content is scrollable.
+ * Android bottom sheet: instant show/hide (no entrance/exit transition) with
+ * expandable/collapsible behavior driven by dragging/swiping the handle or the
+ * sheet content (drag up to expand, drag down from top to collapse/dismiss).
+ * Drag settles to snap points on release (interactive behavior). Content is
+ * scrollable.
  * @module src/components/bottom-sheet
  */
 import {useCallback, useEffect, useMemo, useRef} from "react";
@@ -28,6 +30,8 @@ export function BottomSheet({visible, onClose, children}) {
   const translateY = useRef(new Animated.Value(collapsedOffset)).current;
   // Track the current resting offset so drag gestures start from the right place.
   const offsetRef = useRef(collapsedOffset);
+  // Track content scroll so downward drags at the top collapse/expand the sheet.
+  const scrollYRef = useRef(0);
 
   const setOffset = useCallback(
     (value) => {
@@ -41,6 +45,7 @@ export function BottomSheet({visible, onClose, children}) {
     if (visible) {
       // Reveal instantly (no entrance transition).
       setOffset(collapsedOffset);
+      scrollYRef.current = 0;
     }
   }, [visible, collapsedOffset, setOffset]);
 
@@ -65,9 +70,23 @@ export function BottomSheet({visible, onClose, children}) {
   const panResponder = useMemo(
     () =>
       PanResponder.create({
-        onStartShouldSetPanResponder: () => true,
-        onMoveShouldSetPanResponder: (_, gesture) =>
-          Math.abs(gesture.dy) > 4 && Math.abs(gesture.dy) > Math.abs(gesture.dx),
+        onStartShouldSetPanResponder: () => false,
+        // Use capture so the sheet can claim expand/collapse drags before a child
+        // ScrollView takes over (only in cases where scrolling shouldn't win).
+        onMoveShouldSetPanResponderCapture: (_, gesture) => {
+          const isVertical = Math.abs(gesture.dy) > 6 && Math.abs(gesture.dy) > Math.abs(gesture.dx);
+          if (!isVertical) return false;
+          const draggingUp = gesture.dy < 0;
+          const draggingDown = gesture.dy > 0;
+          const atTop = scrollYRef.current <= 0;
+          const canExpand = offsetRef.current > 0;
+          // Drag up expands the sheet; drag down from the top scroll position
+          // collapses/dismisses it. Otherwise let content scroll normally.
+          if (draggingUp && canExpand) return true;
+          if (draggingDown && atTop) return true;
+          return false;
+        },
+        onMoveShouldSetPanResponder: () => false,
         onPanResponderMove: (_, gesture) => {
           const next = Math.min(dismissOffset, Math.max(0, offsetRef.current + gesture.dy));
           translateY.setValue(next);
@@ -107,11 +126,11 @@ export function BottomSheet({visible, onClose, children}) {
           className="absolute inset-0 bg-ink/40"
         />
         <Animated.View
+          {...panResponder.panHandlers}
           style={{height: expandedHeight, transform: [{translateY}]}}
           className="w-full overflow-hidden rounded-t-[28px] border-t border-line bg-surface"
         >
           <View
-            {...panResponder.panHandlers}
             accessibilityRole="adjustable"
             accessibilityLabel="Drag to expand or collapse settings"
             className="items-center pb-2 pt-3"
@@ -123,6 +142,10 @@ export function BottomSheet({visible, onClose, children}) {
             contentContainerClassName="px-4 pb-8 mobile:px-5 tablet:px-8 desktop:px-12"
             showsVerticalScrollIndicator={false}
             bounces={false}
+            scrollEventThrottle={16}
+            onScroll={(event) => {
+              scrollYRef.current = event.nativeEvent.contentOffset.y;
+            }}
           >
             {children}
           </ScrollView>
