@@ -95,7 +95,7 @@ export function ProfileScreen({onClose} = {}) {
           accessibilityRole="button"
           accessibilityLabel="Back"
           onPress={onClose}
-          style={{bottom: insets.bottom + 16, left: 16}}
+          style={{bottom: insets.bottom + 16, right: 16}}
           className="absolute h-14 w-14 items-center justify-center rounded-full border border-line bg-surface"
         >
           <Icon as={ArrowBackIcon} size={24} color={palette.text} accessibilityLabel="Back" />

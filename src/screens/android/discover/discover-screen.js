@@ -111,14 +111,14 @@ export function DiscoverScreen() {
         </ScrollView>
       </SafeAreaView>
 
-      {/* Expandable FAB (bottom-left) */}
+      {/* Expandable FAB (bottom-right) */}
       <View
         pointerEvents="box-none"
-        style={{bottom: insets.bottom + 16, left: 16}}
-        className="absolute items-start"
+        style={{bottom: insets.bottom + 16, right: 16}}
+        className="absolute items-end"
       >
         {expanded ? (
-          <View className="mb-3 items-start gap-3">
+          <View className="mb-3 items-end gap-3">
             <Fab
               icon={PersonIcon}
               label="Profile"
