@@ -1,14 +1,14 @@
 /**
- * Android Profile tab: default view shows the app name header and a centered
- * avatar (app logo by default, user photo when signed in) with a Settings
- * badge that reveals the account/preferences content in a draggable bottom
- * sheet (instant reveal, no entrance transition). Toasts are root-owned.
+ * Android Profile page: shows the header (user display name when signed in) and
+ * a centered avatar with a Settings badge that reveals account/preferences in a
+ * root-owned bottom sheet. When stacked over Discover (`onClose` provided), a
+ * back floating action button pops it from the stack.
  * @module src/screens/android/profile/profile-screen
  */
 import {useEffect, useState} from "react";
 import {Image, Pressable, Text, View} from "react-native";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
-import CloseIcon from "../../../assets/icons/close.svg";
+import ArrowBackIcon from "../../../assets/icons/arrow-back.svg";
 import LogoIcon from "../../../assets/icons/icon.svg";
 import SettingsIcon from "../../../assets/icons/settings.svg";
 import {openBottomSheet} from "../../../components/bottom-sheet";
@@ -35,18 +35,6 @@ export function ProfileScreen({onClose} = {}) {
 
   return (
     <View className="flex-1 bg-background px-4 pt-6 mobile:px-5 mobile:pt-8 tablet:px-8 tablet:pt-10 desktop:px-12 desktop:pt-12">
-      {onClose ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Close profile"
-          onPress={onClose}
-          hitSlop={8}
-          style={{top: insets.top + 8}}
-          className="absolute left-3 z-10 h-10 w-10 items-center justify-center rounded-full mobile:left-4 tablet:left-6"
-        >
-          <Icon as={CloseIcon} size={24} color={palette.text} accessibilityLabel="Close profile" />
-        </Pressable>
-      ) : null}
       <View className="w-full items-center">
         <Text
           accessibilityRole="header"
@@ -101,6 +89,18 @@ export function ProfileScreen({onClose} = {}) {
           </View>
         </View>
       </View>
+
+      {onClose ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+          onPress={onClose}
+          style={{bottom: Math.max(insets.bottom, 16) + 16, left: 16}}
+          className="absolute h-14 w-14 items-center justify-center rounded-full border border-line bg-surface"
+        >
+          <Icon as={ArrowBackIcon} size={24} color={palette.text} accessibilityLabel="Back" />
+        </Pressable>
+      ) : null}
     </View>
   );
 }
