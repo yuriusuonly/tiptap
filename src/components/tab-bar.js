@@ -4,7 +4,7 @@
  * non-interactive so taps always reach the tab item. Tabs are internal state
  * (see `src/app/_layout.android.js`), not file-based routes: `src/app/` holds
  * only the root route files.
- * @module src/components/app-tab-bar
+ * @module src/components/tab-bar
  */
 import {Pressable, Text, View} from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";
