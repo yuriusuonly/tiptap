@@ -21,6 +21,14 @@ import {
   ScrollView,
   State,
 } from "react-native-gesture-handler";
+import {cssInterop} from "nativewind";
+
+// Enable Nativewind className styling for RNGH components used by the sheet.
+cssInterop(GestureHandlerRootView, {className: "style"});
+cssInterop(ScrollView, {
+  className: "style",
+  contentContainerClassName: "contentContainerStyle",
+});
 
 const MAX_FRACTION = 0.88;
 const DEFAULT_FRACTION = 0.75;
