@@ -2,7 +2,7 @@
  * Android Profile page: shows the header (user display name when signed in) and
  * a centered avatar with a Settings badge that reveals account/preferences in a
  * root-owned bottom sheet. When stacked over Discover (`onClose` provided), a
- * back floating action button pops it from the stack.
+ * leading navigation icon button pops it from the stack.
  * @module src/screens/android/profile/profile-screen
  */
 import {useEffect, useState} from "react";
@@ -32,18 +32,39 @@ export function ProfileScreen({onClose} = {}) {
 
   const showUserPhoto = status === "signedIn" && !!user?.photoURL && !photoFailed;
   const avatarInitial = (user?.displayName ?? user?.email ?? "?").charAt(0).toUpperCase();
+  const title = status === "signedIn" && user?.displayName ? user.displayName : APP_NAME;
 
   return (
-    <View className="flex-1 bg-background px-4 pt-6 mobile:px-5 mobile:pt-8 tablet:px-8 tablet:pt-10 desktop:px-12 desktop:pt-12">
-      <View className="w-full items-center">
+    <View
+      style={{paddingTop: insets.top}}
+      className="flex-1 bg-background"
+    >
+      <View className="flex-row items-center px-2 pb-2 pt-1 mobile:px-3 tablet:px-6 desktop:px-10">
+        {onClose ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Back"
+            onPress={onClose}
+            hitSlop={8}
+            className="h-10 w-10 items-center justify-center rounded-full"
+          >
+            <Icon as={ArrowBackIcon} size={24} color={palette.text} accessibilityLabel="Back" />
+          </Pressable>
+        ) : (
+          <View className="h-10 w-10" />
+        )}
         <Text
           accessibilityRole="header"
-          className="text-center text-[20px] font-bold leading-[28px] text-ink mobile:text-[22px] mobile:leading-[30px] tablet:text-[24px] tablet:leading-[32px]"
+          numberOfLines={1}
+          className="flex-1 text-center text-[20px] font-bold leading-[28px] text-ink mobile:text-[22px] mobile:leading-[30px] tablet:text-[24px] tablet:leading-[32px]"
         >
-          {status === "signedIn" && user?.displayName ? user.displayName : APP_NAME}
+          {title}
         </Text>
+        <View className="h-10 w-10" />
+      </View>
 
-        <View className="mt-8 items-center mobile:mt-10 tablet:mt-12">
+      <View className="w-full items-center px-4 mobile:px-5 tablet:px-8 desktop:px-12">
+        <View className="mt-6 items-center mobile:mt-8 tablet:mt-10">
           <View className="relative">
             <View className="h-28 w-28 items-center justify-center overflow-hidden rounded-full border border-line bg-surface mobile:h-32 mobile:w-32 tablet:h-36 tablet:w-36 desktop:h-40 desktop:w-40">
               {showUserPhoto ? (
@@ -89,18 +110,6 @@ export function ProfileScreen({onClose} = {}) {
           </View>
         </View>
       </View>
-
-      {onClose ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Back"
-          onPress={onClose}
-          style={{bottom: insets.bottom + 16, right: 16}}
-          className="absolute h-14 w-14 items-center justify-center rounded-full border border-line bg-surface"
-        >
-          <Icon as={ArrowBackIcon} size={24} color={palette.text} accessibilityLabel="Back" />
-        </Pressable>
-      ) : null}
     </View>
   );
 }
