@@ -4,7 +4,8 @@
  * Bookmark, Share) in a bottom-right vertical layout.
  * @module src/screens/android/discover/discover-screen
  */
-import {Pressable, ScrollView, Text, View} from "react-native";
+import {useEffect, useState} from "react";
+import {Image, Pressable, ScrollView, Text, View} from "react-native";
 import {SafeAreaView, useSafeAreaInsets} from "react-native-safe-area-context";
 import Svg, {Defs, LinearGradient, Rect, Stop} from "react-native-svg";
 import BookmarkIcon from "../../../assets/icons/bookmark.svg";
@@ -12,6 +13,7 @@ import PersonIcon from "../../../assets/icons/person.svg";
 import ShareIcon from "../../../assets/icons/share.svg";
 import {Icon} from "../../../components/icon";
 import {openProfile} from "../../../store/android-overlay-store";
+import {useAuthStore} from "../../../store/auth-store";
 
 /** Full-cover background graphic for the Discover page. */
 function DiscoverBackground() {
@@ -57,6 +59,14 @@ function ActionButton({icon, label, onPress}) {
 
 export function DiscoverScreen() {
   const insets = useSafeAreaInsets();
+  const {status, user} = useAuthStore();
+  const [photoFailed, setPhotoFailed] = useState(false);
+
+  useEffect(() => {
+    setPhotoFailed(false);
+  }, [user?.uid]);
+
+  const showUserPhoto = status === "signedIn" && !!user?.photoURL && !photoFailed;
 
   return (
     <View className="flex-1 bg-[#0b1020]">
@@ -101,7 +111,24 @@ export function DiscoverScreen() {
         style={{bottom: insets.bottom + 16, right: 16}}
         className="absolute items-end gap-3"
       >
-        <ActionButton icon={PersonIcon} label="Profile" onPress={openProfile} />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Profile"
+          onPress={openProfile}
+          hitSlop={8}
+          className="h-10 w-10 items-center justify-center overflow-hidden rounded-full"
+        >
+          {showUserPhoto ? (
+            <Image
+              source={{uri: user.photoURL}}
+              onError={() => setPhotoFailed(true)}
+              accessibilityLabel={`${user.displayName ?? "Account"} profile photo`}
+              className="h-9 w-9 rounded-full"
+            />
+          ) : (
+            <Icon as={PersonIcon} size={26} color="#FFFFFF" accessibilityLabel="Profile" />
+          )}
+        </Pressable>
         <ActionButton icon={BookmarkIcon} label="Bookmark" onPress={() => {}} />
         <ActionButton icon={ShareIcon} label="Share" onPress={() => {}} />
       </View>
