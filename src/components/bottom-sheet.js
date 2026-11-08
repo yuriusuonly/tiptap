@@ -1,11 +1,10 @@
 /**
  * Android bottom sheet: instant show/hide (no entrance/exit transition) with
- * expandable/collapsible behavior driven by pan gestures (RNGH). When
- * collapsed-open, the whole sheet responds to vertical drags (up expands, down
- * collapses/dismisses). When fully expanded, content scrolls; a downward drag
- * from the top of content (or on the handle) collapses the sheet. Drag settles
- * to snap points on release. Gesture handling uses react-native-gesture-handler
- * for reliable, first-swipe responsiveness.
+ * expandable/collapsible behavior driven by pan gestures (RNGH). Opens at 75%
+ * screen height by default; drag up expands to max (88%), drag down
+ * collapses/dismisses. When partially open the whole sheet responds to vertical
+ * drags; when fully expanded, content scrolls and a downward drag from the top
+ * of content collapses the sheet. Drag settles to snap points on release.
  * @module src/components/bottom-sheet
  */
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
@@ -23,18 +22,20 @@ import {
   State,
 } from "react-native-gesture-handler";
 
-const EXPANDED_FRACTION = 0.88;
-const COLLAPSED_FRACTION = 0.46;
+const MAX_FRACTION = 0.88;
+const DEFAULT_FRACTION = 0.75;
 
 export function BottomSheet({visible, onClose, children}) {
   const {height: windowHeight} = useWindowDimensions();
-  const expandedHeight = Math.max(240, Math.round(windowHeight * EXPANDED_FRACTION));
-  const collapsedHeight = Math.max(180, Math.round(windowHeight * COLLAPSED_FRACTION));
-  const collapsedOffset = Math.max(0, expandedHeight - collapsedHeight);
+  const expandedHeight = Math.max(240, Math.round(windowHeight * MAX_FRACTION));
+  const defaultHeight = Math.max(200, Math.round(windowHeight * DEFAULT_FRACTION));
+  // Offset from the top of the max-height sheet frame: 0 = fully expanded (max),
+  // defaultOffset = 75% visible, dismissOffset = hidden.
+  const defaultOffset = Math.max(0, expandedHeight - defaultHeight);
   const dismissOffset = expandedHeight;
 
   // Snap/scroll state drive gesture config so the first swipe is always handled.
-  const [snap, setSnap] = useState("expanded"); // "collapsed" | "expanded"
+  const [snap, setSnap] = useState("default"); // "default" (75%) | "expanded" (max)
   const [atTop, setAtTop] = useState(true);
 
   // baseY = resting snap offset; dragY = live gesture translation (native).
@@ -68,17 +69,17 @@ export function BottomSheet({visible, onClose, children}) {
 
   useEffect(() => {
     if (visible) {
-      // Reveal instantly (no entrance transition) at full (expanded) height.
-      setResting(0);
+      // Reveal instantly (no entrance transition) at the default (75%) height.
+      setResting(defaultOffset);
       scrollYRef.current = 0;
       setAtTop(true);
-      setSnap("expanded");
+      setSnap("default");
     }
-  }, [visible, setResting]);
+  }, [visible, defaultOffset, setResting]);
 
   const settleTo = useCallback(
     (toValue, {close = false} = {}) => {
-      const snapValue = close ? collapsedOffset : toValue;
+      const snapValue = close ? defaultOffset : toValue;
       // Fold any drag offset into the base before animating.
       dragY.setValue(0);
       baseY.setValue(baseYRef.current);
@@ -95,14 +96,14 @@ export function BottomSheet({visible, onClose, children}) {
         liveYRef.current = toValue;
         baseY.setValue(toValue);
         if (!close) {
-          setSnap(snapValue === 0 ? "expanded" : "collapsed");
+          setSnap(snapValue === 0 ? "expanded" : "default");
         }
         if (close) {
           onClose?.();
         }
       });
     },
-    [baseY, dragY, collapsedOffset, onClose]
+    [baseY, dragY, defaultOffset, onClose]
   );
 
   const syncAtTop = useCallback((y) => {
@@ -137,7 +138,7 @@ export function BottomSheet({visible, onClose, children}) {
       if (state === State.END || state === State.CANCELLED || state === State.FAILED) {
         const current = Math.min(dismissOffset, Math.max(0, baseYRef.current + translationY));
         const draggingDown = translationY > 0 || velocityY > 0.5;
-        const dismissThreshold = collapsedOffset + Math.min(120, collapsedHeight * 0.35);
+        const dismissThreshold = defaultOffset + Math.min(120, defaultHeight * 0.35);
 
         // Commit the drag position as the new base, then settle.
         baseYRef.current = current;
@@ -150,29 +151,31 @@ export function BottomSheet({visible, onClose, children}) {
         }
 
         if (state === State.END) {
-          const midpoint = collapsedOffset / 2;
-          const target = current > midpoint ? collapsedOffset : 0;
+          const midpoint = defaultOffset / 2;
+          const target = current > midpoint ? defaultOffset : 0;
           settleTo(target);
           return;
         }
 
         // Cancelled/failed: snap back to the nearest resting state.
-        settleTo(baseYRef.current > collapsedOffset / 2 ? collapsedOffset : 0);
+        settleTo(baseYRef.current > defaultOffset / 2 ? defaultOffset : 0);
       }
     },
-    [baseY, dragY, dismissOffset, collapsedOffset, collapsedHeight, settleTo]
+    [baseY, dragY, dismissOffset, defaultOffset, defaultHeight, settleTo]
   );
 
   if (!visible) return null;
 
-  const isCollapsed = snap !== "expanded";
-  // Collapsed-open: pan owns up+down drags, scroll disabled.
-  // Expanded + at top: pan activates only on downward drag (collapse) and fails
-  // on upward drag (so content scrolls). Expanded + scrolled: pan disabled.
-  const panEnabled = isCollapsed || atTop;
-  const activeOffsetY = isCollapsed ? [-8, 8] : [-9999, 8];
-  const failOffsetY = isCollapsed ? undefined : [-8, 9999];
-  const contentScrollEnabled = !isCollapsed;
+  const isPartiallyOpen = snap !== "expanded";
+  // Partially open (default 75%): pan owns up+down drags, scroll disabled, so a
+  // swipe up expands to max and a swipe down collapses/dismisses responsively.
+  // Fully expanded (max) + at top: pan activates only on downward drag (to
+  // collapse) and fails on upward drag (so content scrolls). Expanded + scrolled:
+  // pan disabled.
+  const panEnabled = isPartiallyOpen || atTop;
+  const activeOffsetY = isPartiallyOpen ? [-8, 8] : [-9999, 8];
+  const failOffsetY = isPartiallyOpen ? undefined : [-8, 9999];
+  const contentScrollEnabled = !isPartiallyOpen;
 
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
