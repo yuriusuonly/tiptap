@@ -66,21 +66,21 @@ export function ProfileScreen({onClose} = {}) {
       <View className="w-full items-center px-4 mobile:px-5 tablet:px-8 desktop:px-12">
         <View className="mt-6 items-center mobile:mt-8 tablet:mt-10">
           <View className="relative">
-            <View className="h-[100px] w-[100px] items-center justify-center overflow-hidden rounded-full border border-line bg-surface">
+            <View className="h-20 w-20 items-center justify-center overflow-hidden rounded-full border border-line bg-surface">
               {showUserPhoto ? (
                 <>
-                  <Text className="text-[34px] font-semibold text-accent">
+                  <Text className="text-[28px] font-semibold text-accent">
                     {avatarInitial}
                   </Text>
                   <Image
                     source={{uri: user.photoURL}}
                     onError={() => setPhotoFailed(true)}
                     accessibilityLabel={`${user.displayName ?? "Account"} profile photo`}
-                    className="absolute inset-0 h-[100px] w-[100px]"
+                    className="absolute inset-0 h-20 w-20"
                   />
                 </>
               ) : (
-                <Icon as={LogoIcon} size={56} accessibilityLabel={`${APP_NAME} logo`} />
+                <Icon as={LogoIcon} size={46} accessibilityLabel={`${APP_NAME} logo`} />
               )}
             </View>
 
@@ -98,11 +98,11 @@ export function ProfileScreen({onClose} = {}) {
                   </>
                 ))
               }
-              className="absolute bottom-0 right-0 h-10 w-10 items-center justify-center rounded-full border-4 border-background bg-accent mobile:h-11 mobile:w-11"
+              className="absolute bottom-0 right-0 h-9 w-9 items-center justify-center rounded-full border-4 border-background bg-accent"
             >
               <Icon
                 as={SettingsIcon}
-                size={20}
+                size={16}
                 color={palette.background}
                 accessibilityLabel="Settings"
               />
