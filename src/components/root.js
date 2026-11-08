@@ -15,6 +15,7 @@ import {useAuthStore} from "../store/auth-store";
 import {useOnboardingStore} from "../store/onboarding-store";
 import {startPreferenceSync, syncOnSignIn, usePreferencesSyncStore} from "../store/preferences-sync-store";
 import {useResolvedTheme, useThemeStore} from "../store/theme-store";
+import {ConfirmDialogHost} from "./confirm-dialog";
 import {ToastHost} from "./toast";
 import "../stylesheets/global.css";
 
@@ -65,6 +66,7 @@ export function Root({children}) {
       </Head>
       <StatusBar style={isLight ? "dark" : "light"} />
       {children}
+      <ConfirmDialogHost />
       <ToastHost />
     </>
   );

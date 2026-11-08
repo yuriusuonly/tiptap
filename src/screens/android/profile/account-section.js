@@ -3,15 +3,16 @@
  * record + preference sync. Each action shows its own circular progress.
  * Every failed response (sign-in/sign-out/account deletion/sync) surfaces
  * via the root-owned toast; there are no inlined errors. Delete account uses
- * the built-in Alert confirmation dialog. Identity shows name/email (+photo).
+ * the root-level custom confirmation dialog. Identity shows name/email (+photo).
  * @module src/screens/android/profile/account-section
  */
 import {useEffect, useState} from "react";
-import {Alert, Image, Pressable, Text, View} from "react-native";
+import {Image, Pressable, Text, View} from "react-native";
 import {deleteAuthUser, signInWithGoogle, signOutGoogle} from "../../../services/firebase/google-auth";
 import {deleteUserData} from "../../../services/firebase/user-profile";
 import GoogleIcon from "../../../assets/icons/google.svg";
 import {CircularProgress} from "../../../components/circular-progress";
+import {confirm} from "../../../components/confirm-dialog";
 import {Icon} from "../../../components/icon";
 import {useAuthStore} from "../../../store/auth-store";
 import {usePreferencesSyncStore} from "../../../store/preferences-sync-store";
@@ -82,17 +83,18 @@ export function AccountSection() {
     }
   };
 
-  const confirmDelete = () => {
-    if (isDeleting) return;
-    Alert.alert(
-      "Delete account?",
-      "Delete your account and all synced data? This can't be undone.",
-      [
-        {text: "Cancel", style: "cancel"},
-        {text: "Delete", style: "destructive", onPress: () => void handleDelete()},
-      ],
-      {cancelable: true}
-    );
+  const confirmDelete = async () => {
+    if (isDeleting || !user) return;
+    const accepted = await confirm({
+      title: "Delete account?",
+      message: "Delete your account and all synced data? This can't be undone.",
+      cancelLabel: "Cancel",
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (accepted) {
+      await handleDelete();
+    }
   };
 
   return (
