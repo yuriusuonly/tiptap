@@ -9,7 +9,7 @@ import {useEffect, useState} from "react";
 import {Image, Pressable, Text, View} from "react-native";
 import LogoIcon from "../../../assets/icons/icon.svg";
 import SettingsIcon from "../../../assets/icons/settings.svg";
-import {BottomSheet} from "../../../components/bottom-sheet";
+import {openBottomSheet} from "../../../components/bottom-sheet";
 import {Icon} from "../../../components/icon";
 import {APP_NAME} from "../../../constants/configuration";
 import {useAuthStore} from "../../../store/auth-store";
@@ -19,7 +19,6 @@ import {MoreSection} from "./more-section";
 import {PreferencesSection} from "./preferences-section";
 
 export function ProfileScreen() {
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [photoFailed, setPhotoFailed] = useState(false);
   const {status, user} = useAuthStore();
   const {palette} = useResolvedTheme();
@@ -64,7 +63,17 @@ export function ProfileScreen() {
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Settings"
-              onPress={() => setSettingsOpen(true)}
+              onPress={() =>
+                openBottomSheet(() => (
+                  <>
+                    <AccountSection />
+                    <View className="mt-4 mobile:mt-5 tablet:mt-6 desktop:mt-8">
+                      <PreferencesSection />
+                    </View>
+                    <MoreSection />
+                  </>
+                ))
+              }
               className="absolute bottom-0 right-0 h-10 w-10 items-center justify-center rounded-full border border-line bg-raised mobile:h-11 mobile:w-11"
             >
               <Icon
@@ -77,14 +86,6 @@ export function ProfileScreen() {
           </View>
         </View>
       </View>
-
-      <BottomSheet visible={settingsOpen} onClose={() => setSettingsOpen(false)}>
-        <AccountSection />
-        <View className="mt-4 mobile:mt-5 tablet:mt-6 desktop:mt-8">
-          <PreferencesSection />
-        </View>
-        <MoreSection />
-      </BottomSheet>
     </View>
   );
 }

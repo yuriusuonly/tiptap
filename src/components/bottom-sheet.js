@@ -22,6 +22,11 @@ import {
   State,
 } from "react-native-gesture-handler";
 import {cssInterop} from "nativewind";
+import {
+  closeBottomSheet,
+  openBottomSheet,
+  useBottomSheetStore,
+} from "../store/bottom-sheet-store";
 
 // Enable Nativewind className styling for RNGH components used by the sheet.
 cssInterop(GestureHandlerRootView, {className: "style"});
@@ -245,3 +250,19 @@ export function BottomSheet({visible, onClose, children}) {
 }
 
 export default BottomSheet;
+
+/** Root-level host (rendered by `Root`, above page content and below dialogs). */
+export function BottomSheetHost() {
+  const isOpen = useBottomSheetStore((state) => state.isOpen);
+  const render = useBottomSheetStore((state) => state.render);
+
+  if (!isOpen) return null;
+
+  return (
+    <BottomSheet visible={isOpen} onClose={closeBottomSheet}>
+      {typeof render === "function" ? render() : render}
+    </BottomSheet>
+  );
+}
+
+export {openBottomSheet, closeBottomSheet};
