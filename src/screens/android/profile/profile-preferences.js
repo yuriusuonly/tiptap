@@ -3,7 +3,7 @@
  * persists the chosen mode through the shared theme store, plus rows to open
  * the web landing page, contact support, and legal pages. Failed URL opens
  * surface via the root-owned toast (no inlined errors).
- * @module src/android/screens/profile/profile-preferences
+ * @module src/screens/android/profile/profile-preferences
  */
 import {useState} from "react";
 import {Linking, Pressable, Text, View} from "react-native";

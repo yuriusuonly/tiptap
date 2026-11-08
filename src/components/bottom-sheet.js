@@ -2,7 +2,7 @@
  * Android bottom sheet: instant show/hide (no entrance/exit transition) with a
  * draggable handle for expandable/collapsible behavior. Drag settles to snap
  * points on release (interactive behavior). Content is scrollable.
- * @module src/android/components/bottom-sheet
+ * @module src/components/bottom-sheet
  */
 import {useCallback, useEffect, useMemo, useRef} from "react";
 import {

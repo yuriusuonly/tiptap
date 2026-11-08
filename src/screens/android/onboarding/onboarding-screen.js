@@ -3,7 +3,7 @@
  * the endless title + text paragraph feed. No animations — pages switch on
  * horizontal swipe, Next/Skip, and finishing persists `hasSeenOnboarding`
  * via the shared store.
- * @module src/android/screens/onboarding/onboarding-screen
+ * @module src/screens/android/onboarding/onboarding-screen
  */
 import {useRef, useState} from "react";
 import {PanResponder, Pressable, Text, View} from "react-native";

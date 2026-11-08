@@ -4,7 +4,7 @@
  * Every failed response (sign-in/sign-out/account deletion/sync) surfaces
  * via the root-owned toast; there are no inlined errors. Delete account uses
  * the built-in Alert confirmation dialog. Identity shows name/email (+photo).
- * @module src/android/screens/profile/account-section
+ * @module src/screens/android/profile/account-section
  */
 import {useEffect, useState} from "react";
 import {Alert, Image, Pressable, Text, View} from "react-native";

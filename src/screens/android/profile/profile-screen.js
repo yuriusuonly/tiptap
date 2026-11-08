@@ -3,13 +3,13 @@
  * avatar (app logo by default, user photo when signed in) with a Settings
  * badge that reveals the account/preferences content in a draggable bottom
  * sheet (instant reveal, no entrance transition). Toasts are root-owned.
- * @module src/android/screens/profile/profile-screen
+ * @module src/screens/android/profile/profile-screen
  */
 import {useEffect, useState} from "react";
 import {Image, Pressable, Text, View} from "react-native";
 import LogoIcon from "../../../assets/icons/icon.svg";
 import SettingsIcon from "../../../assets/icons/settings.svg";
-import {BottomSheet} from "../../components/bottom-sheet";
+import {BottomSheet} from "../../../components/bottom-sheet";
 import {Icon} from "../../../components/icon";
 import {APP_NAME} from "../../../constants/configuration";
 import {useAuthStore} from "../../../store/auth-store";

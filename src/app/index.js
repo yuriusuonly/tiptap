@@ -3,4 +3,4 @@
  * file stays a thin bridge to the web landing screen.
  * @module src/app/index
  */
-export {default} from "../web/screens/landing/landing-screen";
+export {default} from "../screens/web/landing/landing-screen";

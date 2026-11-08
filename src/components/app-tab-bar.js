@@ -4,14 +4,14 @@
  * non-interactive so taps always reach the tab item. Tabs are internal state
  * (see `src/app/_layout.android.js`), not file-based routes: `src/app/` holds
  * only the root route files.
- * @module src/android/components/app-tab-bar
+ * @module src/components/app-tab-bar
  */
 import {Pressable, Text, View} from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";
-import HomeIcon from "../../assets/icons/home.svg";
-import PersonIcon from "../../assets/icons/person.svg";
-import Icon from "../../components/icon";
-import {useResolvedTheme} from "../../store/theme-store";
+import HomeIcon from "../assets/icons/home.svg";
+import PersonIcon from "../assets/icons/person.svg";
+import Icon from "./icon";
+import {useResolvedTheme} from "../store/theme-store";
 
 const TABS = [
   {id: "home", title: "Home", icon: HomeIcon},

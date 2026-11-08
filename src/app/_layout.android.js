@@ -9,9 +9,9 @@
 import {Slot} from "expo-router";
 import {useState} from "react";
 import {View} from "react-native";
-import {AppTabBar} from "../android/components/app-tab-bar";
-import {OnboardingScreen} from "../android/screens/onboarding/onboarding-screen";
-import {ProfileScreen} from "../android/screens/profile/profile-screen";
+import {AppTabBar} from "../components/app-tab-bar";
+import {OnboardingScreen} from "../screens/android/onboarding/onboarding-screen";
+import {ProfileScreen} from "../screens/android/profile/profile-screen";
 import {Root} from "../components/root";
 import {useOnboardingStore} from "../store/onboarding-store";
 

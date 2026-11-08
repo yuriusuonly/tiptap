@@ -59,31 +59,25 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for dependency, lint, and doctor commands
     │   ├── _layout.android.js    # Android root: onboarding gate + custom tab bar
     │   ├── index.js              # web landing route
     │   ├── index.android.js      # Android Home route
+    │   ├── policy.js             # /policy route (thin bridge)
+    │   ├── terms.js              # /terms route (thin bridge)
     │   ├── +html.js              # web document shell (pre-paint theme script)
-    │   └── +not-found.js         # 404 route (thin bridge to web/screens/not-found)
-    ├── web/                      # web-only screens (not routes)
-    │   └── screens/
-    │       ├── landing/          # landing-screen.js
-    │       └── not-found/        # not-found-screen.js
-    ├── android/                  # Android-only UI (not routes)
-    │   ├── components/           # app-tab-bar.js (React Native tab bar)
-    │   └── screens/
-    │       ├── home/             # home-screen.js
-    │       ├── onboarding/       # onboarding-screen.js (first install, 3 pages)
-    │       └── profile/          # profile-screen.js, profile-preferences.js
-    └── shared/                   # cross-platform code (no platform imports)
-        ├── components/           # icon.js (SVG wrapper), root.js (providers)
-        ├── constants/            # colors.js, layout.js, configuration.js
-        ├── hooks/                # use-responsive-layout.js
-        ├── store/                # theme-store.js, onboarding-store.js (Zustand)
-        ├── stylesheets/global.css # Tailwind entry + light/dark CSS vars
-        └── assets/
-            ├── icons/            # icon.svg (logo master), home.svg, person.svg,
-            │                     # theme-auto.svg, theme-dark.svg, theme-light.svg
-            └── images/icon.png   # launcher icon + favicon (from icon.svg)
+    │   └── +not-found.js         # 404 route (thin bridge)
+    ├── screens/                  # platform screens (not routes)
+    │   ├── android/              # home/, onboarding/, profile/
+    │   └── web/                  # landing/, legal/, not-found/
+    ├── components/               # icon.js, root.js, toast-host.js, app-tab-bar.js, bottom-sheet.js, ...
+    ├── constants/                # colors.js, layout.js, configuration.js
+    ├── hooks/                    # use-responsive-layout.js
+    ├── store/                    # theme/auth/onboarding/preferences-sync/toast stores (Zustand)
+    ├── services/                 # firebase/* (Android-native; web-safe lazy/test-mode)
+    ├── stylesheets/global.css    # Tailwind entry + light/dark CSS vars
+    └── assets/
+        ├── icons/                # icon.svg (logo master), home/person/settings/theme-*.svg
+        └── images/icon.png       # launcher icon + favicon (from icon.svg)
 ```
 
-Layers point in one direction: `src/app` routes → `src/web` / `src/android` screens → cross-platform modules (`src/components`, `src/constants`, `src/hooks`, `src/store`, `src/stylesheets`, `src/assets`). Cross-platform code never imports platform screens or routes. All filenames use lower-case kebab-case; Expo Router's reserved route names (`index`, `_layout`, `+html`, `+not-found`) are the exception.
+Layers point in one direction: `src/app` routes → `src/screens` (web/android) → cross-platform modules (`src/components`, `src/constants`, `src/hooks`, `src/store`, `src/assets`, ...). Cross-platform code never imports `src/app/` or `src/screens/`. All filenames use lower-case kebab-case; Expo Router's reserved route names (`index`, `_layout`, `+html`, `+not-found`) are the exception.
 
 SVG assets are the source of truth. Regenerate the launcher/fav icon PNG from `src/assets/icons/icon.svg` after editing the logo:
 
@@ -198,7 +192,7 @@ After adding Firebase native deps/plugins or `google-services.json`, rebuild the
 - [x] White→dark theme flash on web reload — fixed via a pre-paint theme script
 - [x] Onboarding black screen (hydrated mutation never notified React) — fixed via `setState`
 - [x] Platform-only `*.android.js` fallback error — fixed by using internal tabs instead of file-based Tabs
-- [x] Feature files exposed as routes — fixed by moving `src/web/` and `src/android/` outside `src/app/`
+- [x] Feature files exposed as routes — fixed by keeping `src/app/` to root route files and placing screens under `src/screens/` (outside `src/app/`)
 - [x] `configuration.js` threw at import time in SSR contexts (e.g. router-server render) — fixed with lazy runtime validation (`requireFirebaseConfig`) instead of an import-time throw
 - [ ] About row opens `localhost` landing URL — needs an emulator-friendly host during development
 - [ ] `react-native` is `0.86.0` while the SDK expects `0.86.3` — run `npx expo install --fix`

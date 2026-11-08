@@ -1,6 +1,6 @@
 /**
  * Android Home tab content: responsive centered intro copy.
- * @module src/android/screens/home/home-screen
+ * @module src/screens/android/home/home-screen
  */
 import {Text, View} from "react-native";
 

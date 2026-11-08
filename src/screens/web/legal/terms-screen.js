@@ -1,6 +1,6 @@
 /**
  * Web Terms of Service page. Scrollable legal content.
- * @module src/web/screens/legal/terms-screen
+ * @module src/screens/web/legal/terms-screen
  */
 import Head from "expo-router/head";
 import {Link} from "expo-router";

@@ -44,8 +44,8 @@ flowchart TB
     end
 
     subgraph PLATFORM["Platform screens"]
-        WEBF["src/web/<br/>landing, not-found"]
-        ANDF["src/android/<br/>home, onboarding, profile,<br/>app-tab-bar"]
+        WEBF["src/screens/web/<br/>landing, legal, not-found"]
+        ANDF["src/screens/android/<br/>home, onboarding, profile"]
     end
 
     subgraph SHARED["src/* (cross-platform)"]

@@ -61,7 +61,7 @@ not a replacement.
   (`<Icon as={Svg} size={...} color={...} accessibilityLabel="..." />`). Pass
   `color` only for tintable `fill="currentColor"` icons.
 - Android Home/Profile use internal state + the RN tab bar
-  (`src/android/components/app-tab-bar.js`, `src/app/_layout.android.js`) — **no
+  (`src/components/app-tab-bar.js`, `src/app/_layout.android.js`) — **no
   `@expo/ui`/Jetpack Compose navigation**. `Pressable` is the only touch target;
   icons/selection indicator use `pointerEvents="none"`. Web `/profile` has no
   route and renders `+not-found` (404).
@@ -71,7 +71,7 @@ not a replacement.
 - Meaningful `accessibilityLabel`/roles, adequate touch target sizes, and
   platform-appropriate focus/press behavior.
 - Keep Android/Web parity where intended; isolate platform-only UI under
-  `src/android/` or `src/web/` and cross-platform UI under `src/`.
+  `src/screens/android/` or `src/screens/web/` and cross-platform UI under `src/`.
 
 ## After changes
 

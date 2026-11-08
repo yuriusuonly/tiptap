@@ -37,10 +37,10 @@ npm run android:release               # remote production AAB + submit (EAS)
 
 ## Architecture (layered, platform-separated)
 
-- `src/app/` — **file-based routing only** (six root files: `index.js`, `index.android.js`, `_layout.js`, `_layout.android.js`, `+html.js`, `+not-found.js`). `src/web/` and `src/android/` live **outside** `src/app/` so their files are not routes.
-- Cross-platform modules live at the `src/` root: `src/components/`, `src/constants/`, `src/hooks/`, `src/store/`, `src/stylesheets/`, `src/assets/`. `src/web/` is **web-only**; `src/android/` is **Android-only**.
+- `src/app/` — **file-based routing only** (six root files: `index.js`, `index.android.js`, `_layout.js`, `_layout.android.js`, `+html.js`, `+not-found.js`). Platform screens live **outside** `src/app/` under `src/screens/web/` and `src/screens/android/` so they are not routes.
+- Cross-platform modules live at the `src/` root: `src/components/`, `src/constants/`, `src/hooks/`, `src/store/`, `src/stylesheets/`, `src/assets/`.
 - `src/services/` — reserved for future integrations (Firebase/API/storage adapters). Keep it free of UI imports.
-- Dependency direction: `app routes -> web/android screens -> cross-platform modules`. Cross-platform code must never import from `src/app/`, `src/web/`, or `src/android/`. See README.md (Project structure) and CONTRIBUTING.md (Architecture).
+- Dependency direction: `app routes -> src/screens (web/android) -> cross-platform modules`. Cross-platform code must never import from `src/app/` or `src/screens/`. See README.md (Project structure) and CONTRIBUTING.md (Architecture).
 
 ## Routing (Expo Router)
 
@@ -63,9 +63,9 @@ npm run android:release               # remote production AAB + submit (EAS)
 - Use the shared `src/components/icon.js` wrapper to render SVG icons consistently across platforms: `<Icon as={SvgComponent} size={24} color={...} accessibilityLabel="..." />`. `src/assets/icons/*.svg` files are the source of truth for icons — import SVGs (e.g. `home.svg`/`person.svg` and the brand logo `icon.svg`) directly and render via `Icon` (pass `color` only for tintable `fill="currentColor"` icons). `src/assets/icons/icon.svg` remains the master for derived PNG assets.
 - Style React Native components with **Nativewind** `className` utilities (Tailwind v3 config in `tailwind.config.js`; `src/stylesheets/global.css` is imported by `src/components/root.js`). **Do not use inline `style` objects for presentation.** Semantic colors come from CSS variables in `global.css` and switch with the `dark` class (driven by the theme store). Shared tokens still live in `src/constants/colors.js` and are mirrored in the Tailwind theme. Responsive rules live in `src/constants/layout.js`; prefer Tailwind screen variants. See `DESIGN.md`.
 - Global client state uses **Zustand** stores in `src/store/`. Persist with `zustand/middleware` + AsyncStorage and `skipHydration: true`, then call `store.persist.rehydrate()` in `src/components/root.js` so static web rendering never touches `localStorage`.
-- The Android bottom navigation is a **React Native** tab bar (`src/android/components/app-tab-bar.js`) rendered by `src/app/_layout.android.js` with internal `home`/`profile` state. The `Pressable` tab item is the only touch target; icons and the selection indicator use `pointerEvents="none"` so taps are never intercepted or propagated. Do **not** reintroduce `@expo/ui`/Jetpack Compose navigation or VectorDrawable XML assets.
+- The Android bottom navigation is a **React Native** tab bar (`src/components/app-tab-bar.js`) rendered by `src/app/_layout.android.js` with internal `home`/`profile` state. The `Pressable` tab item is the only touch target; icons and the selection indicator use `pointerEvents="none"` so taps are never intercepted or propagated. Do **not** reintroduce `@expo/ui`/Jetpack Compose navigation or VectorDrawable XML assets.
 - App icons: `app.config.js` points at `src/assets/images/icon.png` (top-level and `android.icon`), which is exported from the master `src/assets/icons/icon.svg` at 1024×1024 (Expo only accepts PNG launcher icons). The web favicon is configured via `app.config.js` `web.favicon` (`./src/assets/images/icon.png`).
-- The web landing is statically rendered. `useWindowDimensions()` is 0 during SSG, so gate responsive branches behind a `mounted` flag (`src/web/screens/landing/landing-screen.js`); otherwise hydration mismatches leave the mobile layout on desktop.
+- The web landing is statically rendered. `useWindowDimensions()` is 0 during SSG, so gate responsive branches behind a `mounted` flag (`src/screens/web/landing/landing-screen.js`); otherwise hydration mismatches leave the mobile layout on desktop.
 
 ## Build & test
 
