@@ -8,14 +8,20 @@
  * Sign-in success emits signed-in; sign-out success and delete-account
  * success emit signed-out (delete-account logs the fake user out instead
  * of actually deleting the fake account). Delete-account outcome is
- * coordinated with `user-profile` via `mock-state` so the action flips as
- * a unit. No native modules are loaded. Loaded lazily by the real service
- * only when `isTestMode` (see `src/services/firebase/google-auth.js`).
+ * coordinated with `user-profile` via a hard-coded global test flag so the
+ * action flips as a unit. No native modules are loaded. Loaded lazily by
+ * the real service only when `isTestMode`.
  * @module test/services/firebase/google-auth
  */
-import {MOCK_TEST_USER, delay, isDeleteAccountSuccess} from "./mock-state";
 
-export {MOCK_TEST_USER};
+const MOCK_DELAY_MS = 1200;
+
+export const MOCK_TEST_USER = {
+  uid: "test-uid",
+  displayName: "Test User",
+  email: "test@example.com",
+  photoURL: null,
+};
 
 export const MOCK_AUTH_ERRORS = {
   signIn: {code: "auth/mock-failed", message: "Mock sign-in failed (test mode)"},
@@ -27,6 +33,15 @@ let currentUser = null;
 let signInAttempts = 0;
 let signOutAttempts = 0;
 const listeners = new Set();
+
+function delay() {
+  return new Promise((resolve) => setTimeout(resolve, MOCK_DELAY_MS));
+}
+
+function getDeleteAccountState() {
+  globalThis.__tiptapTestDeleteAccount ??= {attempts: 0, shouldSucceed: false};
+  return globalThis.__tiptapTestDeleteAccount;
+}
 
 function emit(user) {
   for (const listener of [...listeners]) {
@@ -68,7 +83,7 @@ export async function signOutGoogle() {
 
 export async function deleteAuthUser() {
   await delay();
-  if (!isDeleteAccountSuccess()) {
+  if (!getDeleteAccountState().shouldSucceed) {
     throw mockError("delete");
   }
   // Log the fake user out instead of actually deleting the fake account.

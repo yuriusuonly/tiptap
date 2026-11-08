@@ -4,15 +4,25 @@
  * alternating results: the 1st run of each call fails, the 2nd succeeds,
  * then flips (failure ↔ success), after a fixed delay — so sync/delete
  * failure and success states render deterministically. Delete-account
- * outcome is coordinated with `google-auth` via `mock-state` (the action
- * flips as a unit; "success" logs the fake user out instead of actually
- * deleting the fake account). No native modules are loaded. Loaded
- * lazily by the real service only when `isTestMode`.
+ * outcome is coordinated with `google-auth` via a hard-coded global test
+ * flag (the action flips as a unit; "success" logs the fake user out
+ * instead of actually deleting the fake account). No native modules are
+ * loaded. Loaded lazily by the real service only when `isTestMode`.
  * @module test/services/firebase/user-profile
  */
-import {beginDeleteAccountAttempt, delay} from "./mock-state";
+
+const MOCK_DELAY_MS = 1200;
 
 let upsertAttempts = 0;
+
+function delay() {
+  return new Promise((resolve) => setTimeout(resolve, MOCK_DELAY_MS));
+}
+
+function getDeleteAccountState() {
+  globalThis.__tiptapTestDeleteAccount ??= {attempts: 0, shouldSucceed: false};
+  return globalThis.__tiptapTestDeleteAccount;
+}
 
 export async function upsertUserProfile() {
   await delay();
@@ -26,7 +36,10 @@ export async function upsertUserProfile() {
 
 export async function deleteUserData() {
   await delay();
-  if (!beginDeleteAccountAttempt()) {
+  const state = getDeleteAccountState();
+  state.attempts += 1;
+  state.shouldSucceed = state.attempts % 2 === 0;
+  if (!state.shouldSucceed) {
     const error = new Error("Mock profile delete failed (test mode)");
     error.code = "firestore/mock-failed";
     throw error;
