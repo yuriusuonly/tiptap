@@ -1,6 +1,6 @@
 /**
  * Android bottom sheet: instant show/hide (no entrance/exit transition) with
- * expandable/collapsible behavior driven by pan gestures (RNGH). Opens at 75%
+ * expandable/collapsible behavior driven by pan gestures (RNGH). Opens at 50%
  * screen height by default; drag up expands to max (88%), drag down
  * collapses/dismisses. When partially open the whole sheet responds to vertical
  * drags; when fully expanded, content scrolls and a downward drag from the top
@@ -36,14 +36,14 @@ cssInterop(ScrollView, {
 });
 
 const MAX_FRACTION = 0.88;
-const DEFAULT_FRACTION = 0.75;
+const DEFAULT_FRACTION = 0.5;
 
 export function BottomSheet({visible, onClose, children}) {
   const {height: windowHeight} = useWindowDimensions();
   const expandedHeight = Math.max(240, Math.round(windowHeight * MAX_FRACTION));
   const defaultHeight = Math.max(200, Math.round(windowHeight * DEFAULT_FRACTION));
   // Offset from the top of the max-height sheet frame: 0 = fully expanded (max),
-  // defaultOffset = 75% visible, dismissOffset = hidden.
+  // defaultOffset = 50% visible, dismissOffset = hidden.
   const defaultOffset = Math.max(0, expandedHeight - defaultHeight);
   const dismissOffset = expandedHeight;
 
@@ -82,7 +82,7 @@ export function BottomSheet({visible, onClose, children}) {
 
   useEffect(() => {
     if (visible) {
-      // Reveal instantly (no entrance transition) at the default (75%) height.
+      // Reveal instantly (no entrance transition) at the default (50%) height.
       setResting(defaultOffset);
       scrollYRef.current = 0;
       setAtTop(true);
