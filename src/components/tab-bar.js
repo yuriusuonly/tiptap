@@ -14,7 +14,7 @@ import Icon from "./icon";
 import {useResolvedTheme} from "../store/theme-store";
 
 const TABS = [
-  {id: "home", title: "Home", icon: HomeIcon},
+  {id: "home", title: "Discover", icon: HomeIcon},
   {id: "profile", title: "Profile", icon: PersonIcon},
 ];
 

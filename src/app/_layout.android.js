@@ -1,9 +1,9 @@
 /**
- * Android root layout. `src/app/` holds only the root route files; Home and
- * Profile are internal tabs (state), not file-based routes. Home renders via
+ * Android root layout. `src/app/` holds only the root route files; Discover and
+ * Profile are internal tabs (state), not file-based routes. Discover renders via
  * the `index` route (`Slot` -> `index.android.js`), Profile renders the
- * feature screen directly. First-time installs see the onboarding flow (three
- * pages) before the tabs. Web resolves `_layout.js` instead.
+ * feature screen directly. First-time installs see the login/onboarding gate
+ * before the tabs. Web resolves `_layout.js` instead.
  * @module src/app/_layout.android
  */
 import {Slot} from "expo-router";
