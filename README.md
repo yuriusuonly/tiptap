@@ -154,10 +154,11 @@ Adding a library with native code requires a development build (`npx expo run:an
 
 ### Initialize & deploy (planned)
 ```bash
-npm install                     # installs dev deps incl. firebase-tools
-npm run firebase:initialize     # initialize Firebase in this project (Hosting/Firestore rules as needed)
-npx expo export --platform web  # build static landing
-npx firebase deploy --only hosting
+npm install                         # installs dev deps incl. firebase-tools
+npm run firebase:initialize         # initialize Firebase in this project (Hosting/Firestore rules as needed)
+npm run web:build                   # build static web export to web/
+npm run web:serve                   # serve the web/ export locally with Expo
+npm run firebase:deploy-hosting     # build + rename 404 for Firebase + deploy hosting
 ```
 
 After adding Firebase native deps/plugins or `google-services.json`, rebuild the Android dev client (`npm run android`) or create a new EAS build.

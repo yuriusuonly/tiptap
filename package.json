@@ -10,9 +10,11 @@
     "android:install": "adb install -r android/build/development.apk",
     "android:release": "eas build --platform android --profile production --auto-submit",
     "eas:download-credentials": "eas credentials:configure-build -p android -e development",
-    "web:build": "expo export --platform web --output-dir web && mv web/+not-found.html web/404.html",
+    "web:build": "expo export --platform web --output-dir web",
+    "web:serve": "expo serve web",
     "firebase:initialize": "firebase init",
-    "firebase:deploy-rules": "firebase deploy --only firestore:rules"
+    "firebase:deploy-rules": "firebase deploy --only firestore:rules",
+    "firebase:deploy-hosting": "npm run web:build && mv web/+not-found.html web/404.html && firebase deploy --only hosting"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
