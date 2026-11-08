@@ -116,17 +116,17 @@ export function DiscoverScreen() {
           accessibilityLabel="Profile"
           onPress={openProfile}
           hitSlop={8}
-          className="h-10 w-10 items-center justify-center overflow-hidden rounded-full"
+          className="h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-white/20 bg-white/10"
         >
           {showUserPhoto ? (
             <Image
               source={{uri: user.photoURL}}
               onError={() => setPhotoFailed(true)}
               accessibilityLabel={`${user.displayName ?? "Account"} profile photo`}
-              className="h-9 w-9 rounded-full"
+              className="h-10 w-10 rounded-full"
             />
           ) : (
-            <Icon as={PersonIcon} size={26} color="#FFFFFF" accessibilityLabel="Profile" />
+            <Icon as={PersonIcon} size={22} color="#FFFFFF" accessibilityLabel="Profile" />
           )}
         </Pressable>
         <ActionButton icon={BookmarkIcon} label="Bookmark" onPress={() => {}} />
