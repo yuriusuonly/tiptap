@@ -132,8 +132,8 @@ export function AccountSection() {
         ) : status === "signedIn" && user ? (
           <View>
             <View className="flex-row items-center gap-3 py-1">
-              <View className="relative h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-raised">
-                <Text className="text-[16px] font-semibold text-accent">
+              <View className="relative h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-raised">
+                <Text className="text-[20px] font-semibold text-accent">
                   {(user.displayName ?? user.email ?? "?").charAt(0).toUpperCase()}
                 </Text>
                 {user.photoURL && !photoFailed ? (
@@ -141,7 +141,7 @@ export function AccountSection() {
                     source={{uri: user.photoURL}}
                     onError={() => setPhotoFailed(true)}
                     accessibilityLabel={`${user.displayName ?? "Account"} profile photo`}
-                    className="absolute inset-0 h-10 w-10"
+                    className="absolute inset-0 h-14 w-14"
                   />
                 ) : null}
               </View>
