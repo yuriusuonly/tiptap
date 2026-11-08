@@ -9,9 +9,10 @@ import {Image, Pressable, ScrollView, Text, View} from "react-native";
 import {SafeAreaView, useSafeAreaInsets} from "react-native-safe-area-context";
 import Svg, {Defs, LinearGradient, Rect, Stop} from "react-native-svg";
 import BookmarkIcon from "../../../assets/icons/bookmark.svg";
-import PersonIcon from "../../../assets/icons/person.svg";
+import LogoIcon from "../../../assets/icons/icon.svg";
 import ShareIcon from "../../../assets/icons/share.svg";
 import {Icon} from "../../../components/icon";
+import {APP_NAME} from "../../../constants/configuration";
 import {openProfile} from "../../../store/android-overlay-store";
 import {useAuthStore} from "../../../store/auth-store";
 
@@ -126,7 +127,7 @@ export function DiscoverScreen() {
               className="h-10 w-10 rounded-full"
             />
           ) : (
-            <Icon as={PersonIcon} size={22} color="#FFFFFF" accessibilityLabel="Profile" />
+            <Icon as={LogoIcon} size={22} accessibilityLabel={`${APP_NAME} logo`} />
           )}
         </Pressable>
         <ActionButton icon={BookmarkIcon} label="Bookmark" onPress={() => {}} />
