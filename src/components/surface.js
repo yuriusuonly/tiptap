@@ -1,7 +1,7 @@
 /**
  * Styled surface/container primitives (card, raised, outlined) using semantic tokens.
  * Accept `className` to extend; wrap React Native `View`.
- * @module src/components/ui-surface
+ * @module src/components/surface
  */
 import {View} from "react-native";
 

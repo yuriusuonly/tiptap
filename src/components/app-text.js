@@ -1,7 +1,7 @@
 /**
  * Styled text primitive wrapping React Native `Text` with design-system variants.
  * Uses Nativewind semantic color/typography tokens; accepts `className` to extend.
- * @module src/components/ui-text
+ * @module src/components/app-text
  */
 import {Text} from "react-native";
 

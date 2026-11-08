@@ -2,7 +2,7 @@
  * Styled pressable button primitive with variants, sizes, and loading/disabled states.
  * Uses Nativewind semantic tokens. For async actions, pass `loading` to show a
  * themed circular indicator and disable interaction.
- * @module src/components/ui-button
+ * @module src/components/button
  */
 import {ActivityIndicator, Pressable, Text, View} from "react-native";
 import {useResolvedTheme} from "../store/theme-store";

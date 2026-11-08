@@ -1,7 +1,7 @@
 /**
  * Screen container primitives with semantic background and optional safe-area/scroll.
  * Use for consistent page roots across Android and web.
- * @module src/components/ui-screen
+ * @module src/components/screen
  */
 import {ScrollView, View} from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";
