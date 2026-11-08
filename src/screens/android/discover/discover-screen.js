@@ -80,10 +80,7 @@ export function DiscoverScreen() {
           accessibilityRole="header"
           className="border-b border-white/10 px-4 pb-3 pt-2 mobile:px-5 tablet:px-8 desktop:px-12"
         >
-          <Text className="text-[12px] font-semibold uppercase tracking-[1.2px] text-[#25F4EE]">
-            Discover
-          </Text>
-          <Text className="mt-1 text-[22px] font-bold leading-[28px] text-white mobile:text-[26px] mobile:leading-[32px] tablet:text-[30px] tablet:leading-[38px]">
+          <Text className="text-[22px] font-bold leading-[28px] text-white mobile:text-[26px] mobile:leading-[32px] tablet:text-[30px] tablet:leading-[38px]">
             Ideas That Find You at the Right Moment
           </Text>
         </View>
