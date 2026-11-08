@@ -65,7 +65,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for dependency, lint, and doctor commands
     │   └── +not-found.js         # 404 route (thin bridge)
     ├── screens/                  # platform screens (not routes)
     │   ├── android/              # home/, onboarding/, profile/
-    │   └── web/                  # landing/, legal/, not-found/
+    │   └── web/                  # landing/, policy/, terms/, not-found/
     ├── components/               # icon.js, root.js, toast-host.js, app-tab-bar.js, bottom-sheet.js, ...
     ├── constants/                # colors.js, layout.js, configuration.js
     ├── hooks/                    # use-responsive-layout.js

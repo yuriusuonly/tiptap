@@ -1,6 +1,6 @@
 /**
  * Web Policy page (Privacy Policy). Scrollable legal content.
- * @module src/screens/web/legal/policy-screen
+ * @module src/screens/web/policy/policy-screen
  */
 import Head from "expo-router/head";
 import {Link} from "expo-router";
