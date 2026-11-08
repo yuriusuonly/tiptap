@@ -15,7 +15,8 @@ import {APP_NAME} from "../../../constants/configuration";
 import {useAuthStore} from "../../../store/auth-store";
 import {useResolvedTheme} from "../../../store/theme-store";
 import {AccountSection} from "./account-section";
-import {ProfilePreferences} from "./profile-preferences";
+import {MoreSection} from "./more-section";
+import {PreferencesSection} from "./preferences-section";
 
 export function ProfileScreen() {
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -80,8 +81,9 @@ export function ProfileScreen() {
       <BottomSheet visible={settingsOpen} onClose={() => setSettingsOpen(false)}>
         <AccountSection />
         <View className="mt-4 mobile:mt-5 tablet:mt-6 desktop:mt-8">
-          <ProfilePreferences />
+          <PreferencesSection />
         </View>
+        <MoreSection />
       </BottomSheet>
     </View>
   );
