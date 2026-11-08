@@ -7,7 +7,7 @@
  * @module src/components/confirm-dialog
  */
 import {Modal, Pressable, Text, View} from "react-native";
-import {confirm, useConfirmDialogStore} from "../store/confirm-dialog-store";
+import {confirm, useDialogStore} from "../store/dialog-store";
 
 function cx(...parts) {
   return parts.filter(Boolean).join(" ");
@@ -94,8 +94,8 @@ export function ConfirmDialog({
 
 /** Root-level host (rendered by `Root`, beneath `ToastHost`). */
 export function ConfirmDialogHost() {
-  const dialogs = useConfirmDialogStore((state) => state.dialogs);
-  const close = useConfirmDialogStore((state) => state.close);
+  const dialogs = useDialogStore((state) => state.dialogs);
+  const close = useDialogStore((state) => state.close);
 
   if (dialogs.length === 0) return null;
 
