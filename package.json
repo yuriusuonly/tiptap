@@ -1,6 +1,15 @@
 {
   "private": true,
+  "type": "module",
+  "scripts": {
+    "firebase:login": "firebase login",
+    "firebase:initialize": "firebase init",
+    "firebase:deploy:firestore:rules": "firebase deploy --only firestore:rules",
+    "firebase:deploy:hosting": "firebase deploy --only hosting",
+    "firebase:seed": "node --env-file .env seed.js"
+  },
   "devDependencies": {
-    "firebase-tools": "^15.12.0"
+    "firebase-admin": "^14.5.0",
+    "firebase-tools": "^15.35.0"
   }
 }

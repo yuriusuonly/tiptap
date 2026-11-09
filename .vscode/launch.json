@@ -2,56 +2,53 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Web Debug",
+      "name": "flutter:debug",
       "request": "launch",
       "type": "dart",
       "flutterMode": "debug",
-      "deviceId": "chrome",
       "program": "lib/main.dart",
       "args": [
-        "--verbose",
-        "--dart-define-from-file=.env",
-        "--web-hostname=localhost",
-        "--web-port=3000"
+        "--dart-define-from-file=.env"
       ]
     },
+
     {
-      "name": "Web Release",
+      "name": "flutter:release",
       "request": "launch",
       "type": "dart",
       "flutterMode": "release",
-      "deviceId": "chrome",
       "program": "lib/main.dart",
       "args": [
-        "--verbose",
-        "--dart-define-from-file=.env",
-        "--web-hostname=localhost",
-        "--web-port=3000"
+        "--dart-define-from-file=.env"
       ]
     },
+
     {
-      "name": "Android Debug",
+      "name": "flutter:debug:web",
       "request": "launch",
       "type": "dart",
       "flutterMode": "debug",
-      "deviceId": "adb",
       "program": "lib/main.dart",
       "args": [
-        "--verbose",
+        "--device-id=web-server",
+        "--web-hostname=127.0.0.1",
+        "--web-port=3000",
         "--dart-define-from-file=.env"
       ]
     },
+
     {
-      "name": "Android Release",
+      "name": "flutter:release:web",
       "request": "launch",
       "type": "dart",
       "flutterMode": "release",
-      "deviceId": "adb",
       "program": "lib/main.dart",
       "args": [
-        "--verbose",
+        "--device-id=web-server",
+        "--web-hostname=127.0.0.1",
+        "--web-port=3000",
         "--dart-define-from-file=.env"
       ]
-    }
+    },
   ]
 }

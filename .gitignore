@@ -30,7 +30,7 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-/build/
+build
 /coverage/
 
 # Symbolication related
@@ -46,13 +46,9 @@ app.*.map.json
 
 # Local configurations and dependencies
 /.metadata
-/*-lock*
-/*.lock
 /.firebase*
 /firebase*
+/firestore*
 /.env*
-/android/key.properties
-/android/app/*.jks
-/android/app/google-services.json
-/.agents
 /node_modules
+content.json

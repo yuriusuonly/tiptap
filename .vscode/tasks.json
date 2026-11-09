@@ -2,11 +2,8 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Flutter Create Project",
+      "label": "flutter:create",
       "type": "shell",
-      "presentation": {
-        "reveal": "always"
-      },
       "command": "flutter",
       "args": [
         "create",
@@ -16,209 +13,238 @@
         "--description='Tap. Learn. Impress.'",
         "--platforms=android",
         "--template=app"
-      ]
+      ],
+      "problemMatcher": []
     },
+
     {
-      "label": "Flutter Clean",
+      "label": "flutter:doctor",
       "type": "shell",
-      "presentation": {
-        "reveal": "always"
-      },
-      "command": "flutter",
-      "args": [
-        "clean"
-      ]
+      "command": "flutter doctor --verbose",
+      "problemMatcher": []
     },
+
     {
-      "label": "Flutter Pub Get",
+      "label": "flutter:clean",
       "type": "shell",
-      "presentation": {
-        "reveal": "always"
-      },
-      "command": "flutter",
-      "args": [
-        "pub",
-        "get"
-      ]
+      "command": "flutter clean",
+      "problemMatcher": []
     },
+
     {
-      "label": "Flutter Pub Upgrade",
+      "label": "flutter:upgrade",
       "type": "shell",
-      "presentation": {
-        "reveal": "always"
-      },
-      "command": "flutter",
-      "args": [
-        "pub",
-        "upgrade"
-      ]
+      "command": "flutter upgrade",
+      "problemMatcher": []
     },
+
     {
-      "label": "Flutter Build AppBundle",
+      "label": "flutter:pub:get",
       "type": "shell",
-      "presentation": {
-        "reveal": "always"
-      },
+      "command": "flutter pub get",
+      "problemMatcher": []
+    },
+
+    {
+      "label": "flutter:pub:outdated",
+      "type": "shell",
+      "command": "flutter pub outdated",
+      "problemMatcher": []
+    },
+
+    {
+      "label": "flutter:pub:upgrade",
+      "type": "shell",
+      "command": "flutter pub upgrade",
+      "problemMatcher": []
+    },
+
+    {
+      "label": "flutter:build:appbundle",
+      "type": "shell",
       "command": "flutter",
       "args": [
         "build",
         "appbundle",
-        "--verbose",
+        "--release",
         "--dart-define-from-file=.env",
         "--target=lib/main.dart"
-      ]
+      ],
+      "problemMatcher": []
     },
+
     {
-      "label": "Flutter Build APK Debug",
+      "label": "flutter:build:webapp",
       "type": "shell",
-      "presentation": {
-        "reveal": "always"
-      },
-      "command": "flutter",
-      "args": [
-        "build",
-        "apk",
-        "--debug",
-        "--verbose",
-        "--dart-define-from-file=.env",
-        "--target=lib/main.dart"
-      ]
-    },
-    {
-      "label": "Flutter Install APK Debug",
-      "type": "shell",
-      "presentation": {
-        "reveal": "always"
-      },
-      "command": "flutter",
-      "args": [
-        "install",
-        "--verbose",
-        "--device-id=adb",
-        "--use-application-binary=build/app/outputs/flutter-apk/app-debug.apk"
-      ]
-    },
-    {
-      "label": "Flutter Build Web App",
-      "type": "shell",
-      "presentation": {
-        "reveal": "always"
-      },
       "command": "flutter",
       "args": [
         "build",
         "web",
-        "--verbose",
-        "--dart-define-from-file=.env",
+        "--release",
         "--wasm",
         "--no-source-maps",
+        "--dart-define-from-file=.env",
         "--target=lib/main.dart"
-      ]
+      ],
+      "problemMatcher": []
     },
+
     {
-      "label": "Flutter Build Web",
+      "label": "flutter:build:web",
       "type": "shell",
-      "presentation": {
-        "reveal": "always"
-      },
       "command": "flutter",
       "args": [
         "build",
         "web",
-        "--verbose",
-        "--dart-define-from-file=.env",
+        "--release",
         "--pwa-strategy=none",
         "--wasm",
         "--no-source-maps",
+        "--dart-define-from-file=.env",
         "--target=lib/main.dart"
-      ]
-    },
-    {
-      "label": "Dart Run Rename App",
-      "type": "shell",
-      "presentation": {
-        "reveal": "always"
-      },
-      "command": "dart",
-      "args": [
-        "run",
-        "rename_app:main",
-        "all='TipTap'"
-      ]
-    },
-    {
-      "label": "Dart Run Flutter Launcher Icons",
-      "type": "shell",
-      "presentation": {
-        "reveal": "always"
-      },
-      "command": "dart",
-      "args": [
-        "run",
-        "flutter_launcher_icons"
-      ]
-    },
-    {
-      "label": "Dart Run Flutter Native Splash Create",
-      "type": "shell",
-      "presentation": {
-        "reveal": "always"
-      },
-      "command": "dart",
-      "args": [
-        "run",
-        "flutter_native_splash:create"
-      ]
-    },
-    {
-      "label": "Dart Run Flutterfire Configure",
-      "type": "shell",
-      "presentation": {
-        "reveal": "always"
-      },
-      "command": "dart",
-      "args": [
-        "run",
-        "flutterfire_cli:flutterfire",
-        "configure"
-      ]
-    },
-    {
-      "label": "ADB Start Application",
-      "type": "shell",
-      "presentation": {
-        "reveal": "always"
-      },
-      "dependsOrder": "sequence",
-      "dependsOn": [
-        "Flutter Build APK Debug",
-        "Flutter Install APK Debug"
       ],
-      "command": "adb",
-      "args": [
-        "shell",
-        "am",
-        "start",
-        "-S",
-        "dev.yuriusu.tiptap/.MainActivity"
-      ]
+      "problemMatcher": []
     },
+
     {
-      "label": "Project Reconfigure",
+      "label": "flutter:run:debug",
       "type": "shell",
-      "presentation": {
-        "reveal": "always"
-      },
-      "dependsOrder": "sequence",
-      "dependsOn": [
-        "Flutter Clean",
-        "Flutter Pub Get",
-        "Flutter Pub Upgrade",
-        "Dart Run Rename App",
-        "Dart Run Flutter Launcher Icons",
-        "Dart Run Flutter Native Splash Create",
-        "Dart Run Flutterfire Configure"
-      ]
-    }
+      "command": "flutter",
+      "args": [
+        "run",
+        "--debug",
+        "--dart-define-from-file=.env",
+        "--target=lib/main.dart"
+      ],
+      "problemMatcher": []
+    },
+
+    {
+      "label": "flutter:run:release",
+      "type": "shell",
+      "command": "flutter",
+      "args": [
+        "run",
+        "--release",
+        "--dart-define-from-file=.env",
+        "--target=lib/main.dart"
+      ],
+      "problemMatcher": []
+    },
+
+    {
+      "label": "flutter:run:debug:web",
+      "type": "shell",
+      "command": "flutter",
+      "args": [
+        "run",
+        "--debug",
+        "--device-id=web-server",
+        "--web-hostname=127.0.0.1",
+        "--web-port=3000",
+        "--dart-define-from-file=.env",
+        "--target=lib/main.dart"
+      ],
+      "problemMatcher": []
+    },
+
+    {
+      "label": "flutter:run:release:web",
+      "type": "shell",
+      "command": "flutter",
+      "args": [
+        "run",
+        "--release",
+        "--device-id=web-server",
+        "--web-hostname=127.0.0.1",
+        "--web-port=3000",
+        "--dart-define-from-file=.env",
+        "--target=lib/main.dart"
+      ],
+      "problemMatcher": []
+    },
+
+    {
+      "label": "dart:run:rename_app",
+      "type": "shell",
+      "command": "dart run rename_app:main all='TipTap'",
+      "problemMatcher": []
+    },
+
+    {
+      "label": "dart:run:flutter_Launcher_cons",
+      "type": "shell",
+      "command": "dart run flutter_launcher_icons",
+      "problemMatcher": []
+    },
+
+    {
+      "label": "dart:run:flutter_native_splash",
+      "type": "shell",
+      "command": "dart run flutter_native_splash:create",
+      "problemMatcher": []
+    },
+
+    {
+      "label": "firebase:login",
+      "type": "shell",
+      "command": "firebase login",
+      "problemMatcher": []
+    },
+
+    {
+      "label": "firebase:initialize",
+      "type": "shell",
+      "command": "firebase init",
+      "problemMatcher": []
+    },
+
+    {
+      "label": "firebase:deploy:firestore:rules",
+      "type": "shell",
+      "command": "firebase",
+      "args": [
+        "deploy",
+        "--only",
+        "firestore:rules"
+      ],
+      "problemMatcher": []
+    },
+
+    {
+      "label": "firebase:deploy:hosting",
+      "type": "shell",
+      "command": "firebase",
+      "args": [
+        "deploy",
+        "--only",
+        "hosting"
+      ],
+      "problemMatcher": []
+    },
+
+    {
+      "label": "keytool:keystore",
+      "type": "shell",
+      "command": "keytool -genkey -v -keyalg RSA -keysize 2048 -validity 10000 -storetype JKS -alias TipTap -keystore android/app/tiptap.jks",
+      "problemMatcher": []
+    },
+
+    {
+      "label": "keytool:certificate",
+      "type": "shell",
+      "command": "keytool -export -rfc -keystore android/app/tiptap.jks -alias TipTap -file android/app/tiptap.pem",
+      "problemMatcher": []
+    },
+
+    {
+      "label": "android:signing_key",
+      "type": "shell",
+      "command": "./gradlew signingReport",
+      "problemMatcher": [],
+      "options": {
+        "cwd": "${workspaceFolder}/android"
+      }
+    },
   ]
 }
