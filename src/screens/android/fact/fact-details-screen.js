@@ -5,7 +5,8 @@
  * directly, otherwise the monetization overlay is opened.
  * @module src/screens/android/fact/fact-details-screen
  */
-import {Pressable, Text, View} from "react-native";
+import {Text} from "../../../components/text";
+import {Pressable, View} from "react-native";
 import Animated from "react-native-reanimated";
 import BackIcon from "../../../assets/icons/arrow-back.svg";
 import BookmarkIcon from "../../../assets/icons/bookmark.svg";

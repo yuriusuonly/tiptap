@@ -5,8 +5,9 @@
  * Uses RN Animated (no Reanimated babel plugin required).
  * @module src/components/circular-progress
  */
+import {Text} from "./text";
 import {useEffect, useRef} from "react";
-import {Animated, Easing, Text, View} from "react-native";
+import {Animated, Easing, View} from "react-native";
 import Svg, {Circle} from "react-native-svg";
 import {useResolvedTheme} from "../store/theme-store";
 

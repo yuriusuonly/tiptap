@@ -5,8 +5,9 @@
  * this screen; after an ad we simply refresh the authoritative state.
  * @module src/screens/android/fact/monetize-screen
  */
+import {Text} from "../../../components/text";
 import {useState} from "react";
-import {Pressable, Text, View} from "react-native";
+import {Pressable, View} from "react-native";
 import Animated from "react-native-reanimated";
 import BookmarkIcon from "../../../assets/icons/bookmark.svg";
 import LogoIcon from "../../../assets/icons/icon.svg";

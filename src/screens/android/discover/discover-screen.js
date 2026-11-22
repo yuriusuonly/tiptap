@@ -5,8 +5,9 @@
  * animated detail overlay.
  * @module src/screens/android/discover/discover-screen
  */
+import {Text} from "../../../components/text";
 import {useCallback, useEffect, useState} from "react";
-import {FlatList, Image, Pressable, RefreshControl, Share, Text, View} from "react-native";
+import {FlatList, Image, Pressable, RefreshControl, Share, View} from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";
 import Animated from "react-native-reanimated";
 import Svg, {Defs, LinearGradient, Rect, Stop} from "react-native-svg";

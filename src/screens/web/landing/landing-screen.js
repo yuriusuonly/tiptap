@@ -3,10 +3,11 @@
  * Nativewind/Tailwind; only the responsive logo size comes from layout tokens.
  * @module src/screens/web/landing/landing-screen
  */
+import {Text} from "../../../components/text";
 import Head from "expo-router/head";
 import {Link} from "expo-router";
 import {useEffect, useState} from "react";
-import {Pressable, ScrollView, Text, View} from "react-native";
+import {Pressable, ScrollView, View} from "react-native";
 import LogoIcon from "../../../assets/icons/icon.svg";
 import ThemeAutoIcon from "../../../assets/icons/theme-auto.svg";
 import ThemeDarkIcon from "../../../assets/icons/theme-dark.svg";

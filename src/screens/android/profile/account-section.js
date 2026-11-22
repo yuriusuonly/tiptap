@@ -6,8 +6,9 @@
  * the root-level custom confirmation dialog. Identity shows name/email (+photo).
  * @module src/screens/android/profile/account-section
  */
+import {Text} from "../../../components/text";
 import {useEffect, useState} from "react";
-import {Image, Pressable, Text, View} from "react-native";
+import {Image, Pressable, View} from "react-native";
 import {deleteAuthUser, signInWithGoogle, signOutGoogle} from "../../../services/firebase/google-auth";
 import {deleteUserData} from "../../../services/firebase/user-profile";
 import GoogleIcon from "../../../assets/icons/google.svg";

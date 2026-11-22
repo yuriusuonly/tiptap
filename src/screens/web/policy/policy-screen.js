@@ -2,9 +2,10 @@
  * Web Policy page (Privacy Policy). Scrollable legal content.
  * @module src/screens/web/policy/policy-screen
  */
+import {Text} from "../../../components/text";
 import Head from "expo-router/head";
 import {Link} from "expo-router";
-import {Pressable, ScrollView, Text, View} from "react-native";
+import {Pressable, ScrollView, View} from "react-native";
 import {APP_NAME} from "../../../constants/configuration";
 
 const EFFECTIVE_DATE = "November 9, 2026";

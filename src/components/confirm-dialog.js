@@ -6,7 +6,8 @@
  * Uses Nativewind semantic tokens (no inline presentation styles).
  * @module src/components/confirm-dialog
  */
-import {Modal, Pressable, Text, View} from "react-native";
+import {Text} from "./text";
+import {Modal, Pressable, View} from "react-native";
 import {confirm, useDialogStore} from "../store/dialog-store";
 
 function cx(...parts) {

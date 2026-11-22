@@ -8,8 +8,9 @@
  * Nativewind `className` + semantic tokens.
  * @module src/components/toast
  */
+import {Text} from "./text";
 import {useEffect} from "react";
-import {Platform, Text, ToastAndroid, View} from "react-native";
+import {Platform, ToastAndroid, View} from "react-native";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {TOAST_DURATION_LONG, useToastStore} from "../store/toast-store";
 

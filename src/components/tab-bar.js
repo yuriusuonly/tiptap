@@ -6,7 +6,8 @@
  * only the root route files.
  * @module src/components/tab-bar
  */
-import {Pressable, Text, View} from "react-native";
+import {Text} from "./text";
+import {Pressable, View} from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";
 import HomeIcon from "../assets/icons/home.svg";
 import PersonIcon from "../assets/icons/person.svg";

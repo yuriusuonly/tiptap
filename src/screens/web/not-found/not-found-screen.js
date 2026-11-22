@@ -2,9 +2,10 @@
  * Web 404 screen for unmatched routes. Rendered via `src/app/+not-found.js`.
  * @module src/screens/web/not-found/not-found-screen
  */
+import {Text} from "../../../components/text";
 import Head from "expo-router/head";
 import {Link} from "expo-router";
-import {Pressable, Text, View} from "react-native";
+import {Pressable, View} from "react-native";
 import {APP_NAME} from "../../../constants/configuration";
 
 export function NotFoundScreen() {

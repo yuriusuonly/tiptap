@@ -2,28 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Material 3 palette from the Flutter app (seed #607D8B, light/dark).
+ * Values are space-separated RGB channels so Tailwind can apply alpha via
+ * `rgb(var(--token) / <alpha-value>)`. The `.dark` class is driven by the
+ * theme store, exactly like Flutter's `themeMode`.
+ */
 @layer base {
   :root {
-    --color-background: 250 250 250;
+    --color-primary: 96 125 139;
+    --color-on-primary: 255 255 255;
+    --color-primary-container: 189 233 255;
+    --color-on-primary-container: 0 77 100;
+    --color-secondary: 77 97 108;
+    --color-on-secondary: 255 255 255;
+    --color-error: 186 26 26;
+    --color-on-error: 255 255 255;
+
+    --color-background: 246 250 253;
+    --color-on-background: 23 28 31;
     --color-surface: 255 255 255;
-    --color-raised: 245 245 245;
-    --color-line: 229 229 229;
-    --color-ink: 10 10 10;
-    --color-muted: 82 82 82;
-    --color-faint: 163 163 163;
-    --color-accent: 15 181 176;
-    --color-cyan: 254 44 85;
+    --color-raised: 234 238 242;
+    --color-surface-low: 240 244 248;
+    --color-surface-high: 228 233 236;
+    --color-surface-variant: 220 228 233;
+    --color-line: 192 200 205;
+    --color-ink: 23 28 31;
+    --color-muted: 64 72 76;
+    --color-faint: 112 120 125;
+    --color-accent: 96 125 139;
+    --color-cyan: 186 26 26;
+    --color-danger: 186 26 26;
+
+    --font-sans: "Outfit_400Regular";
   }
 
   .dark:root {
-    --color-background: 10 10 10;
-    --color-surface: 23 23 23;
-    --color-raised: 38 38 38;
-    --color-line: 56 56 56;
-    --color-ink: 255 255 255;
-    --color-muted: 163 163 163;
-    --color-faint: 115 115 115;
-    --color-accent: 37 244 238;
-    --color-cyan: 254 44 85;
+    --color-primary: 96 125 139;
+    --color-on-primary: 255 255 255;
+    --color-primary-container: 0 77 100;
+    --color-on-primary-container: 189 233 255;
+    --color-secondary: 180 202 214;
+    --color-on-secondary: 31 51 60;
+    --color-error: 255 180 171;
+    --color-on-error: 105 0 5;
+
+    --color-background: 15 20 23;
+    --color-on-background: 223 227 231;
+    --color-surface: 10 15 17;
+    --color-raised: 27 32 35;
+    --color-surface-low: 23 28 31;
+    --color-surface-high: 38 43 45;
+    --color-surface-variant: 64 72 76;
+    --color-line: 64 72 76;
+    --color-ink: 223 227 231;
+    --color-muted: 192 200 205;
+    --color-faint: 138 146 151;
+    --color-accent: 96 125 139;
+    --color-cyan: 255 180 171;
+    --color-danger: 255 180 171;
   }
 }

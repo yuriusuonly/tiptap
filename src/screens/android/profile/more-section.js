@@ -3,7 +3,8 @@
  * URLs. Failed URL opens surface via the root-owned toast (no inlined errors).
  * @module src/screens/android/profile/more-section
  */
-import {Linking, Pressable, Text, View} from "react-native";
+import {Text} from "../../../components/text";
+import {Linking, Pressable, View} from "react-native";
 import {LANDING_PAGE_URL} from "../../../constants/configuration";
 import {showToast} from "../../../store/toast-store";
 import {ACTION_FAILED_MESSAGE} from "./account-section";

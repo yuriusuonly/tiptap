@@ -10,12 +10,17 @@ import {Slot} from "expo-router";
 import {useEffect} from "react";
 import {BackHandler, View} from "react-native";
 import {Root} from "../components/root";
+import {AppTabBar} from "../components/tab-bar";
 import {FactDetailsScreen} from "../screens/android/fact/fact-details-screen";
 import {MonetizeScreen} from "../screens/android/fact/monetize-screen";
 import {SubscriptionScreen} from "../screens/android/profile/subscription-screen";
 import {OnboardingScreen} from "../screens/android/onboarding/onboarding-screen";
 import {ProfileScreen} from "../screens/android/profile/profile-screen";
-import {closeProfile, useAndroidOverlayStore} from "../store/android-overlay-store";
+import {
+  closeProfile,
+  openProfile,
+  useAndroidOverlayStore,
+} from "../store/android-overlay-store";
 import {closeTopOverlay, useFactStore} from "../store/fact-store";
 import {useOnboardingStore} from "../store/onboarding-store";
 
@@ -78,6 +83,14 @@ export default function RootLayout() {
         {subscription ? (
           <View className="absolute inset-0">
             <SubscriptionScreen />
+          </View>
+        ) : null}
+        {!fact && !monetize && !subscription ? (
+          <View className="absolute inset-x-0 bottom-0">
+            <AppTabBar
+              selected={profileOpen ? "profile" : "home"}
+              onSelect={(tab) => (tab === "profile" ? openProfile() : closeProfile())}
+            />
           </View>
         ) : null}
       </View>

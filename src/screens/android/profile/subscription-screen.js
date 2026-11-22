@@ -5,7 +5,7 @@
  * @module src/screens/android/profile/subscription-screen
  */
 import {useEffect, useState} from "react";
-import {Pressable, Text, View} from "react-native";
+import {Pressable, View} from "react-native";
 import {finishTransaction, useIAP} from "expo-iap";
 import Animated from "react-native-reanimated";
 import CloseIcon from "../../../assets/icons/close.svg";
@@ -13,6 +13,8 @@ import LogoIcon from "../../../assets/icons/icon.svg";
 import {fadeInDown, fadeInUp, SharedAxis} from "../../../components/animations";
 import {CircularProgress} from "../../../components/circular-progress";
 import {Icon} from "../../../components/icon";
+import {NativeButton, NativeText} from "../../../components/ui";
+import {Text} from "../../../components/text";
 import {PREMIUM_PRODUCT_ID} from "../../../constants/configuration";
 import {verifyPremiumPurchase} from "../../../services/api/entitlements";
 import {useAuthStore} from "../../../store/auth-store";
@@ -108,25 +110,25 @@ export function SubscriptionScreen() {
           ) : (
             offers.map((offer, index) => (
               <Animated.View key={offer.id ?? index} entering={fadeInUp(100 + index * 80)}>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={`Buy ${offer.displayPrice}`}
-                  disabled={busy}
-                  onPress={() => buy(offer)}
-                  className={`flex-row items-center justify-between rounded-[20px] border border-line bg-surface p-5 ${
-                    busy ? "opacity-60" : ""
-                  }`}
-                >
+                <View className="flex-row items-center justify-between rounded-[20px] border border-line bg-surface p-5">
                   <View>
-                    <Text className="text-[16px] font-semibold text-ink">
+                    <NativeText role="titleMedium" weight="600">
                       {offer.basePlanIdAndroid === "monthly-premium-subscription"
                         ? "Monthly"
                         : "Annual"}
-                    </Text>
-                    <Text className="mt-1 text-[13px] text-muted">{offer.displayPrice}</Text>
+                    </NativeText>
+                    <NativeText role="bodySmall" color="muted">
+                      {offer.displayPrice}
+                    </NativeText>
                   </View>
-                  <Text className="text-[15px] font-semibold text-accent">Buy</Text>
-                </Pressable>
+                  <NativeButton
+                    label="Buy"
+                    variant="filled"
+                    disabled={busy}
+                    onPress={() => buy(offer)}
+                    accessibilityLabel={`Buy ${offer.displayPrice}`}
+                  />
+                </View>
               </Animated.View>
             ))
           )}

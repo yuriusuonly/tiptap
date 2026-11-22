@@ -4,7 +4,8 @@
  * themed circular indicator and disable interaction.
  * @module src/components/button
  */
-import {ActivityIndicator, Pressable, Text, View} from "react-native";
+import {Text} from "./text";
+import {ActivityIndicator, Pressable, View} from "react-native";
 import {useResolvedTheme} from "../store/theme-store";
 
 const VARIANTS = {

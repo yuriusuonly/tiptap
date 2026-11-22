@@ -5,8 +5,9 @@
  * leading navigation icon button pops it from the stack.
  * @module src/screens/android/profile/profile-screen
  */
+import {Text} from "../../../components/text";
 import {useEffect, useState} from "react";
-import {Image, Pressable, Text, View} from "react-native";
+import {Image, Pressable, View} from "react-native";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import ArrowBackIcon from "../../../assets/icons/arrow-back.svg";
 import LogoIcon from "../../../assets/icons/icon.svg";
@@ -40,7 +41,7 @@ export function ProfileScreen({onClose} = {}) {
   return (
     <View
       style={{paddingTop: insets.top}}
-      className="flex-1 bg-background"
+      className="flex-1 bg-background pb-20"
     >
       <View className="flex-row items-center px-2 pb-2 pt-1 mobile:px-3 tablet:px-6 desktop:px-10">
         {onClose ? (

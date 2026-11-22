@@ -8,7 +8,19 @@ import Head from "expo-router/head";
 import {StatusBar} from "expo-status-bar";
 import {colorScheme} from "nativewind";
 import {useEffect} from "react";
-import {Platform} from "react-native";
+import {Platform, View} from "react-native";
+import {
+  Outfit_100Thin,
+  Outfit_200ExtraLight,
+  Outfit_300Light,
+  Outfit_400Regular,
+  Outfit_500Medium,
+  Outfit_600SemiBold,
+  Outfit_700Bold,
+  Outfit_800ExtraBold,
+  Outfit_900Black,
+  useFonts,
+} from "@expo-google-fonts/outfit";
 import {configureGoogleSignIn, subscribeAuthState} from "../services/firebase/google-auth";
 import {configureAds} from "../services/ads/rewarded-ad";
 import {APP_NAME} from "../constants/configuration";
@@ -24,6 +36,19 @@ import "../stylesheets/global.css";
 
 export function Root({children}) {
   const {themeMode, scheme, isLight} = useResolvedTheme();
+  // Same font as the Flutter app: Google Fonts Outfit. On web we do not block
+  // static rendering on font loading; native waits to avoid a fallback flash.
+  const [fontsLoaded, fontsError] = useFonts({
+    Outfit_100Thin,
+    Outfit_200ExtraLight,
+    Outfit_300Light,
+    Outfit_400Regular,
+    Outfit_500Medium,
+    Outfit_600SemiBold,
+    Outfit_700Bold,
+    Outfit_800ExtraBold,
+    Outfit_900Black,
+  });
 
   useEffect(() => {
     // Persisted state is rehydrated after mount so static web rendering never
@@ -64,6 +89,10 @@ export function Root({children}) {
       Platform.OS === "web" ? (themeMode === "auto" ? scheme : themeMode) : themeMode;
     colorScheme.set(value === "auto" ? "system" : value);
   }, [themeMode, scheme]);
+
+  if (Platform.OS !== "web" && !fontsLoaded && !fontsError) {
+    return <View className="flex-1 bg-background" />;
+  }
 
   return (
     <>

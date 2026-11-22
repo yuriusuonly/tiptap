@@ -3,8 +3,9 @@
  * persists the chosen mode through the shared theme store.
  * @module src/screens/android/profile/preferences-section
  */
+import {Text} from "../../../components/text";
 import {useState} from "react";
-import {Pressable, Text, View} from "react-native";
+import {Pressable, View} from "react-native";
 import {THEME_MODES, useResolvedTheme, useThemeStore} from "../../../store/theme-store";
 
 export function PreferencesSection() {

@@ -215,6 +215,7 @@ Test mode (`EXPO_PUBLIC_APP_MODE=test`) serves local mocks for both the API clie
 - [x] Real content feed — vertical paged Discover feed with animated fact cards, on-demand Firestore loading and pull-to-refresh
 - [x] Fact details, bookmarks, streak, gems and premium — mirrored from the Flutter app with Reanimated shared-axis/fade transitions
 - [x] Server-to-server premium/gems via Expo Router API routes (Play Developer API verification + AdMob S2S reward callback)
+- [x] Visual parity with the Flutter app — identical Material 3 blueGrey color scheme, Google Fonts **Outfit** typography, shared motion timings, and native Material 3 controls via Expo UI (`@expo/ui`)
 - [ ] iOS production profile in `eas.json` — not configured
 - [ ] Tests — none exist yet
 
