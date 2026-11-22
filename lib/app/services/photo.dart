@@ -19,22 +19,25 @@ class PhotoService extends HydratedCubit<Uint8List?> {
           _clearCache();
         }
       },
-      onError: (_) { showSomethingWentWrong(); },
+      onError: (error, stack) {
+        showSomethingWentWrong(error: error, stack: stack, context: 'photo:auth');
+      },
     );
   }
 
   Future<void> _cachePhoto(String url) async {
     try {
-      final response = await get(Uri.parse(url));
+      final response = await get(Uri.parse(url)).timeout(const Duration(seconds: 15));
       if (isClosed) return;
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 && response.bodyBytes.isNotEmpty) {
+        // Ignore unexpectedly large avatars to keep hydrated storage small.
+        if (response.bodyBytes.lengthInBytes > 5 * 1024 * 1024) return;
         emit(response.bodyBytes);
       } else {
-        showSomethingWentWrong();
         _clearCache();
       }
-    } catch (_) {
-      showSomethingWentWrong();
+    } catch (e, stack) {
+      reportError(e, stack, context: 'photo:download');
       if (!isClosed) _clearCache();
     }
   }

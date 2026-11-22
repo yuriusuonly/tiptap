@@ -1,5 +1,5 @@
 import 'package:animate_do/animate_do.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -259,11 +259,11 @@ class ProfileSection extends StatelessWidget {
           Column(
             children: [
               Text(
-                authentication.state!.displayName!,
+                authentication.state!.displayName ?? 'TipTap user',
                 style: Theme.of(context).textTheme.titleLarge
               ),
               Text(
-                authentication.state!.email!,
+                authentication.state!.email ?? '',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant
                 )
@@ -326,8 +326,31 @@ class ProfileSection extends StatelessWidget {
   }
 }
 
-class BookmarksSection extends StatelessWidget {
+class BookmarksSection extends StatefulWidget {
   const BookmarksSection({super.key});
+
+  @override
+  State<BookmarksSection> createState() => _BookmarksSectionState();
+}
+
+class _BookmarksSectionState extends State<BookmarksSection> {
+  Future<List<Map<String, dynamic>>>? _future;
+  Set<String>? _cacheKey;
+
+  // Avoid re-running the Firestore fetch on every rebuild of the parent.
+  Future<List<Map<String, dynamic>>> _fetch(
+    ContentService content,
+    Set<String> bookmarks,
+  ) {
+    if (_future == null ||
+        _cacheKey == null ||
+        _cacheKey!.length != bookmarks.length ||
+        !_cacheKey!.containsAll(bookmarks)) {
+      _cacheKey = Set<String>.from(bookmarks);
+      _future = content.fetchByTitles(bookmarks);
+    }
+    return _future!;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -337,7 +360,7 @@ class BookmarksSection extends StatelessWidget {
     final content = context.watch<ContentService>();
 
     return FutureBuilder<List<Map<String, dynamic>>>(
-      future: content.fetchByTitles(bookmarksService.state),
+      future: _fetch(content, bookmarksService.state),
       builder: (context, snapshot) {
         final bookmarks = snapshot.data ??
             bookmarksService.bookmarkedFacts(content.state);

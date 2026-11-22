@@ -1,5 +1,5 @@
 import 'package:animate_do/animate_do.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -66,6 +66,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
     super.initState();
     _pageController = PageController();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       context.read<ContentService>().loadMore(skip: context.read<BookmarkService>().state);
     });
   }
@@ -94,7 +95,9 @@ class _DiscoverPageState extends State<DiscoverPage> {
             itemCount: facts.length,
             itemBuilder: (context, index) {
               if (index >= facts.length - 2) {
-                WidgetsBinding.instance.addPostFrameCallback((_) => content.loadMore(skip: bookmarks.state));
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) content.loadMore(skip: bookmarks.state);
+                });
               }
               final data = facts[index];
               return _dataContent(data);

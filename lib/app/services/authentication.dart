@@ -1,126 +1,185 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:tiptap/app/shared/toast.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthenticationService extends Cubit<User?> {
-  late final StreamSubscription<User?> _userSubscription;
+  StreamSubscription<User?>? _userSubscription;
+  bool _isSigningIn = false;
 
   AuthenticationService() : super(FirebaseAuth.instance.currentUser) {
-    _userSubscription = FirebaseAuth.instance
-      .authStateChanges()
-      .listen(
-        (User? user) {
-          if (isClosed) return;
-          emit(user);
-        },
-        onError: (_) { showSomethingWentWrong(); },
-      );
+    _userSubscription = FirebaseAuth.instance.authStateChanges().listen(
+      (User? user) {
+        if (isClosed) return;
+        emit(user);
+        _updateDiagnostics(user);
+      },
+      onError: (error, stack) {
+        showSomethingWentWrong(
+          error: error,
+          stack: stack,
+          context: 'auth:state',
+        );
+      },
+    );
+    _updateDiagnostics(state);
+  }
+
+  void _updateDiagnostics(User? user) {
+    if (kDebugMode) return;
+    FirebaseCrashlytics.instance
+        .setUserIdentifier(user?.uid ?? '')
+        .catchError((_) {});
   }
 
   @override
   Future<void> close() async {
-    await _userSubscription.cancel();
-    return await super.close();
+    await _userSubscription?.cancel();
+    return super.close();
+  }
+
+  Future<OAuthCredential?> _googleCredential() async {
+    final googleUser = await GoogleSignIn.instance.authenticate();
+    final googleAuth = googleUser.authentication;
+    if (googleAuth.idToken == null) return null;
+    return GoogleAuthProvider.credential(idToken: googleAuth.idToken);
   }
 
   Future<bool> signInWithGoogle() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      if (!isClosed) emit(user);
-      return true;
-    }
+    if (_isSigningIn) return false;
+    _isSigningIn = true;
     try {
-      final GoogleSignInAccount googleUser = await GoogleSignIn.instance.authenticate();
-      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
-      final OAuthCredential credential = GoogleAuthProvider.credential(idToken: googleAuth.idToken);
-      final credentialResult = await FirebaseAuth.instance.signInWithCredential(credential);
-      final signedInUser = credentialResult.user;
-      if (signedInUser != null && !isClosed) {
-        emit(signedInUser);
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(signedInUser.uid)
-            .set({
-              'displayName': signedInUser.displayName,
-              'email': signedInUser.email,
-              'photoURL': signedInUser.photoURL,
-            }, SetOptions(merge: true))
-            .catchError((_) { showSomethingWentWrong(); });
+      final current = FirebaseAuth.instance.currentUser;
+      if (current != null) {
+        if (!isClosed) emit(current);
+        return true;
       }
-      return signedInUser != null;
-    } on GoogleSignInException catch (e) {
-      if (e.code == GoogleSignInExceptionCode.canceled) {
+      final credential = await _googleCredential();
+      if (credential == null) {
+        showSomethingWentWrong(context: 'auth:missing-id-token');
         return false;
       }
-      showSomethingWentWrong();
+      final result = await FirebaseAuth.instance.signInWithCredential(credential);
+      final user = result.user;
+      if (user == null) return false;
+
+      if (!isClosed) emit(user);
+      await _saveProfile(user);
+      if (!kDebugMode) {
+        FirebaseAnalytics.instance.logLogin(loginMethod: 'google');
+      }
+      return true;
+    } on GoogleSignInException catch (e, stack) {
+      if (e.code == GoogleSignInExceptionCode.canceled) return false;
+      showSomethingWentWrong(error: e, stack: stack, context: 'auth:google');
       return false;
-    } on FirebaseAuthException {
-      showSomethingWentWrong();
+    } on FirebaseAuthException catch (e, stack) {
+      showSomethingWentWrong(error: e, stack: stack, context: 'auth:sign-in');
       return false;
+    } catch (e, stack) {
+      showSomethingWentWrong(error: e, stack: stack, context: 'auth:sign-in');
+      return false;
+    } finally {
+      _isSigningIn = false;
+    }
+  }
+
+  Future<void> _saveProfile(User user) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .set({
+            'displayName': user.displayName,
+            'email': user.email,
+            'photoURL': user.photoURL,
+          }, SetOptions(merge: true))
+          .timeout(const Duration(seconds: 15));
+    } catch (e, stack) {
+      showSomethingWentWrong(error: e, stack: stack, context: 'auth:save-profile');
     }
   }
 
   Future<void> signOut() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      try {
-        await GoogleSignIn.instance.signOut();
-      } catch (_) { showSomethingWentWrong(); }
-      try {
-        await FirebaseAuth.instance.signOut();
-      } catch (_) { showSomethingWentWrong(); }
+    try {
+      await GoogleSignIn.instance.signOut();
+    } catch (e, stack) {
+      showSomethingWentWrong(error: e, stack: stack, context: 'auth:google-sign-out');
     }
+    try {
+      await FirebaseAuth.instance.signOut();
+    } catch (e, stack) {
+      showSomethingWentWrong(error: e, stack: stack, context: 'auth:sign-out');
+    }
+    _updateDiagnostics(null);
   }
 
-  Future<void> deleteUser() async {
+  /// Deletes all user-owned data before the Auth account. Returns `true` only
+  /// when the whole flow succeeded, so callers can keep the confirmation open
+  /// on failure instead of leaving orphaned data or a half-deleted account.
+  Future<bool> deleteUser({bool retriedAfterReauth = false}) async {
     final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final uid = user.uid;
-      try {
-        final bookmarks = await FirebaseFirestore.instance
+    if (user == null) return false;
+    final uid = user.uid;
+
+    try {
+      // Firestore has no server-side cascade delete; walk the subcollection in
+      // bounded pages so accounts with many bookmarks can still be removed.
+      while (true) {
+        final snapshot = await FirebaseFirestore.instance
             .collection('users')
             .doc(uid)
             .collection('bookmarks')
+            .limit(500)
             .get();
+        if (snapshot.docs.isEmpty) break;
         final batch = FirebaseFirestore.instance.batch();
-        for (final doc in bookmarks.docs) {
+        for (final doc in snapshot.docs) {
           batch.delete(doc.reference);
         }
         await batch.commit();
-      } catch (_) { showSomethingWentWrong(); }
-      try {
-        await FirebaseFirestore.instance.collection('users').doc(uid).delete();
-      } catch (_) { showSomethingWentWrong(); }
-      try {
-        await user.delete();
-      } catch (_) { showSomethingWentWrong(); }
+      }
+      await FirebaseFirestore.instance.collection('users').doc(uid).delete();
+      await user.delete();
+      _updateDiagnostics(null);
+      if (!isClosed) emit(null);
+      return true;
+    } on FirebaseAuthException catch (e, stack) {
+      if (e.code == 'requires-recent-login' && !retriedAfterReauth) {
+        if (await reauthenticate()) {
+          return deleteUser(retriedAfterReauth: true);
+        }
+        return false;
+      }
+      showSomethingWentWrong(error: e, stack: stack, context: 'auth:delete');
+      return false;
+    } catch (e, stack) {
+      showSomethingWentWrong(error: e, stack: stack, context: 'auth:delete');
+      return false;
     }
   }
 
   Future<bool> reauthenticate() async {
     final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      try {
-        final GoogleSignInAccount googleUser = await GoogleSignIn.instance.authenticate();
-        final GoogleSignInAuthentication googleAuth = googleUser.authentication;
-        final OAuthCredential credential = GoogleAuthProvider.credential(idToken: googleAuth.idToken);
-        await user.reauthenticateWithCredential(credential);
-        return true;
-      } on GoogleSignInException catch (e) {
-        if (e.code == GoogleSignInExceptionCode.canceled) {
-          return false;
-        }
-        showSomethingWentWrong();
-        return false;
-      } on FirebaseAuthException {
-        showSomethingWentWrong();
-        return false;
-      }
+    if (user == null) return false;
+    try {
+      final credential = await _googleCredential();
+      if (credential == null) return false;
+      await user.reauthenticateWithCredential(credential);
+      return true;
+    } on GoogleSignInException catch (e, stack) {
+      if (e.code == GoogleSignInExceptionCode.canceled) return false;
+      showSomethingWentWrong(error: e, stack: stack, context: 'auth:reauth');
+      return false;
+    } catch (e, stack) {
+      showSomethingWentWrong(error: e, stack: stack, context: 'auth:reauth');
+      return false;
     }
-    return false;
   }
 }

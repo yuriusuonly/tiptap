@@ -1,6 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:animations/animations.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:tiptap/app/services/bookmark.dart';
 import 'package:tiptap/app/services/theme.dart';
 import 'package:tiptap/app/shared/root.dart';
+import 'package:tiptap/app/shared/route_args.dart';
 
 // --- ROUTES ---
 
@@ -41,7 +42,7 @@ class BookmarksDetailsRoute extends GoRoute {
         name: 'bookmarks',
         path: 'bookmarks',
         pageBuilder: (context, state) {
-          final data = state.extra as Map<String, dynamic>;
+          final data = factFromExtra(state.extra);
           return CustomTransitionPage(
             key: state.pageKey,
             transitionDuration: Duration(milliseconds: 500),
@@ -54,7 +55,9 @@ class BookmarksDetailsRoute extends GoRoute {
                 child: child
               );
             },
-            child: BookmarkDetailsPage(data: data)
+            child: data == null
+                ? const InvalidRouteArgumentPage()
+                : BookmarkDetailsPage(data: data)
           );
         }
       );

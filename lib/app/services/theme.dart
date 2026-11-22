@@ -2,30 +2,31 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:tiptap/app/shared/toast.dart';
 
 class ThemeService extends HydratedCubit<ThemeMode> {
   StreamSubscription? _authenticationSubscription;
   StreamSubscription? _firestoreSubscription;
+  int _syncGeneration = 0;
 
   ThemeService() : super(ThemeMode.system) {
     _authenticationSubscription = FirebaseAuth.instance.authStateChanges().listen(
       (user) {
+        _syncGeneration++;
         _firestoreSubscription?.cancel();
-        if (user != null) {
-          _syncToFirestore(user.uid).catchError((_) { showSomethingWentWrong(); });
-        }
+        _firestoreSubscription = null;
+        if (user != null) _syncToFirestore(user.uid);
         // Theme stays whatever it currently is, even on sign-out/deletion.
       },
-      onError: (_) { showSomethingWentWrong(); },
+      onError: (error, stack) {
+        showSomethingWentWrong(error: error, stack: stack, context: 'theme:auth');
+      },
     );
     final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser != null) {
-      _syncToFirestore(currentUser.uid).catchError((_) { showSomethingWentWrong(); });
-    }
+    if (currentUser != null) _syncToFirestore(currentUser.uid);
   }
 
   ThemeMode _parseThemeMode(String? value) {
@@ -38,19 +39,19 @@ class ThemeService extends HydratedCubit<ThemeMode> {
   }
 
   Future<void> _syncToFirestore(String userID) async {
+    final generation = _syncGeneration;
     try {
       final document = FirebaseFirestore.instance.collection('users').doc(userID);
       final snapshot = await document.get();
+      if (isClosed || generation != _syncGeneration) return;
 
       ThemeMode mergedTheme = state;
       bool needsUpdate = false;
-
       if (snapshot.exists) {
         final remoteThemeStr = snapshot.data()?['theme_mode'] as String?;
         if (remoteThemeStr != null) {
           mergedTheme = _parseThemeMode(remoteThemeStr);
         } else {
-          // Existing profile without the field — push the current local setting.
           needsUpdate = true;
         }
       } else {
@@ -60,63 +61,62 @@ class ThemeService extends HydratedCubit<ThemeMode> {
       if (needsUpdate) {
         await document.set({'theme_mode': mergedTheme.name}, SetOptions(merge: true));
       }
-      if (isClosed) return;
+      if (isClosed || generation != _syncGeneration) return;
       super.emit(mergedTheme);
 
       _firestoreSubscription = document.snapshots().listen((snapshot) {
-        if (isClosed) return;
+        if (isClosed || generation != _syncGeneration) return;
         if (snapshot.exists) {
-          final remoteThemeStr = snapshot.data()?['theme_mode'] as String? ?? ThemeMode.system.name;
-          final incomingTheme = _parseThemeMode(remoteThemeStr);
-          if (incomingTheme != state) {
-            super.emit(incomingTheme);
-          }
+          final incomingTheme = _parseThemeMode(
+            snapshot.data()?['theme_mode'] as String? ?? ThemeMode.system.name,
+          );
+          if (incomingTheme != state) super.emit(incomingTheme);
         }
-      }, onError: (_) { showSomethingWentWrong(); });
-    } catch (_) {
-      showSomethingWentWrong();
-      // Offline — keep local value.
+      }, onError: (error, stack) {
+        showSomethingWentWrong(error: error, stack: stack, context: 'theme:sync');
+      });
+    } catch (e, stack) {
+      showSomethingWentWrong(error: e, stack: stack, context: 'theme:sync');
     }
   }
 
   @override
   void emit(ThemeMode state) {
-    if (isClosed) return;
+    if (isClosed || state == this.state) return;
     super.emit(state);
     final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      FirebaseFirestore.instance
+    if (user == null) return;
+    FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
         .set({'theme_mode': state.name}, SetOptions(merge: true))
-        .catchError((_) { showSomethingWentWrong(); });
-    }
+        .catchError((Object error, StackTrace stack) {
+      showSomethingWentWrong(error: error, stack: stack, context: 'theme:write');
+    });
   }
 
-  ThemeData get lightTheme => ThemeData.from(
+  // Text themes are expensive to build; compute them once instead of on every
+  // rebuild (these getters are read on each MaterialApp build).
+  late final ThemeData lightTheme = ThemeData.from(
     useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(
       brightness: Brightness.light,
       seedColor: Colors.blueGrey,
       primary: Colors.blueGrey,
-      onPrimary: Colors.white
+      onPrimary: Colors.white,
     ),
-    textTheme: GoogleFonts.outfitTextTheme(
-      ThemeData.light().textTheme
-    )
+    textTheme: GoogleFonts.outfitTextTheme(ThemeData.light().textTheme),
   );
 
-  ThemeData get darkTheme => ThemeData.from(
+  late final ThemeData darkTheme = ThemeData.from(
     useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(
       brightness: Brightness.dark,
       seedColor: Colors.blueGrey,
       primary: Colors.blueGrey,
-      onPrimary: Colors.white
+      onPrimary: Colors.white,
     ),
-    textTheme: GoogleFonts.outfitTextTheme(
-      ThemeData.dark().textTheme
-    )
+    textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme),
   );
 
   ThemeMode get themeMode => state;

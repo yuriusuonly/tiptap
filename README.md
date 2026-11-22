@@ -17,12 +17,12 @@ A cross-platform Flutter app that turns knowledge into a fast, vertical feed of 
 
 | Layer | Technology |
 |---|---|
-| App | Flutter, Dart `^3.11.1`, `flutter_bloc` / `hydrated_bloc`, `go_router` (`StatefulShellRoute`) |
+| App | Flutter 3.50, Dart `^3.14.0`, `material_ui`, `flutter_bloc` / `hydrated_bloc`, `go_router` (`StatefulShellRoute`) |
 | Backend | Firebase Core / Analytics / Crashlytics / Auth (Google Sign-In) / Firestore |
 | Content | 1000 curated facts in `content.json`, seeded to the Firestore `content` collection |
 | Monetization | `google_mobile_ads` (AdMob rewarded) + `in_app_purchase` |
 | UX | `animate_do`, `animations` (Shared Axis), `flutter_svg`, `google_fonts`, `url_launcher`, `intl` |
-| Android | Gradle `9.1.0`, AGP `9.0.1`, Kotlin `2.3.20`, `minSdk 24` |
+| Android | Gradle `9.5.0`, AGP `9.3.1`, Kotlin `2.4.20`, `minSdk 24` |
 | Hosting | Firebase Hosting serves `build/web` |
 
 ## Architecture
@@ -44,20 +44,24 @@ lib/
     introduction/         # First-launch welcome overlay
     profile/              # Profile, bookmarks grid, gems, streak, subscription, settings
     services/             # ad, authentication, bookmark, content, first_launch, photo, premium, streak, theme
-    shared/               # root wiring, firebase_options (FlutterFire-generated), admob_options, toast
+    shared/               # root wiring, firebase_options, admob_options, toast/error reporting, route args, bootstrap error UI
   site/                   # landing page (home, privacy, terms, root)
 content.json              # 1000 seed facts (title / body / summary)
 seed.js                   # ESM seeder → Firestore `content` (Admin SDK, chunked batches)
-firestore.rules           # content: public read, no client writes; users/{uid}: owner-only
+firestore.rules           # content: public read/no client writes; users/{uid}: owner-only + field validation
 ```
 
 Key behaviors:
 
 - **Discover feed is on-demand only** — `ContentService` (plain `Cubit`, no Hydrated cache) fetches random batches from Firestore (`where(documentId >= randomToken).limit(5)` with wrap-around), shuffles, and skips already-seen + current feed + bookmarked titles. Triggers near the end of the list and on pull-to-refresh.
 - **Bookmarks sync** — `BookmarkService` (Hydrated offline cache + Firestore subcollection) unions local and remote, emits newest-first, and batch-uploads missing toggles. Users who are already signed in get current Firestore state immediately.
-- **Sign-out / account deletion** — gems, bookmarks, streak, and content unlocks reset to defaults; **Theme is preserved**. `users/{uid}/bookmarks` is deleted on account removal.
-- **Premium gate** — `PremiumServic — gems, bookmarks, streak, and content unlocks reset to defaults; **Theme is preserved**. `users/{uid}/bookmarks` is deleted on account removal.
+- **Sign-out / account deletion** — gems, bookmarks, streak, and content unlocks reset to defaults; **Theme is preserved**. Account deletion removes bookmark docs in bounded pages, the user doc, then the Auth account, and only reports success when all steps succeed.
 - **Premium gate** — `PremiumService.checkPremium()` calls live `queryPastPurchases`; Monetize/Fact check via `await checkPremium()`.
+- **Rewarded unlocks** — a gem is granted only after AdMob's `onUserEarnedReward` callback fires; dismissal, failures and timeouts never unlock a fact or spend a gem.
+- **Offline-first sync** — Firestore has a bounded 50 MB offline cache; sync listeners use a generation token so stale auth changes cannot overwrite newer state. Remote snapshots merge with locally pending bookmark adds/deletes.
+- **Error handling** — `lib/app/shared/toast.dart` reports errors to Crashlytics (release) with a context tag, shows a rate-limited snackbar, and bootstrap failures fall back to `BootstrapErrorScreen` instead of a blank screen.
+
+> **Production caveat:** `premium` and `gems` are still written by the client and therefore not authoritative. Before public release, verify purchases and reward grants server-side (Play Developer API / Cloud Function) and make Firestore the read-only source of truth for entitlements.
 
 ## Setup
 

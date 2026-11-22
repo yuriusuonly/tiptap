@@ -1,6 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:animations/animations.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -10,6 +10,8 @@ import 'package:tiptap/app/services/ad.dart';
 import 'package:tiptap/app/services/bookmark.dart';
 import 'package:tiptap/app/services/content.dart';
 import 'package:tiptap/app/shared/root.dart';
+import 'package:tiptap/app/shared/route_args.dart';
+import 'package:tiptap/app/shared/toast.dart';
 
 class MonetizeRoute extends GoRoute {
   MonetizeRoute()
@@ -18,7 +20,7 @@ class MonetizeRoute extends GoRoute {
         name: 'monetize',
         path: 'monetize',
         pageBuilder: (context, state) {
-          final data = state.extra as Map<String, dynamic>;
+          final data = factFromExtra(state.extra);
           return CustomTransitionPage(
             key: state.pageKey,
             transitionDuration: Duration(milliseconds: 500),
@@ -31,7 +33,9 @@ class MonetizeRoute extends GoRoute {
                 child: child
               );
             },
-            child: MonetizePage(data: data)
+            child: data == null
+                ? const InvalidRouteArgumentPage()
+                : MonetizePage(data: data)
           );
         }
       );
@@ -52,35 +56,44 @@ class MonetizePage extends StatefulWidget {
 class _MonetizePageState extends State<MonetizePage> {
   bool isAdLoading = false;
 
+  void _showMessage(String text) {
+    activeScaffoldMessengerKey.currentState?.showSnackBar(
+      SnackBar(content: Text(text)),
+    );
+  }
+
   Future<void> handleComplete(bool isRewarded) async {
     final ads = context.read<AdService>();
     final bookmarks = context.read<BookmarkService>();
     final content = context.read<ContentService>();
 
+    if (isRewarded && mounted) setState(() => isAdLoading = true);
+
     try {
       if (isRewarded) {
-        setState(() => isAdLoading = true);
-        await ads.showRewardedAd();
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Gems +1'))
-        );
+        // Only unlock a fact when the ad actually awarded its reward.
+        final earned = await ads.showRewardedAd();
+        if (!earned) {
+          _showMessage('Ad not completed. Please try again.');
+          return;
+        }
+        ads.increaseRewardedAdCount();
       } else {
+        if (ads.state < 1) {
+          _showMessage('Not enough gems. Watch an ad to earn one.');
+          return;
+        }
         ads.decreaseRewardedAdCount();
       }
 
       widget.data['rewarded'] = true;
       content.markAsRewarded(widget.data['title'].toString());
       bookmarks.markBookmarked(widget.data);
-
-      // ignore: use_build_context_synchronously
-      if (context.mounted) context.pop();
-    } catch (error) {
-      debugPrint('Monetize catch: ${error.runtimeType} $error');
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Something went wrong'))
-      );
+      _showMessage('Fact unlocked');
+      if (mounted) context.pop();
+    } catch (error, stack) {
+      reportError(error, stack, context: 'monetize');
+      _showMessage('Something went wrong');
     } finally {
       if (mounted) setState(() => isAdLoading = false);
     }
@@ -128,7 +141,7 @@ class _MonetizePageState extends State<MonetizePage> {
                             elevation: 0,
                             clipBehavior: Clip.antiAlias,
                             child: InkWell(
-                              onTap: gems >= 1 || !isAdLoading
+                              onTap: gems >= 1 && !isAdLoading
                                 ? () async {
                                     await handleComplete(false);
                                   }

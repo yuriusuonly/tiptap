@@ -8,23 +8,32 @@ import 'package:tiptap/app/shared/toast.dart';
 class BookmarkService extends HydratedCubit<Set<String>> {
   StreamSubscription? _authenticationSubscription;
   StreamSubscription? _firestoreSubscription;
+  int _syncGeneration = 0;
+
+  // Locally changed IDs that the server snapshot has not acknowledged yet.
+  // Keeping them lets remote snapshots merge without resurrecting deletions
+  // or dropping unsynced additions.
+  final Set<String> _pendingAdds = <String>{};
+  final Set<String> _pendingDeletes = <String>{};
 
   BookmarkService() : super(<String>{}) {
     _authenticationSubscription = FirebaseAuth.instance.authStateChanges().listen(
       (user) {
+        _syncGeneration++;
         _firestoreSubscription?.cancel();
+        _firestoreSubscription = null;
         if (user != null) {
-          _syncToFirestore(user.uid).catchError((_) { showSomethingWentWrong(); });
+          _syncToFirestore(user.uid);
         } else {
           _reset();
         }
       },
-      onError: (_) { showSomethingWentWrong(); },
+      onError: (error, stack) {
+        showSomethingWentWrong(error: error, stack: stack, context: 'bookmarks:auth');
+      },
     );
     final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser != null) {
-      _syncToFirestore(currentUser.uid).catchError((_) { showSomethingWentWrong(); });
-    }
+    if (currentUser != null) _syncToFirestore(currentUser.uid);
   }
 
   CollectionReference<Map<String, dynamic>> _bookmarksCollection(String userID) {
@@ -47,18 +56,21 @@ class BookmarkService extends HydratedCubit<Set<String>> {
     return docs.map((doc) => doc.id).toSet();
   }
 
+  bool _sameIds(Set<String> a, Set<String> b) =>
+      a.length == b.length && a.containsAll(b);
+
   Future<void> _syncToFirestore(String userID) async {
+    final generation = _syncGeneration;
     final collection = _bookmarksCollection(userID);
     try {
       final snapshot = await collection.get();
+      if (isClosed || generation != _syncGeneration) return;
       final remoteIds = _orderedIds(snapshot);
 
-      // Union merge — never lose local unsynced toggles, never lose remote adds.
       final merged = <String>{...state, ...remoteIds};
-      if (isClosed) return;
-      super.emit(merged);
+      if (!_sameIds(merged, state)) super.emit(merged);
 
-      // Upload any local bookmarks not yet on the server.
+      // Replay any local changes that were never acknowledged.
       final missing = state.difference(remoteIds);
       if (missing.isNotEmpty) {
         final batch = FirebaseFirestore.instance.batch();
@@ -67,38 +79,59 @@ class BookmarkService extends HydratedCubit<Set<String>> {
         }
         await batch.commit();
       }
+      if (isClosed || generation != _syncGeneration) return;
+      _pendingAdds.clear();
 
       _firestoreSubscription = collection.snapshots().listen((snapshot) {
-        if (isClosed) return;
+        if (isClosed || generation != _syncGeneration) return;
         final incoming = _orderedIds(snapshot);
-        if (incoming.length != state.length || !incoming.containsAll(state)) {
-          super.emit(incoming);
-        }
-      }, onError: (_) { showSomethingWentWrong(); });
-    } catch (_) {
-      showSomethingWentWrong();
-      // Offline — writes stay queued in the SDK; next auth change retries.
+        final merged = <String>{..._pendingAdds, ...incoming}..removeWhere(_pendingDeletes.contains);
+        if (!_sameIds(merged, state)) super.emit(merged);
+      }, onError: (error, stack) {
+        showSomethingWentWrong(error: error, stack: stack, context: 'bookmarks:sync');
+      });
+    } catch (e, stack) {
+      showSomethingWentWrong(error: e, stack: stack, context: 'bookmarks:sync');
     }
   }
 
   void _reset() {
-    if (isClosed) return;
-    emit(<String>{});
+    _pendingAdds.clear();
+    _pendingDeletes.clear();
+    if (!isClosed) emit(<String>{});
   }
 
   @override
   void emit(Set<String> state) {
-    if (isClosed) return;
+    if (isClosed || _sameIds(state, this.state)) return;
     final old = this.state;
     super.emit(state);
+
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
     final collection = _bookmarksCollection(user.uid);
+
     for (final id in state.difference(old)) {
-      collection.doc(id).set({'bookmarkedAt': FieldValue.serverTimestamp()}).catchError((_) { showSomethingWentWrong(); });
+      _pendingDeletes.remove(id);
+      _pendingAdds.add(id);
+      collection.doc(id).set({'bookmarkedAt': FieldValue.serverTimestamp()})
+          .then((_) {
+            _pendingAdds.remove(id);
+          })
+          .catchError((Object error, StackTrace stack) {
+        showSomethingWentWrong(error: error, stack: stack, context: 'bookmarks:add');
+      });
     }
     for (final id in old.difference(state)) {
-      collection.doc(id).delete().catchError((_) { showSomethingWentWrong(); });
+      _pendingAdds.remove(id);
+      _pendingDeletes.add(id);
+      collection.doc(id).delete()
+          .then((_) {
+            _pendingDeletes.remove(id);
+          })
+          .catchError((Object error, StackTrace stack) {
+        showSomethingWentWrong(error: error, stack: stack, context: 'bookmarks:remove');
+      });
     }
   }
 
@@ -108,26 +141,21 @@ class BookmarkService extends HydratedCubit<Set<String>> {
 
   void toggleBookmark(Map<String, dynamic> data) {
     final id = data['title'].toString();
+    if (id.isEmpty) return;
     final next = <String>{...state};
-    if (next.contains(id)) {
-      next.remove(id);
-      data['bookmarked'] = false;
-    } else {
-      // Newest bookmark first so the section stays sorted by date added.
-      next.remove(id);
-      final toggled = <String>{id, ...next};
+    if (!next.remove(id)) {
+      next.add(id);
       data['bookmarked'] = true;
-      emit(toggled);
-      return;
+    } else {
+      data['bookmarked'] = false;
     }
     emit(next);
   }
 
   void markBookmarked(Map<String, dynamic> data) {
     final id = data['title'].toString();
-    if (!state.contains(id)) {
-      emit(<String>{id, ...state});
-    }
+    if (id.isEmpty) return;
+    if (!state.contains(id)) emit(<String>{id, ...state});
     data['bookmarked'] = true;
   }
 
@@ -143,15 +171,17 @@ class BookmarkService extends HydratedCubit<Set<String>> {
   }
 
   @override
-  Future<void> close() {
-    _authenticationSubscription?.cancel();
-    _firestoreSubscription?.cancel();
+  Future<void> close() async {
+    await _authenticationSubscription?.cancel();
+    await _firestoreSubscription?.cancel();
     return super.close();
   }
 
   @override
   Set<String>? fromJson(Map<String, dynamic> json) {
-    return Set<String>.from((json['bookmarks'] as List<dynamic>?) ?? const []);
+    final raw = json['bookmarks'];
+    if (raw is! List) return <String>{};
+    return raw.whereType<String>().toSet();
   }
 
   @override

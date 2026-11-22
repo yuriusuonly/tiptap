@@ -1,6 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:animations/animations.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -9,6 +9,7 @@ import 'package:tiptap/app/discover/monetize.dart';
 import 'package:tiptap/app/services/bookmark.dart';
 import 'package:tiptap/app/services/premium.dart';
 import 'package:tiptap/app/shared/root.dart';
+import 'package:tiptap/app/shared/route_args.dart';
 
 class FactDetailsRoute extends GoRoute {
   FactDetailsRoute()
@@ -17,7 +18,7 @@ class FactDetailsRoute extends GoRoute {
         name: 'fact',
         path: 'fact',
         pageBuilder: (context, state) {
-          final data = state.extra as Map<String, dynamic>;
+          final data = factFromExtra(state.extra);
           return CustomTransitionPage(
             key: state.pageKey,
             transitionDuration: Duration(milliseconds: 500),
@@ -30,7 +31,9 @@ class FactDetailsRoute extends GoRoute {
                 child: child
               );
             },
-            child: FactDetailsPage(data: data)
+            child: data == null
+                ? const InvalidRouteArgumentPage()
+                : FactDetailsPage(data: data)
           );
         },
         routes: [

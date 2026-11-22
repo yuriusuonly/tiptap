@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,125 +8,146 @@ import 'package:tiptap/app/shared/toast.dart';
 class StreakService extends HydratedCubit<Map<String, dynamic>> {
   StreamSubscription? _authenticationSubscription;
   StreamSubscription? _firestoreSubscription;
+  int _syncGeneration = 0;
 
-  StreakService() : super({'count': 0, 'last_activity': null}) {
+  StreakService() : super(_emptyStreak()) {
     _authenticationSubscription = FirebaseAuth.instance.authStateChanges().listen(
       (user) {
+        _syncGeneration++;
         _firestoreSubscription?.cancel();
+        _firestoreSubscription = null;
         if (user != null) {
-          _syncToFirestore(user.uid).catchError((_) { showSomethingWentWrong(); });
+          _syncToFirestore(user.uid);
         } else {
           _reset();
         }
       },
-      onError: (_) { showSomethingWentWrong(); },
+      onError: (error, stack) {
+        showSomethingWentWrong(error: error, stack: stack, context: 'streak:auth');
+      },
     );
   }
 
+  static Map<String, dynamic> _emptyStreak() =>
+      <String, dynamic>{'count': 0, 'last_activity': null};
+
+  /// Normalizes both the legacy integer format and the current map format, and
+  /// clamps values so corrupt/remote data cannot poison the local state.
+  static Map<String, dynamic> _normalize(dynamic raw) {
+    if (raw is int) {
+      return <String, dynamic>{
+        'count': raw.clamp(0, 1 << 30),
+        'last_activity': null,
+      };
+    }
+    if (raw is Map) {
+      final map = Map<String, dynamic>.from(raw);
+      final count = map['count'];
+      final last = map['last_activity'];
+      return <String, dynamic>{
+        'count': count is int ? count.clamp(0, 1 << 30) : 0,
+        'last_activity': last is String ? last : null,
+      };
+    }
+    return _emptyStreak();
+  }
+
+  bool _same(Map<String, dynamic> a, Map<String, dynamic> b) =>
+      a['count'] == b['count'] && a['last_activity'] == b['last_activity'];
+
   Future<void> _syncToFirestore(String userID) async {
+    final generation = _syncGeneration;
     try {
       final document = FirebaseFirestore.instance.collection('users').doc(userID);
       final snapshot = await document.get();
+      if (isClosed || generation != _syncGeneration) return;
 
-      Map<String, dynamic> remoteData = {'count': 0, 'last_activity': null};
-      if (snapshot.exists) {
-        final raw = snapshot.data()?['streak'];
-        if (raw is int) {
-          remoteData = {'count': raw, 'last_activity': null};
-        } else if (raw is Map) {
-          try {
-            remoteData = Map<String, dynamic>.from(raw);
-          } catch (_) {
-            remoteData = {'count': 0, 'last_activity': null};
-          }
-        }
-      }
+      final remoteData = snapshot.exists ? _normalize(snapshot.data()?['streak']) : _emptyStreak();
+      final localData = _normalize(state);
+      final remoteCount = remoteData['count'] as int;
+      final localCount = localData['count'] as int;
 
-      int remoteCount = remoteData['count'] as int? ?? 0;
-      int localCount = state['count'] as int? ?? 0;
+      // Take the higher streak count; tie-break against a fresher local check-in.
+      final mergedData = localCount > remoteCount ||
+              (localCount == remoteCount &&
+                  (localData['last_activity'] as String?) != null &&
+                  (remoteData['last_activity'] as String?) == null)
+          ? localData
+          : remoteData;
 
-      // Merge logic: Take the state with the higher streak count
-      Map<String, dynamic> mergedData = localCount >= remoteCount ? state : remoteData;
-
-      if (!snapshot.exists || mergedData['count'] > remoteCount) {
+      if (!snapshot.exists || (mergedData['count'] as int) > remoteCount) {
         await document.set({'streak': mergedData}, SetOptions(merge: true));
       }
-      if (isClosed) return;
+      if (isClosed || generation != _syncGeneration) return;
       super.emit(mergedData);
 
       _firestoreSubscription = document.snapshots().listen((snapshot) {
-        if (isClosed) return;
-        if (snapshot.exists) {
-          final raw = snapshot.data()?['streak'];
-          Map<String, dynamic> incoming;
-          if (raw is int) {
-            incoming = {'count': raw, 'last_activity': null};
-          } else {
-            try {
-              incoming = Map<String, dynamic>.from(raw ?? {'count': 0, 'last_activity': null});
-            } catch (_) {
-              return;
-            }
-          }
-
-          if (jsonEncode(incoming) != jsonEncode(state)) {
-            super.emit(incoming);
-          }
-        }
-      }, onError: (_) { showSomethingWentWrong(); });
-    } catch (_) {
-      showSomethingWentWrong();
-      // Offline — keep local value.
+        if (isClosed || generation != _syncGeneration) return;
+        if (!snapshot.exists) return;
+        final incoming = _normalize(snapshot.data()?['streak']);
+        if (!_same(incoming, state)) super.emit(incoming);
+      }, onError: (error, stack) {
+        showSomethingWentWrong(error: error, stack: stack, context: 'streak:sync');
+      });
+    } catch (e, stack) {
+      showSomethingWentWrong(error: e, stack: stack, context: 'streak:sync');
     }
   }
 
   void _reset() {
-    if (isClosed) return;
-    emit({'count': 0, 'last_activity': null});
+    if (!isClosed) emit(_emptyStreak());
   }
 
   @override
   void emit(Map<String, dynamic> state) {
-    if (isClosed) return;
+    if (isClosed || _same(state, this.state)) return;
     super.emit(state);
     final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      FirebaseFirestore.instance
+    if (user == null) return;
+    FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
         .set({'streak': state}, SetOptions(merge: true))
-        .catchError((_) { showSomethingWentWrong(); });
-    }
+        .catchError((Object error, StackTrace stack) {
+      showSomethingWentWrong(error: error, stack: stack, context: 'streak:write');
+    });
   }
 
   void recordActivity() {
     if (isClosed) return;
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
+    // UTC keeps day boundaries stable regardless of device timezone changes.
+    final now = DateTime.now().toUtc();
+    final today = DateTime.utc(now.year, now.month, now.day);
 
-    final int count = state['count'] as int? ?? 0;
-    final String? lastActivityStr = state['last_activity'] as String?;
+    final data = _normalize(state);
+    final int count = data['count'] as int;
+    DateTime? lastActivity = DateTime.tryParse(data['last_activity'] as String? ?? '')?.toUtc();
+    // A future timestamp (clock change or tampering) restarts the streak.
+    if (lastActivity != null && lastActivity.isAfter(now)) lastActivity = null;
 
-    if (lastActivityStr == null) {
-      emit({'count': 1, 'last_activity': now.toIso8601String()});
-      return;
-    }
-
-    final DateTime? lastActivity = DateTime.tryParse(lastActivityStr);
+    int nextCount;
     if (lastActivity == null) {
-      emit({'count': 1, 'last_activity': now.toIso8601String()});
-      return;
+      nextCount = 1;
+    } else {
+      final lastDay = DateTime.utc(
+        lastActivity.year,
+        lastActivity.month,
+        lastActivity.day,
+      );
+      final difference = today.difference(lastDay).inDays;
+      if (difference == 1) {
+        nextCount = count + 1;
+      } else if (difference > 1 || difference < 0) {
+        nextCount = 1;
+      } else {
+        nextCount = count;
+      }
     }
-    final lastCheckIn = DateTime(lastActivity.year, lastActivity.month, lastActivity.day);
-    final difference = today.difference(lastCheckIn).inDays;
 
-    if (difference == 1) {
-      emit({'count': count + 1, 'last_activity': now.toIso8601String()});
-    } else if (difference > 1) {
-      emit({'count': 1, 'last_activity': now.toIso8601String()});
-    } else if (difference == 0) {
-      emit({'count': count, 'last_activity': now.toIso8601String()});
-    }
+    emit(<String, dynamic>{
+      'count': nextCount.clamp(0, 1 << 30),
+      'last_activity': now.toIso8601String(),
+    });
   }
 
   @override
@@ -139,11 +159,11 @@ class StreakService extends HydratedCubit<Map<String, dynamic>> {
 
   @override
   Map<String, dynamic>? fromJson(Map<String, dynamic> json) {
-    return json['streak'];
+    return _normalize(json['streak']);
   }
 
   @override
   Map<String, dynamic>? toJson(Map<String, dynamic> state) {
-    return {'streak': state};
+    return {'streak': _normalize(state)};
   }
 }

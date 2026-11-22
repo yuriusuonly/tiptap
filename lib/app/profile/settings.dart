@@ -1,5 +1,5 @@
 import 'package:animations/animations.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -87,17 +87,20 @@ class _SettingsPageState extends State<SettingsPage> {
                   : CircleAvatar(
                       backgroundImage: photo.state != null
                         ? MemoryImage(photo.state!)
-                        : NetworkImage(authentication.state!.photoURL!),
+                        : (authentication.state?.photoURL != null
+                            ? NetworkImage(authentication.state!.photoURL!)
+                            : const AssetImage('images/logo_1024x1024.png'))
+                              as ImageProvider,
                     ),
                 title: Text(
                   authentication.state == null
                     ? 'Sign In with Google'
-                    : authentication.state!.displayName!
+                    : (authentication.state!.displayName ?? 'TipTap user')
                 ),
                 subtitle: Text(
                   authentication.state == null
                     ? 'Sync your account across devices'
-                    : authentication.state!.email!
+                    : (authentication.state!.email ?? '')
                 ),
                 trailing: authentication.state != null
                   ? SvgPicture.asset(
@@ -197,8 +200,8 @@ class _SettingsPageState extends State<SettingsPage> {
             ? [
               TextButton(
                 onPressed: () async {
-                  await authentication.deleteUser();
-                  if (context.mounted) context.pop();
+                  final deleted = await authentication.deleteUser();
+                  if (deleted && context.mounted) context.pop();
                 },
                 child: Text(
                   'Continue',
