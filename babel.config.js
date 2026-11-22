@@ -9,5 +9,7 @@ export default function (api) {
       ["babel-preset-expo", {jsxImportSource: "nativewind"}],
       "nativewind/babel",
     ],
+    // Reanimated's plugin must be listed last.
+    plugins: ["react-native-reanimated/plugin"],
   };
 }

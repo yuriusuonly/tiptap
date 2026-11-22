@@ -105,8 +105,14 @@ See [CONTRIBUTING.md](CONTRIBUTING.md#routing-expo-router) and [DESIGN.md](DESIG
 | `EXPO_PUBLIC_LANDING_PAGE_SCHEME` | Landing page (web) URL scheme, used in `LANDING_PAGE_URL` |
 | `EXPO_PUBLIC_LANDING_PAGE_HOST` | Landing page host (development: `localhost`) |
 | `EXPO_PUBLIC_LANDING_PAGE_PORT` | Landing page port — also the dev-server port Metro serves on (`metro.config.js`) |
+| `EXPO_PUBLIC_API_ORIGIN` | Public origin of the deployed API-route server (required for native production builds; empty in local development) |
+| `EXPO_PUBLIC_ADMOB_ANDROID_APP_ID` | AdMob Android app ID, injected through the config plugin |
+| `EXPO_PUBLIC_ADMOB_REWARDED_AD_UNIT_ID` | Rewarded ad unit ID used by the monetization gate |
+| `EXPO_PUBLIC_ADMOB_TEST_DEVICE_IDS` | Optional comma-separated hashed test device IDs |
 
-- **`app.config.js`** — app name (from `EXPO_PUBLIC_APP_NAME`), slug, scheme, Android package `dev.yuriusu.tiptap`, web `output: "static"`, and plugins (`expo-build-properties` for the Android `x86_64` build arch, `expo-router`, `expo-status-bar`). Configure native behavior here and via config plugins — do not edit generated `ios/`/`android/` directories.
+Server-only variables (never exposed to the client): `GOOGLE_SERVICE_ACCOUNT_JSON`, `PLAY_PACKAGE_NAME`, `PREMIUM_PRODUCT_ID`, `ADMOB_S2S_SECRET`. See [Server-authoritative premium & gems](#server-authoritative-premium--gems).
+
+- **`app.config.js`** — app name (from `EXPO_PUBLIC_APP_NAME`), slug, scheme, Android package `dev.yuriusu.tiptap`, web `output: "server"` (required by Expo Router API routes on SDK 57), and plugins (`expo-build-properties` for Android `x86_64`, `expo-router`, `expo-status-bar`, `react-native-google-mobile-ads`, `expo-iap`). Configure native behavior here and via config plugins — do not edit generated `ios/`/`android/` directories.
 - **`tailwind.config.js`**, **`metro.config.js`**, **`babel.config.js`**, **`.svgrrc.json`** — workspace-root tooling config. Keep config files out of `src/`.
 - **`eas.json`** — EAS `production` build profile (AAB, auto-increment) plus `submit.production`, used by `npm run android:release`.
 
@@ -135,7 +141,7 @@ Adding a library with native code requires a development build (`npx expo run:an
 
 ## Firebase setup (planned)
 
-**Scope:** Firebase is used **only on Android** for Google Authentication (no email/password), Firestore (centralized AI-generated content + per-user data), and FCM push notifications. The **web landing stays as-is** (no web Firebase SDK/auth) and is deployed via **Firebase Hosting** only. Expo is used only for automated EAS build and publishing releases.
+**Scope:** Firebase is used **only on Android** for Google Authentication (no email/password), Firestore (centralized AI-generated content + per-user data), and FCM push notifications. The **web landing stays as-is** (no web Firebase SDK/auth). EAS is used for builds; **Expo Hosting** serves the exported web app together with the Expo Router API routes that implement the server-authoritative premium/gems service.
 
 ### Project
 - Firebase project: `yuriusu-tiptap`
@@ -156,14 +162,36 @@ Adding a library with native code requires a development build (`npx expo run:an
 ```bash
 npm install                         # installs dev deps incl. firebase-tools
 npm run firebase:initialize         # initialize Firebase in this project (Hosting/Firestore rules as needed)
-npm run web:build                   # build static web export to web/
-npm run web:serve                   # serve the web/ export locally with Expo
-npm run firebase:deploy-hosting     # build + rename 404 for Firebase + deploy hosting
+npm run web:build                   # export web client + API-route server to dist/
+npm run web:serve                   # serve the export locally (including API routes)
+npm run server:deploy               # export + deploy to Expo Hosting
 ```
 
 After adding Firebase native deps/plugins or `google-services.json`, rebuild the Android dev client (`npm run android`) or create a new EAS build.
 
 > **Version constraint:** `@react-native-firebase/*` is pinned to `24.0.0` (Firebase BOM 34.10.0). Newer RNF (≥ 24.1.0: BOM ≥ 34.14.0) ships `firebase-auth` artifacts compiled with Kotlin ≥ 2.3 metadata, and RNF 27 (BOM 35.0.2) uses Kotlin 2.4 metadata — unreadable by the Kotlin 2.1.20 compiler that React Native 0.86 ships (`export-build-properties` `android.kotlinVersion` cannot bump the compiler; Expo's pika compiler plugin has no Kotlin 2.4 build). Revisit when upgrading React Native.
+
+## Server-authoritative premium & gems
+
+Entitlements are **not** trusted from the device. The app reads and writes them only through Expo Router API routes under `src/app/api/**`:
+
+| Route | Purpose |
+| --- | --- |
+| `GET /api/state` | Authoritative `premium`, `gems`, `bookmarks`, `streak` for the authenticated user |
+| `POST /api/premium/verify` | Verifies a Play purchase token with the Google Play Developer API, then writes `premium` server-side |
+| `POST /api/gems/reward` | AdMob server-to-server callback; idempotent per transaction, atomically increments gems |
+| `POST /api/gems/spend` | Checks the balance, decrements a gem and records the bookmark in one commit |
+
+Every authenticated route verifies the caller's Firebase ID token server-side. The client never sends the desired `premium` or `gems` value. Server helpers live in `src/server/` and are imported only by `+api.js` files, so their secrets are stripped from the client bundle.
+
+### Setup
+
+1. Create a Google Cloud service account with **Firebase Firestore** and **Google Play Android Developer** access. Grant it `Firestore Data Editor` on the Firebase project and `View financial data`/`View subscriptions` in Play Console (with the Play Developer API enabled and the service account linked in Users & permissions).
+2. Put the full service-account JSON in `GOOGLE_SERVICE_ACCOUNT_JSON` (server-only). Set `PLAY_PACKAGE_NAME` and `PREMIUM_PRODUCT_ID` if they differ from the defaults.
+3. Set `ADMOB_S2S_SECRET` and configure the AdMob rewarded ad's **server-side verification callback** URL to `https://<your-api-origin>/api/gems/reward`, with reward amount `1`. The callback must carry the user's Firebase UID as `user_id` (set the rewarded request user ID to the UID).
+4. Deploy the server with `npx expo export -p web` followed by `eas deploy` (or `npx expo serve` locally), then set `EXPO_PUBLIC_API_ORIGIN` to the deployed origin for native builds. In local development, relative `/api/...` requests work automatically.
+
+Test mode (`EXPO_PUBLIC_APP_MODE=test`) serves local mocks for both the API client and Firestore services, including a simulated reward callback — no server or credentials required.
 
 ## Milestones
 
@@ -177,14 +205,16 @@ After adding Firebase native deps/plugins or `google-services.json`, rebuild the
 - [x] Firebase project wiring (project `yuriusu-tiptap`, Android `dev.yuriusu.tiptap`, `google-services.json` gitignored)
 - [x] SSR-safe env/config foundation (no import-time throw) for Firebase keys in `.env` / `configuration.js`
 - [x] Android Authentication — Google OAuth only (RN Firebase Auth + Google Sign-In; no email/password, no web auth)
-- [ ] Firestore — centralized AI-generated `content` feed (read/paginated) pending; per-user `users/{uid}` data synced
+- [x] Firestore — centralized AI-generated `content` feed (random token + wrap-around, paginated) and per-user `users/{uid}` data synced
 - [x] Preferences sync — stored locally (AsyncStorage) and in Firestore per user when signed in
 - [ ] Push notifications (FCM) — new-content heads-up on Android; FCM token registered per user/device
-- [ ] Firebase Hosting — deploy the static web landing export (web stays as-is, no Firebase SDK/auth in app)
+- [x] Server deployment — Expo Hosting serves the exported web app and the API routes (Firebase Hosting cannot run Expo Router API routes)
 - [ ] Cloud Function / admin sender — trigger FCM on new `content` (planned; separate from client wiring)
 - [ ] GitHub Actions workflows — auto-added by Firebase init; removed for now, revisit later
 - [ ] ESLint — not configured (`npx expo lint` is currently a no-op)
-- [ ] Real content feed — Home is a static placeholder; no data layer yet
+- [x] Real content feed — vertical paged Discover feed with animated fact cards, on-demand Firestore loading and pull-to-refresh
+- [x] Fact details, bookmarks, streak, gems and premium — mirrored from the Flutter app with Reanimated shared-axis/fade transitions
+- [x] Server-to-server premium/gems via Expo Router API routes (Play Developer API verification + AdMob S2S reward callback)
 - [ ] iOS production profile in `eas.json` — not configured
 - [ ] Tests — none exist yet
 

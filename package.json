@@ -10,11 +10,11 @@
     "android:install": "adb install -r android/build/development.apk",
     "android:release": "eas build --platform android --profile production --auto-submit",
     "eas:download-credentials": "eas credentials:configure-build -p android -e development",
-    "web:build": "expo export --platform web --output-dir web",
-    "web:serve": "expo serve web",
+    "web:build": "expo export --platform web",
+    "web:serve": "expo serve",
+    "server:deploy": "npm run web:build && eas deploy",
     "firebase:initialize": "firebase init",
-    "firebase:deploy-rules": "firebase deploy --only firestore:rules",
-    "firebase:deploy-hosting": "npm run web:build && mv web/+not-found.html web/404.html && firebase deploy --only hosting"
+    "firebase:deploy-rules": "firebase deploy --only firestore:rules"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
@@ -27,6 +27,7 @@
     "expo-build-properties": "~57.0.23",
     "expo-constants": "~57.0.23",
     "expo-dev-client": "~57.0.21",
+    "expo-iap": "^6.5.1",
     "expo-linking": "~57.0.13",
     "expo-router": "~57.0.30",
     "expo-status-bar": "~57.0.1",
@@ -34,6 +35,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.86.0",
+    "react-native-google-mobile-ads": "^17.4.0",
     "react-native-reanimated": "4.5.1",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "~4.26.0",

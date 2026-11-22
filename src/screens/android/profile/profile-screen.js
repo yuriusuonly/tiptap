@@ -15,6 +15,8 @@ import {openBottomSheet} from "../../../components/bottom-sheet";
 import {Icon} from "../../../components/icon";
 import {APP_NAME} from "../../../constants/configuration";
 import {useAuthStore} from "../../../store/auth-store";
+import {useEntitlementStore} from "../../../store/entitlement-store";
+import {openSubscription} from "../../../store/fact-store";
 import {useResolvedTheme} from "../../../store/theme-store";
 import {AccountSection} from "./account-section";
 import {MoreSection} from "./more-section";
@@ -24,6 +26,7 @@ export function ProfileScreen({onClose} = {}) {
   const [photoFailed, setPhotoFailed] = useState(false);
   const insets = useSafeAreaInsets();
   const {status, user} = useAuthStore();
+  const {premium, gems, bookmarks, streak} = useEntitlementStore();
   const {palette} = useResolvedTheme();
 
   useEffect(() => {
@@ -110,6 +113,36 @@ export function ProfileScreen({onClose} = {}) {
           </View>
         </View>
       </View>
+
+      <View className="mx-4 mt-6 flex-row items-center justify-around rounded-[20px] border border-line bg-surface py-4 mobile:mx-5 tablet:mx-8 desktop:mx-12">
+        {[
+          {value: gems, label: "Gems"},
+          {value: bookmarks.length, label: "Saved"},
+          {value: streak?.count ?? 0, label: "Streak"},
+        ].map((stat) => (
+          <View key={stat.label} className="items-center">
+            <Text className="text-[22px] font-bold leading-7 text-accent">{stat.value}</Text>
+            <Text className="mt-1 text-[12px] text-muted">{stat.label}</Text>
+          </View>
+        ))}
+      </View>
+
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={premium ? "Premium active" : "Upgrade to Premium"}
+        onPress={openSubscription}
+        className="mx-4 mt-4 flex-row items-center justify-between rounded-[20px] border border-line bg-surface p-4 mobile:mx-5 tablet:mx-8 desktop:mx-12"
+      >
+        <View>
+          <Text className="text-[16px] font-semibold text-ink">
+            {premium ? "Premium active" : "Upgrade to Premium"}
+          </Text>
+          <Text className="mt-0.5 text-[13px] text-muted">
+            {premium ? "Unlimited saves and no ads" : "Unlock unlimited saves"}
+          </Text>
+        </View>
+        <Text className="text-[15px] text-accent">{premium ? "✓" : "→"}</Text>
+      </Pressable>
     </View>
   );
 }

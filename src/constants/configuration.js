@@ -27,6 +27,10 @@ const firebaseMessagingSenderId =
   process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID;
 const firebaseAppId = process.env.EXPO_PUBLIC_FIREBASE_APP_ID;
 const googleWebClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+const apiOrigin = process.env.EXPO_PUBLIC_API_ORIGIN;
+const admobAndroidAppId = process.env.EXPO_PUBLIC_ADMOB_ANDROID_APP_ID;
+const admobRewardedAdUnitId = process.env.EXPO_PUBLIC_ADMOB_REWARDED_AD_UNIT_ID;
+const admobTestDeviceIds = process.env.EXPO_PUBLIC_ADMOB_TEST_DEVICE_IDS;
 
 /**
  * Read a required EXPO_PUBLIC_ value at runtime. Throws only when called —
@@ -97,6 +101,36 @@ export const FIREBASE_CONFIG = {
 
 /** Google OAuth web client ID (type 3) for Android Google Sign-In. */
 export const GOOGLE_WEB_CLIENT_ID = googleWebClientId;
+
+/**
+ * Origin of the deployed Expo Router API-route server. Empty in development,
+ * where relative `/api/...` requests resolve against the Expo dev server.
+ * Native production builds require this to be set (see README).
+ */
+export const API_ORIGIN = apiOrigin ?? "";
+
+/** Google Play subscription SKU verified by the server API route. */
+export const PREMIUM_PRODUCT_ID = "tiptap_premium_subscription";
+
+/** AdMob Android app ID (configured through the config plugin) and ad unit ID. */
+export const ADMOB_ANDROID_APP_ID = admobAndroidAppId ?? "";
+export const ADMOB_REWARDED_AD_UNIT_ID = admobRewardedAdUnitId ?? "";
+
+/** Optional hashed AdMob test device IDs (comma separated in `.env`). */
+export const ADMOB_TEST_DEVICE_IDS = (admobTestDeviceIds ?? "")
+  .split(",")
+  .map((id) => id.trim())
+  .filter(Boolean);
+
+/**
+ * Build a URL for a server API route. Relative URLs are intentional in
+ * development/native (Expo Router maps them to the dev server origin).
+ * @param {string} path - Route path beginning with `/`.
+ * @returns {string} Absolute URL in production, relative URL otherwise.
+ */
+export function apiUrl(path) {
+  return API_ORIGIN ? `${API_ORIGIN.replace(/\/$/, "")}${path}` : path;
+}
 
 /**
  * Validate and return the Firebase configuration. Call at runtime (e.g.

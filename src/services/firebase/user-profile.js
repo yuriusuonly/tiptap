@@ -11,6 +11,7 @@
  * @module src/services/firebase/user-profile
  */
 import {isTestMode} from "../../constants/configuration";
+import {deleteBookmarks} from "./bookmarks";
 
 // eslint-disable-next-line no-undef
 function mockProfile() {
@@ -59,7 +60,10 @@ export async function upsertUserProfile(user) {
  * @param {string} uid
  */
 export async function deleteUserData(uid) {
-  if (isTestMode) return mockProfile().deleteUserData(uid);
+  if (isTestMode) {
+    await mockProfile().deleteUserData(uid);
+    return deleteBookmarks(uid);
+  }
   const {collection, deleteDoc, doc, getDocs} = firestoreSdk();
   const database = db();
   const prefsSnapshot = await getDocs(
@@ -68,5 +72,8 @@ export async function deleteUserData(uid) {
   await Promise.all(
     prefsSnapshot.docs.map((prefsDoc) => deleteDoc(prefsDoc.ref))
   );
+  // Bookmarks may be numerous; delete them in bounded batches before the user
+  // document (Firestore has no server-side cascade delete).
+  await deleteBookmarks(uid);
   await deleteDoc(doc(database, "users", uid));
 }

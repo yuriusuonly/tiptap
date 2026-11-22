@@ -26,6 +26,27 @@ if (!env.EXPO_PUBLIC_APP_NAME || !env.EXPO_PUBLIC_EAS_PROJECT_ID) {
   );
 }
 
+// Origin used by native production builds for relative `fetch('/api/...')`.
+// `process.env` wins when Expo has already inflated `.env`, with a fallback for
+// direct config evaluation (EAS, scripts). Undefined is a no-op for the plugin.
+const apiOrigin =
+  process.env.EXPO_PUBLIC_API_ORIGIN || env.EXPO_PUBLIC_API_ORIGIN || undefined;
+const admobAndroidAppId =
+  process.env.EXPO_PUBLIC_ADMOB_ANDROID_APP_ID ||
+  env.EXPO_PUBLIC_ADMOB_ANDROID_APP_ID ||
+  undefined;
+
+/**
+ * Expo Router API routes (`src/app/api/**+api.js`) require `web.output:
+ * "server"` on SDK 57 — the CLI skips API-route exports in `static` mode.
+ * `origin` lets native production builds resolve relative `/api/...` fetches
+ * to the deployed server.
+ */
+const routerOptions = {
+  sitemap: false,
+  ...(apiOrigin ? { origin: apiOrigin } : {}),
+};
+
 export default {
   name: env.EXPO_PUBLIC_APP_NAME,
   slug: "tiptap",
@@ -42,7 +63,8 @@ export default {
   },
   web: {
     bundler: "metro",
-    output: "static",
+    // Required for Expo Router API routes on SDK 57.
+    output: "server",
     favicon: "./src/assets/images/icon.png",
   },
   plugins: [
@@ -54,17 +76,15 @@ export default {
         },
       },
     ],
-    [
-      "expo-router",
-      {
-        sitemap: false,
-      },
-    ],
+    ["expo-router", routerOptions],
     "expo-status-bar",
     "@react-native-firebase/app",
     "@react-native-firebase/auth",
     "@react-native-firebase/messaging",
     "@react-native-google-signin/google-signin",
+    // Missing androidAppId during static rendering only produces a warning.
+    ["react-native-google-mobile-ads", { androidAppId: admobAndroidAppId }],
+    "expo-iap",
   ],
   extra: {
     eas: {

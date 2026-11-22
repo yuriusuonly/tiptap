@@ -39,12 +39,13 @@ npm run android:release               # remote production AAB + submit (EAS)
 
 - `src/app/` — **file-based routing only** (six root files: `index.js`, `index.android.js`, `_layout.js`, `_layout.android.js`, `+html.js`, `+not-found.js`). Platform screens live **outside** `src/app/` under `src/screens/web/` and `src/screens/android/` so they are not routes.
 - Cross-platform modules live at the `src/` root: `src/components/`, `src/constants/`, `src/hooks/`, `src/store/`, `src/stylesheets/`, `src/assets/`.
-- `src/services/` — reserved for future integrations (Firebase/API/storage adapters). Keep it free of UI imports.
+- `src/services/` — Firebase/API/ads/IAP adapters. Keep it free of UI imports.
+- `src/app/api/**` — **Expo Router API routes** (`+api.js`) are the one exception to "no feature files under `src/app/`". They implement the server-authoritative premium/gems service. `src/server/` holds their helpers (Firestore REST, Google/Play auth, HTTP utilities) and must be imported ONLY from `+api.js` files so secrets are stripped from the client bundle.
 - Dependency direction: `app routes -> src/screens (web/android) -> cross-platform modules`. Cross-platform code must never import from `src/app/` or `src/screens/`. See README.md (Project structure) and CONTRIBUTING.md (Architecture).
 
 ## Routing (Expo Router)
 
-- Routes live in **`src/app/`** (six files, see Architecture). Never create a bare `*.android.js` route without a plain `.js` fallback sibling — it throws (`does not have a fallback sibling`).
+- Routes live in **`src/app/`** (root route files plus `api/**` API routes). Never create a bare `*.android.js` route without a plain `.js` fallback sibling — it throws (`does not have a fallback sibling`). API route files may not use platform extensions.
 - Android Home/Profile tabs are internal state in the Android layout (`index` via `Slot`, Profile via direct import), not file-based routes. Web `/profile` has no route and renders `+not-found.js` with a 404 status.
 - Import navigation APIs (`Link`, `router`, `useLocalSearchParams`, `Redirect`) from `expo-router`. See CONTRIBUTING.md (Routing).
 

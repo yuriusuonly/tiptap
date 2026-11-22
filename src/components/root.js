@@ -10,8 +10,10 @@ import {colorScheme} from "nativewind";
 import {useEffect} from "react";
 import {Platform} from "react-native";
 import {configureGoogleSignIn, subscribeAuthState} from "../services/firebase/google-auth";
+import {configureAds} from "../services/ads/rewarded-ad";
 import {APP_NAME} from "../constants/configuration";
 import {useAuthStore} from "../store/auth-store";
+import {useEntitlementStore} from "../store/entitlement-store";
 import {useOnboardingStore} from "../store/onboarding-store";
 import {startPreferenceSync, syncOnSignIn, usePreferencesSyncStore} from "../store/preferences-sync-store";
 import {useResolvedTheme, useThemeStore} from "../store/theme-store";
@@ -36,9 +38,12 @@ export function Root({children}) {
     // services (this effect returns early), keeping the landing static.
     if (Platform.OS !== "android") return;
     configureGoogleSignIn();
+    void configureAds();
     const stopSyncWatching = startPreferenceSync();
     const unsubscribe = subscribeAuthState((user) => {
       useAuthStore.getState().setAuthUser(user);
+      // Entitlements are always refreshed from the server on auth changes.
+      void useEntitlementStore.getState().sync(user?.uid);
       if (user) {
         void syncOnSignIn(user);
       } else {

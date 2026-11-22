@@ -1,20 +1,28 @@
 /**
- * Android Discover page: full-cover background with an app bar/title and
- * AI-generated content (title + paragraphs). Shows icon actions (Profile,
- * Bookmark, Share) in a bottom-right vertical layout.
+ * Android Discover page: a vertical, paged feed of fact summaries with
+ * Flutter-style fade entrances, pull-to-refresh and on-demand loading near the
+ * end of the list. Tapping a fact records a streak activity and opens the
+ * animated detail overlay.
  * @module src/screens/android/discover/discover-screen
  */
-import {useEffect, useState} from "react";
-import {Image, Pressable, ScrollView, Text, View} from "react-native";
-import {SafeAreaView, useSafeAreaInsets} from "react-native-safe-area-context";
+import {useCallback, useEffect, useState} from "react";
+import {FlatList, Image, Pressable, RefreshControl, Share, Text, View} from "react-native";
+import {SafeAreaView} from "react-native-safe-area-context";
+import Animated from "react-native-reanimated";
 import Svg, {Defs, LinearGradient, Rect, Stop} from "react-native-svg";
 import BookmarkIcon from "../../../assets/icons/bookmark.svg";
 import LogoIcon from "../../../assets/icons/icon.svg";
 import ShareIcon from "../../../assets/icons/share.svg";
+import {fadeInDown, fadeInUp} from "../../../components/animations";
+import {CircularProgress} from "../../../components/circular-progress";
 import {Icon} from "../../../components/icon";
 import {APP_NAME} from "../../../constants/configuration";
 import {openProfile} from "../../../store/android-overlay-store";
 import {useAuthStore} from "../../../store/auth-store";
+import {useContentStore} from "../../../store/content-store";
+import {useEntitlementStore} from "../../../store/entitlement-store";
+import {openFact} from "../../../store/fact-store";
+import {showToast} from "../../../store/toast-store";
 
 /** Full-cover background graphic for the Discover page. */
 function DiscoverBackground() {
@@ -58,80 +66,130 @@ function ActionButton({icon, label, onPress}) {
   );
 }
 
+function FactCard({fact, onOpen}) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`Open fact: ${fact.title}`}
+      onPress={onOpen}
+      className="h-full w-full items-center justify-center px-6"
+    >
+      <Animated.View entering={fadeInUp()} className="max-w-[720px] items-center">
+        <Text className="mb-6 text-center text-[24px] font-bold leading-[32px] text-white mobile:text-[28px] mobile:leading-[36px] tablet:text-[34px] tablet:leading-[44px]">
+          {fact.title}
+        </Text>
+        <Text className="text-center text-[16px] leading-7 text-white/85 mobile:text-[18px] mobile:leading-8">
+          {fact.summary}
+        </Text>
+      </Animated.View>
+    </Pressable>
+  );
+}
+
 export function DiscoverScreen() {
-  const insets = useSafeAreaInsets();
-  const {status, user} = useAuthStore();
+  const {user} = useAuthStore();
+  const {facts, loading, refreshing, error, loadMore, refresh} = useContentStore();
+  const {bookmarks, recordActivity} = useEntitlementStore();
   const [photoFailed, setPhotoFailed] = useState(false);
 
   useEffect(() => {
     setPhotoFailed(false);
   }, [user?.uid]);
 
-  const showUserPhoto = status === "signedIn" && !!user?.photoURL && !photoFailed;
+  useEffect(() => {
+    loadMore(bookmarks);
+    // Initial load only; later loads are driven by scrolling and pull-to-refresh.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const onEndReached = useCallback(() => {
+    loadMore(bookmarks);
+  }, [bookmarks, loadMore]);
+
+  const onRefresh = useCallback(() => {
+    refresh(bookmarks);
+  }, [bookmarks, refresh]);
+
+  const openCurrentFact = useCallback(
+    (fact) => {
+      recordActivity(user?.uid);
+      openFact(fact);
+    },
+    [recordActivity, user?.uid]
+  );
+
+  const share = async () => {
+    try {
+      await Share.share({message: `${APP_NAME} — tap. learn. impress.`});
+    } catch {
+      showToast("Something went wrong");
+    }
+  };
+
+  const showUserPhoto = !!user?.photoURL && !photoFailed;
 
   return (
     <View className="flex-1 bg-[#0b1020]">
       <DiscoverBackground />
       <SafeAreaView edges={["top"]} className="flex-1">
-        {/* App bar + title (AI-generated content title) */}
-        <View
-          accessibilityRole="header"
-          className="border-b border-white/10 px-4 pb-3 pt-2 mobile:px-5 tablet:px-8 desktop:px-12"
-        >
-          <Text className="text-[22px] font-bold leading-[28px] text-white mobile:text-[26px] mobile:leading-[32px] tablet:text-[30px] tablet:leading-[38px]">
-            Ideas That Find You at the Right Moment
-          </Text>
+        <View className="border-b border-white/10 px-4 pb-3 pt-2">
+          <Animated.Text entering={fadeInDown()} className="text-[20px] font-bold text-white mobile:text-[24px]">
+            {APP_NAME}
+          </Animated.Text>
         </View>
 
-        {/* Content text in paragraph(s) */}
-        <ScrollView
-          className="flex-1"
-          contentContainerClassName="px-4 pb-28 pt-4 mobile:px-5 tablet:px-8 desktop:px-12"
-          showsVerticalScrollIndicator={false}
-        >
-          <Text className="text-[15px] leading-7 text-white/85 mobile:text-[16px] mobile:leading-7 tablet:text-[18px] tablet:leading-8">
-            Great reading doesn’t always start with a search. Sometimes the most useful ideas
-            surface when your interests, timing, and curiosity line up—turning a quick glance
-            into something worth keeping.
-          </Text>
-          <Text className="mt-4 text-[15px] leading-7 text-white/85 mobile:text-[16px] mobile:leading-7 tablet:text-[18px] tablet:leading-8">
-            This space will bring together AI-generated highlights shaped around what matters to
-            you: clear titles, focused summaries, and content that’s easy to explore at your own
-            pace. As your feed learns, each page becomes a starting point for deeper reading.
-          </Text>
-          <Text className="mt-4 text-[15px] leading-7 text-white/85 mobile:text-[16px] mobile:leading-7 tablet:text-[18px] tablet:leading-8">
-            For now, consider this a preview of what’s ahead—a calm place where new perspectives
-            can arrive, one story at a time.
-          </Text>
-        </ScrollView>
+        {facts.length === 0 && loading ? (
+          <View className="flex-1 items-center justify-center">
+            <CircularProgress />
+          </View>
+        ) : (
+          <FlatList
+            data={facts}
+            keyExtractor={(fact) => fact.slug}
+            pagingEnabled
+            vertical
+            showsVerticalScrollIndicator={false}
+            onEndReached={onEndReached}
+            onEndReachedThreshold={0.4}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FFFFFF" />
+            }
+            renderItem={({item}) => (
+              <View className="h-full w-full">
+                <FactCard fact={item} onOpen={() => openCurrentFact(item)} />
+              </View>
+            )}
+            ListFooterComponent={
+              loading && facts.length > 0 ? (
+                <View className="h-24 items-center justify-center">
+                  <CircularProgress />
+                </View>
+              ) : null
+            }
+          />
+        )}
+        {error ? <Text className="px-4 py-2 text-center text-[13px] text-white/60">{error}</Text> : null}
       </SafeAreaView>
 
-      {/* Action buttons (bottom-right) */}
-      <View
-        pointerEvents="box-none"
-        style={{bottom: insets.bottom + 16, right: 16}}
-        className="absolute items-end gap-3"
-      >
+      <View pointerEvents="box-none" className="absolute bottom-6 right-4 items-end gap-3">
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Profile"
+          accessibilityLabel="Profile and bookmarks"
           onPress={openProfile}
-          hitSlop={8}
           className="h-14 w-14 items-center justify-center overflow-hidden rounded-full border border-white/20 bg-white/10"
         >
           {showUserPhoto ? (
             <Image
               source={{uri: user.photoURL}}
               onError={() => setPhotoFailed(true)}
-              accessibilityLabel={`${user.displayName ?? "Account"} profile photo`}
               className="h-14 w-14 rounded-full"
             />
           ) : (
             <Icon as={LogoIcon} size={32} accessibilityLabel={`${APP_NAME} logo`} />
           )}
         </Pressable>
-        <ActionButton icon={BookmarkIcon} label="Bookmark" onPress={() => {}} />
-        <ActionButton icon={ShareIcon} label="Share" onPress={() => {}} />
+        <ActionButton icon={BookmarkIcon} label="Bookmarks" onPress={openProfile} />
+        <ActionButton icon={ShareIcon} label="Share" onPress={share} />
       </View>
     </View>
   );
